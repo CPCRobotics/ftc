@@ -1,15 +1,16 @@
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 /**
- * Created by Eagles FTC on 9/30/2016.
+ * Created by ben4toole on 10/20/2016.
  */
-@TeleOp(name="EagleBot: DriverControlled")
-public class DriverControlledTankOpmode extends OpMode
+@Autonomous(name="EagleBot: Autonomous")
+public class BasicAtonomous extends OpMode
 {
+    AutonomousMethodLibrary AL = new AutonomousMethodLibrary();
     //drivemoter declaration
     DcMotor driveLeft   = null;
     DcMotor  driveRight  = null;
@@ -35,29 +36,24 @@ public class DriverControlledTankOpmode extends OpMode
         driveLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         driveRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+
     @Override
     public void start()
     {
-
+        AL.DriveForward(5000,1,driveRight,driveLeft);
+        try
+        {
+            AL.TurnRight(2000,1,driveRight,driveLeft);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+        AL.DriveForward(5000,1,driveRight,driveLeft);
     }
+
     @Override
     public void loop()
     {
-        double left;
-        double right;
-        left = -gamepad1.left_stick_y;
-        right = -gamepad1.right_stick_y;
-        driveLeft.setPower(left);
-        driveRight.setPower(right);
-
-        if(gamepad2.dpad_up)
-        {
-            driveRight.setPower(1);
-            driveLeft.setPower(1);
-        }
-        if (gamepad2.right_bumper)
-        {
-            servo.setPosition(1);
-        }
     }
 }
