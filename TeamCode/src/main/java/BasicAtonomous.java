@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Autonomous(name="EagleBot: Autonomous")
 public class BasicAtonomous extends OpMode
 {
-    AutonomousMethodLibrary AL = new AutonomousMethodLibrary();
+    EagleBotMethodLibrary AL = new EagleBotMethodLibrary();
     //drivemoter declaration
     DcMotor driveLeft   = null;
     DcMotor  driveRight  = null;

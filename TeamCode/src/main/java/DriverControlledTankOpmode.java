@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name="EagleBot: DriverControlled")
 public class DriverControlledTankOpmode extends OpMode
 {
-    //drivemoter declaration
+    //drive motor declaration
     DcMotor driveLeft   = null;
     DcMotor  driveRight  = null;
     //servo declaration

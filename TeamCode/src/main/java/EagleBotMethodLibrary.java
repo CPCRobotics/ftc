@@ -1,10 +1,12 @@
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.Servo;
 
 /**
  * Created by ben4toole on 10/20/2016.
  */
 
-public class AutonomousMethodLibrary
+public class EagleBotMethodLibrary
 {
     public void DriveForward(int time,int speed, DcMotor DR, DcMotor DL)
     {
@@ -45,5 +47,18 @@ public class AutonomousMethodLibrary
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+    public void ShootAndReload(DcMotor shooter, Servo loader, Servo lock)
+    {
+        //unlock to shoot
+        lock.setPosition(0.1);
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter.setTargetPosition(-8);//unknown amount of encoder ticks to lock
+        shooter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //lock
+        lock.setPosition(0.8);
+        //load
+        loader.setPosition(0.8);
+        loader.setPosition(0.1);
     }
 }
