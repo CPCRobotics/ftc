@@ -24,7 +24,7 @@ public class BasicAtonomous extends OpMode
         driveLeft   = hwMap.dcMotor.get("driveLeft");
         driveRight  = hwMap.dcMotor.get("driveRight");
         // initalize servo
-        servo = hwMap.servo.get("servoExtendRight")
+        servo = hwMap.servo.get("servoExtendRight");
         //correct for motors being on oposite sides
         driveLeft.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         driveRight.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors

@@ -10,54 +10,85 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name="EagleBot: DriverControlled")
 public class DriverControlledTankOpmode extends OpMode
 {
-    //drive motor declaration
+    boolean locked =false;
     DcMotor driveLeft   = null;
-    DcMotor  driveRight  = null;
-    //servo declaration
-    Servo servo = null;
+    DcMotor driveRight  = null;
+    DcMotor arm = null;
+    DcMotor sweeper = null;
+
+    Servo loader  = null;
+    Servo locker  = null;
+    double servovalue = 0.0;
+
     @Override
     public void init()
     {
         HardwareMap hwMap = super.hardwareMap;
-        //initalize drive motors
+
         driveLeft   = hwMap.dcMotor.get("driveLeft");
         driveRight  = hwMap.dcMotor.get("driveRight");
-        // initalize servo
-        servo = hwMap.servo.get("servoExtendRight")
-        //correct for motors being on oposite sides
-        driveLeft.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
-        driveRight.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-        // set inital positions and speeds
+
+        driveLeft.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        driveRight.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+
         driveLeft.setPower(0);
         driveRight.setPower(0);
-        servo.setPosition(0.0);
-        // use encoders
+
         driveLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         driveRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Setup sweeper motor
+        sweeper = hwMap.dcMotor.get("sweeper");
+        sweeper.setDirection( DcMotor.Direction.REVERSE );
+        sweeper.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER );
+        sweeper.setPower(0);
+
+        arm = hwMap.dcMotor.get("arm");
+        arm.setDirection( DcMotor.Direction.REVERSE );
+        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER );
+        arm.setPower(0);
+
+        loader = hwMap.servo.get("loader");
+        loader.setPosition(0.1);
+        locker = hwMap.servo.get("loader");
+        locker.setPosition(0.1);
     }
+
     @Override
     public void start()
     {
 
     }
+
     @Override
     public void loop()
     {
-        double left;
-        double right;
-        left = -gamepad1.left_stick_y;
-        right = -gamepad1.right_stick_y;
-        driveLeft.setPower(left);
+        //loader.setPosition(gamepad1.right_stick_y);
+        double left = gamepad1.left_stick_y;
+        double right = gamepad1.right_stick_y;
+
+        driveLeft.setPower( left );
         driveRight.setPower(right);
 
-        if(gamepad2.dpad_up)
+        sweeper.setPower( gamepad1.right_trigger > 0.1 ? 1 : 0 );
+        if (gamepad2.x)
         {
-            driveRight.setPower(1);
-            driveLeft.setPower(1);
+            loader.setPosition(0.8);
+            loader.setPosition(0.1);
         }
-        if (gamepad2.right_bumper)
+
+        if(gamepad2.a && !locked)
         {
-            servo.setPosition(1);
+            locker.setPosition(0.3);
+            locked=true;
+
         }
+        else if(locked&&gamepad2.b)
+        {
+            locker.setPosition(0.1);
+            locked = false;
+        }
+        arm.setPower(gamepad2.left_stick_y);
+
     }
 }
