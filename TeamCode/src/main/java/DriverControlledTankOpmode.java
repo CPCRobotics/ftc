@@ -63,6 +63,7 @@ public class DriverControlledTankOpmode extends OpMode
     @Override
     public void loop()
     {
+        telemetry.addData("Locked:",locked);
         //loader.setPosition(gamepad1.right_stick_y);
         double left = gamepad1.left_stick_y;
         double right = gamepad1.right_stick_y;
@@ -81,12 +82,13 @@ public class DriverControlledTankOpmode extends OpMode
         {
             locker.setPosition(0.3);
             locked=true;
-
+            telemetry.update();
         }
         else if(locked&&gamepad2.b)
         {
             locker.setPosition(0.1);
             locked = false;
+            telemetry.update();
         }
         arm.setPower(gamepad2.left_stick_y);
 

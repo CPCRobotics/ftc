@@ -32,7 +32,7 @@ public class BasicAtonomous extends OpMode
         driveLeft.setPower(0);
         driveRight.setPower(0);
         servo.setPosition(0.0);
-        // use encoders
+        // use encoders 1440 ticks pre rev for tetrix 1220 for andymark
         driveLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         driveRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
@@ -40,20 +40,14 @@ public class BasicAtonomous extends OpMode
     @Override
     public void start()
     {
-        AL.DriveForward(5000,1,driveRight,driveLeft);
-        try
-        {
-            AL.TurnRight(2000,1,driveRight,driveLeft);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-        AL.DriveForward(5000,1,driveRight,driveLeft);
+        AL.DriveForwardEncoder(70,driveRight,driveLeft);//half the feild forward
+        AL.TurnLeftEncoders(90,driveRight,driveLeft); // turn to face becon
+        AL.DriveForwardEncoder(68,driveRight,driveLeft); //aproach beacon
     }
 
     @Override
     public void loop()
     {
+        // some code using light sensor to hit all the beacons
     }
 }
