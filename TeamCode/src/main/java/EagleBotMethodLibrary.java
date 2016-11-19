@@ -51,15 +51,22 @@ public class EagleBotMethodLibrary
     public void ShootAndReload(DcMotor shooter, Servo loader, Servo lock)
     {
         //unlock to shoot
-        lock.setPosition(0.1);
+        lock.setPosition(0.3);
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooter.setTargetPosition(-8);//unknown amount of encoder ticks to lock
+        shooter.setTargetPosition(1080);//3/4 of a revolution
         shooter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //lock
-        lock.setPosition(0.8);
-        //load
-        loader.setPosition(0.8);
-        loader.setPosition(0.1);
+        shooter.setPower(-1); // full power reverce
+        if(!shooter.isBusy()) {
+            //lock
+            lock.setPosition(0.8);
+            //load
+            loader.setPosition(0.8);
+            loader.setPosition(0.1);
+            shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            shooter.setTargetPosition(1080);
+            shooter.setPower(0.8);
+            shooter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
     }
     //drive by encoders
     // use encoders 1440 ticks pre rev for tetrix 1220 or 1120 for andymark
