@@ -8,9 +8,9 @@ import com.qualcomm.robotcore.hardware.Servo;
  * Created by Eagles FTC on 9/30/2016.
  */
 @TeleOp(name="EagleBot: DriverControlled")
-public class DriverControlledTankOpmode extends OpMode
+public class DriverControlledOpmode extends OpMode
 {
-    EagleBotMethodLibrary AL = new EagleBotMethodLibrary();
+    EagleBotCommon AL = new EagleBotCommon();
     boolean locked =false;
     DcMotor driveLeft   = null;
     DcMotor driveRight  = null;

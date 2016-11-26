@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
  * Created by ben4toole on 10/20/2016.
  */
 
-public class EagleBotMethodLibrary
+public class EagleBotCommon
 {
     public void DriveForward(int time,int speed, DcMotor DR, DcMotor DL)
     {

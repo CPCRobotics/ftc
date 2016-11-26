@@ -8,9 +8,9 @@ import com.qualcomm.robotcore.hardware.Servo;
  * Created by ben4toole on 10/20/2016.
  */
 @Autonomous(name="EagleBot: Autonomous")
-public class BasicAtonomous extends OpMode
+public class AutonomousOpMode extends OpMode
 {
-    EagleBotMethodLibrary AL = new EagleBotMethodLibrary();
+    EagleBotCommon AL = new EagleBotCommon();
     //drivemoter declaration
     DcMotor driveLeft   = null;
     DcMotor  driveRight  = null;
@@ -21,21 +21,18 @@ public class BasicAtonomous extends OpMode
     public void init()
     {
         //initalize drive motors
-        //driveLeft   = hwMap.dcMotor.get("driveLeft");
-        //driveRight  = hwMap.dcMotor.get("driveRight");
-        // initalize servo
-        //servo = hwMap.servo.get("servoExtendRight");
+        driveLeft   = hwMap.dcMotor.get("driveLeft");
+        driveRight  = hwMap.dcMotor.get("driveRight");
         //correct for motors being on oposite sides
-        //driveLeft.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
-       // driveRight.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-        // set inital positions and speeds
-      //  driveLeft.setPower(0);
-        //driveRight.setPower(0);
-        //servo.setPosition(0.0);
+        driveLeft.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        driveRight.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+         //set inital positions and speeds
+        driveLeft.setPower(0);
+        driveRight.setPower(0);
         // use encoders 1440 ticks pre rev for tetrix 1220 for andymark
-      //  driveLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //driveRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //locker = hwMap.servo.get("locker");
+        driveLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        driveRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        locker = hwMap.servo.get("locker");
         HardwareMap hwMap = super.hardwareMap;
         Servo locker = hwMap.servo.get("locker");
         locker.setPosition(0.5);
@@ -44,12 +41,12 @@ public class BasicAtonomous extends OpMode
     @Override
     public void start()
     {
-       /* AL.DriveForwardEncoder(70,driveRight,driveLeft);//half the feild forward
-        AL.TurnLeftEncoders(90,driveRight,driveLeft); // turn to face becon
-        AL.DriveForwardEncoder(68,driveRight,driveLeft); //aproach beacon*/
         HardwareMap hwMap = super.hardwareMap;
         Servo locker = hwMap.servo.get("locker");
         locker.setPosition(0.5);
+        AL.DriveForwardEncoder(36,driveRight,driveLeft);//half the feild forward
+        AL.TurnLeftEncoders(90,driveRight,driveLeft); // turn to face becon
+        //AL.DriveForwardEncoder(68,driveRight,driveLeft); //aproach beacon*/
     }
 
     @Override
