@@ -143,11 +143,8 @@ public class EagleBotCommon
     public void TurnLeftEncoders(int angle, DcMotor DR, DcMotor DL)
     {
         //constants to calculate dist in ticks assuming dist and cir are same units
-        int tickConstant=1440,ticks;
-
-        //calculate dist in ticks
-        ticks = angle/180*1440;
-
+        int tickConstant =1440;
+        int ticks=(angle/180)*1440;;
         // set encode values to 0
         DR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         DL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

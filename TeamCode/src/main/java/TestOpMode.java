@@ -3,12 +3,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import android.hardware.SensorManager;
 
 /**
  * Created by ben4toole on 10/20/2016.
  */
-@Autonomous(name="EagleBot: Autonomous")
-public class AutonomousOpMode extends OpMode
+@Autonomous(name="EagleBot: Test")
+public class TestOpMode extends OpMode
 {
     EagleBotCommon AL = new EagleBotCommon();
     //drivemoter declaration
@@ -48,6 +49,8 @@ public class AutonomousOpMode extends OpMode
        AL.DriveForwardEncoder(6,driveRight,driveLeft);//half the feild forward
         AL.TurnLeftEncoders(91,driveRight,driveLeft); // turn to face becon
         //AL.DriveForwardEncoder(68,driveRight,driveLeft); //aproach beacon*/
+
+
     }
 
     @Override
