@@ -101,7 +101,7 @@ public class DriverControlledOpmode extends OpMode
             locked = false;
             telemetry.update();
         }
-        if(gamepad2.right_trigger > 0.1)
+       /* if(gamepad2.right_trigger > 0.1)
         {
             telemetry.update();
             AL.ShootAndReload();
@@ -110,7 +110,7 @@ public class DriverControlledOpmode extends OpMode
         if(gamepad2.dpad_up)
         {
             buttion.setPosition(0);
-        }
+        }*/
         arm.setPower(gamepad2.left_stick_y);
         telemetry.addData("touch",touchSensor.isPressed());
         telemetry.update();
