@@ -1,6 +1,7 @@
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 /**
  * Created by ben4toole on 10/20/2016.
@@ -48,26 +49,35 @@ public class EagleBotCommon
             e.printStackTrace();
         }
     }
-    public void ShootAndReload(DcMotor shooter, Servo loader, Servo lock)
+
+    public void ShootAndReload()//DcMotor shooter, Servo loader, Servo lock, TouchSensor touchSensor
     {
-        //unlock to shoot
-        lock.setPosition(0.3);
-        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooter.setTargetPosition(1080);//3/4 of a revolution
-        shooter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        shooter.setPower(-1); // full power reverce
-        if(!shooter.isBusy()) {
-            //lock
-            lock.setPosition(0.8);
-            //load
-            loader.setPosition(0.8);
-            loader.setPosition(0.1);
+        Thread Shoot = new Thread(new ShootAndReload());
+        Shoot.start();
+/*
+            //unlock to shoot
+            lock.setPosition(1);
             shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            shooter.setTargetPosition(1080);
-            shooter.setPower(0.8);
+            //shooter.setTargetPosition(2080);//3/4 of a revolution
+            //shooter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            shooter.setPower(-1); // full power reverce
+            while (!touchSensor.isPressed()) {
+            }
+            //lock
+            lock.setPosition(0.5);
+            shooter.setPower(0);
+            shooter.setTargetPosition(0);
+            //load
+            //loader.setPosition(0.8);
             shooter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-    }
+            shooter.setPower(0.7);
+            while (shooter.isBusy()) {
+            }
+            shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            //loader.setPosition(0.5);
+        };*/
+      }
+
     //drive by encoders
     // use encoders 1440 ticks pre rev for tetrix 1220 or 1120 for andymark
     //ticks needed = 1440*dist/wheal circumference

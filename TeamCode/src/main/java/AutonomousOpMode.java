@@ -16,6 +16,9 @@ public class AutonomousOpMode extends OpMode
     DcMotor  driveRight  = null;
     //servo declaration
     Servo locker = null;
+    Servo ButtionF = null;
+    Servo ButtionR = null;
+
     HardwareMap hwMap = null;
     @Override
     public void init()
@@ -33,20 +36,21 @@ public class AutonomousOpMode extends OpMode
         // use encoders 1440 ticks pre rev for tetrix 1220 for andymark
         driveLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         driveRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //locker = hwMap.servo.get("locker");
-       // Servo locker = hwMap.servo.get("locker");
+        locker = hwMap.servo.get("locker");
+        ButtionF =hwMap.servo.get("buttionF");
+        ButtionR=hwMap.servo.get("buttionR");
         //locker.setPosition(0.5);
     }
 
     @Override
     public void start()
     {
-        //HardwareMap hwMap = super.hardwareMap;
-        //Servo locker = hwMap.servo.get("locker");
-        //locker.setPosition(0.5);
+        /*HardwareMap hwMap = super.hardwareMap;
+        Servo locker = hwMap.servo.get("locker");*/
+        locker.setPosition(0.5);
         telemetry.addData("Starting",driveLeft);
        AL.DriveForwardEncoder(6,driveRight,driveLeft);//half the feild forward
-        AL.TurnLeftEncoders(91,driveRight,driveLeft); // turn to face becon
+       // AL.TurnLeftEncoders(91,driveRight,driveLeft); // turn to face becon
         //AL.DriveForwardEncoder(68,driveRight,driveLeft); //aproach beacon*/
     }
 

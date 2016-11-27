@@ -3,6 +3,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 /**
  * Created by Eagles FTC on 9/30/2016.
@@ -21,11 +22,14 @@ public class DriverControlledOpmode extends OpMode
     Servo buttion  = null;
     Servo locker  = null;
     double servovalue = 0.0;
+    TouchSensor touchSensor;
 
     @Override
     public void init()
     {
         HardwareMap hwMap = super.hardwareMap;
+
+        touchSensor = hardwareMap.touchSensor.get("touch sensor");
 
         driveLeft   = hwMap.dcMotor.get("driveLeft");
         driveRight  = hwMap.dcMotor.get("driveRight");
@@ -97,16 +101,19 @@ public class DriverControlledOpmode extends OpMode
             locked = false;
             telemetry.update();
         }
-        if(gamepad2.dpad_down)
+        if(gamepad2.right_trigger > 0.1)
         {
-            //AL.ShootAndReload(arm, loader, locker);
-            buttion.setPosition(1);
+            telemetry.update();
+            AL.ShootAndReload();
+            //buttion.setPosition(1);
         }
         if(gamepad2.dpad_up)
         {
             buttion.setPosition(0);
         }
         arm.setPower(gamepad2.left_stick_y);
+        telemetry.addData("touch",touchSensor.isPressed());
+        telemetry.update();
 
     }
 }
