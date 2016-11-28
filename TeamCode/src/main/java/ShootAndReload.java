@@ -1,6 +1,7 @@
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import java.util.concurrent.Semaphore;
 
 /**
  * Created by Eagles FTC on 11/26/2016.
@@ -8,11 +9,27 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class ShootAndReload implements Runnable
 {
-
+    DriverControlledOpmode moters;
+    public ShootAndReload()
+    {
+        moters = new DriverControlledOpmode();
+    }
     @Override
     public void run()
     {
-        DriverControlledOpmode moters = new DriverControlledOpmode();
+
+        try
+        {
+            moters.telemetry.addData("entered run and shoot","aquired lock");
+            work();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    private synchronized void work()
+    {
         DcMotor shooter = moters.arm;
         Servo loader = moters.loader;
         Servo lock = moters.locker;
@@ -37,5 +54,6 @@ public class ShootAndReload implements Runnable
         }
         shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //loader.setPosition(0.5);
+        moters.telemetry.addData("exited run and shoot","released lock");
     }
 }

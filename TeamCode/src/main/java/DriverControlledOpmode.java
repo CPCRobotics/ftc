@@ -5,6 +5,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * Created by Eagles FTC on 9/30/2016.
  */
@@ -13,20 +16,23 @@ public class DriverControlledOpmode extends OpMode
 {
     EagleBotCommon AL = new EagleBotCommon();
     boolean locked =false;
+
     DcMotor driveLeft   = null;
     DcMotor driveRight  = null;
     DcMotor arm = null;
     DcMotor sweeper = null;
-
+    private ExecutorService executor = null;
     Servo loader  = null;
     Servo buttion  = null;
     Servo locker  = null;
-    double servovalue = 0.0;
+
     TouchSensor touchSensor;
 
     @Override
     public void init()
     {
+        executor = Executors.newFixedThreadPool(5);
+
         HardwareMap hwMap = super.hardwareMap;
 
         touchSensor = hardwareMap.touchSensor.get("touch sensor");
@@ -75,9 +81,10 @@ public class DriverControlledOpmode extends OpMode
         //loader.setPosition(gamepad1.right_stick_y);
         double left = gamepad1.left_stick_y;
         double right = gamepad1.right_stick_y;
+        double speedMultiplyer = 0.8;
 
-        driveLeft.setPower( left*0.8 );
-        driveRight.setPower(right*0.8);
+        driveLeft.setPower( left*speedMultiplyer );
+        driveRight.setPower(right*speedMultiplyer);
 
         sweeper.setPower( gamepad1.right_trigger > 0.1 ? 1 : 0 );
         if (gamepad2.x)
@@ -100,6 +107,12 @@ public class DriverControlledOpmode extends OpMode
             locker.setPosition(0.5);
             locked = false;
             telemetry.update();
+        }
+        if(gamepad2.right_trigger > 0.1)
+        {
+            //if this doesnt work make task class level
+            Runnable task = new ShootAndReload();
+            executor.execute(task);
         }
        /* if(gamepad2.right_trigger > 0.1)
         {
