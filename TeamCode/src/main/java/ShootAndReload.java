@@ -54,6 +54,7 @@ public class ShootAndReload implements Runnable
         }
         shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //loader.setPosition(0.5);
+        moters.telemetry.clear();
         moters.telemetry.addData("exited run and shoot","released lock");
     }
 }

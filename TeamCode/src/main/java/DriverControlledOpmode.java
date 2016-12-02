@@ -119,11 +119,13 @@ public class DriverControlledOpmode extends OpMode
             telemetry.update();
             AL.ShootAndReload();
             //buttion.setPosition(1);
-        }
+        }*/
         if(gamepad2.dpad_up)
         {
-            buttion.setPosition(0);
-        }*/
+            executor.shutdown();
+            while (!executor.isTerminated())
+            {}
+        }
         arm.setPower(gamepad2.left_stick_y);
         telemetry.addData("touch",touchSensor.isPressed());
         telemetry.update();
