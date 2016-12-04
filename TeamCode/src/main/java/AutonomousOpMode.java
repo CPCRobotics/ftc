@@ -1,5 +1,6 @@
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -16,8 +17,10 @@ public class AutonomousOpMode extends OpMode
     DcMotor  driveRight  = null;
     //servo declaration
     Servo locker = null;
-    Servo ButtionF = null;
+    Servo ButtionL = null;
     Servo ButtionR = null;
+
+    ColorSensor colorSensor = null;
 
     HardwareMap hwMap = null;
     @Override
@@ -37,19 +40,29 @@ public class AutonomousOpMode extends OpMode
         driveLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         driveRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         locker = hwMap.servo.get("locker");
-        ButtionF =hwMap.servo.get("buttionF");
+        ButtionL =hwMap.servo.get("buttionL");
         ButtionR=hwMap.servo.get("buttionR");
+
+        colorSensor=hwMap.colorSensor.get("ColorSensor");
         //locker.setPosition(0.5);
     }
 
     @Override
     public void start()
     {
-        /*HardwareMap hwMap = super.hardwareMap;
-        Servo locker = hwMap.servo.get("locker");*/
+        telemetry.addData("color red",colorSensor.red());
+        telemetry.addData("color blue",colorSensor.blue());
         locker.setPosition(0.5);
-        telemetry.addData("Starting",driveLeft);
-       AL.DriveForwardEncoder(6,driveRight,driveLeft);//half the feild forward
+        if (colorSensor.red()>colorSensor.blue())
+        {
+            ButtionR.setPosition(1);
+        }
+        else
+        {
+            ButtionL.setPosition(1);
+        }
+
+       //AL.DriveForwardEncoder(6,driveRight,driveLeft);//half the feild forward
        // AL.TurnLeftEncoders(91,driveRight,driveLeft); // turn to face becon
         //AL.DriveForwardEncoder(68,driveRight,driveLeft); //aproach beacon*/
     }

@@ -52,8 +52,8 @@ public class EagleBotCommon
 
     public void ShootAndReload()//DcMotor shooter, Servo loader, Servo lock, TouchSensor touchSensor
     {
-        Thread Shoot = new Thread(new ShootAndReload());
-        Shoot.start();
+        //Thread Shoot = new Thread(new ShootAndReload());
+        //Shoot.start();
 /*
             //unlock to shoot
             lock.setPosition(1);

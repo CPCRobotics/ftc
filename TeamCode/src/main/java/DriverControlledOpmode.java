@@ -23,8 +23,12 @@ public class DriverControlledOpmode extends OpMode
     DcMotor sweeper = null;
     private ExecutorService executor = null;
     Servo loader  = null;
-    Servo buttion  = null;
+    Servo ButtionL= null;
+    Servo ButtionR = null;
     Servo locker  = null;
+    int shootCalls =0;
+
+    Runnable task = null;
 
     TouchSensor touchSensor;
 
@@ -64,8 +68,10 @@ public class DriverControlledOpmode extends OpMode
         loader.setPosition(0.1);
         locker = hwMap.servo.get("locker");
         locker.setPosition(1);
-        buttion = hwMap.servo.get("buttion");
-        buttion.setPosition(0.9);
+        ButtionL = hwMap.servo.get("buttionL");
+        ButtionL.setPosition(0);
+        ButtionR = hwMap.servo.get("buttionR");
+        ButtionR.setPosition(0);
     }
 
     @Override
@@ -82,6 +88,7 @@ public class DriverControlledOpmode extends OpMode
         double left = gamepad1.left_stick_y;
         double right = gamepad1.right_stick_y;
         double speedMultiplyer = 0.8;
+        int shootCalls = 0;
 
         driveLeft.setPower( left*speedMultiplyer );
         driveRight.setPower(right*speedMultiplyer);
@@ -93,42 +100,87 @@ public class DriverControlledOpmode extends OpMode
         }
         else
         {
-            loader.setPosition(0.1);
+            loader.setPosition(0.2);
         }
 
-        if(gamepad2.a && !locked)
+        if(gamepad2.a &&locked)
         {
             locker.setPosition(1);
-            locked=true;
+            locked=false;
             telemetry.update();
         }
-        else if(locked&&gamepad2.b)
+        else if(gamepad2.b && !locked)
         {
             locker.setPosition(0.5);
-            locked = false;
+            locked = true;
             telemetry.update();
         }
         if(gamepad2.right_trigger > 0.1)
         {
             //if this doesnt work make task class level
-            Runnable task = new ShootAndReload();
-            executor.execute(task);
+            //telemetry.addData("Enter shootReload handler","");
+            try {
+                if(task == null){
+                    telemetry.addData("attempt to instantiate task","");
+                    task = new ShootAndReload(this);
+                }
+                telemetry.addData("initiate shooting thread", "iteration: " + shootCalls++);
+                executor.execute(task);
+            }
+            catch (Exception e)
+            {
+                telemetry.addData("shootReloadersError", e.getMessage());
+            }
+
         }
-       /* if(gamepad2.right_trigger > 0.1)
+        if(gamepad2.dpad_left)
         {
-            telemetry.update();
-            AL.ShootAndReload();
-            //buttion.setPosition(1);
-        }*/
+            ButtionL.setPosition(1);
+        }
+        if (gamepad2.dpad_right)
+        {
+            ButtionR.setPosition(1);
+        }
         if(gamepad2.dpad_up)
         {
             executor.shutdown();
             while (!executor.isTerminated())
             {}
         }
-        arm.setPower(gamepad2.left_stick_y);
+        if (gamepad2.dpad_down)
+        {
+            ButtionR.setPosition(0.1);
+            ButtionL.setPosition(0.1);
+        }
+        if(!touchSensor.isPressed())
+        {
+            //arm.setPower(gamepad2.left_stick_y);
+        }
+        else
+        {
+            /*locker.setPosition(0.5);
+            arm.setPower(0);
+            locked = true;*/
+        }
         telemetry.addData("touch",touchSensor.isPressed());
         telemetry.update();
+        //arm.setPower(gamepad2.left_stick_y);
+
+    }
+
+    @Override
+    protected void finalize()
+    {
+        try {
+            executor.shutdown();
+            while (!executor.isTerminated())
+            {}
+
+            super.finalize();
+        }
+        catch(Throwable ex) {
+            //telemetry.addData();
+        }
 
     }
 }
