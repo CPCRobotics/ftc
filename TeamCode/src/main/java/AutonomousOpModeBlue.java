@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 /**
  * Created by ben4toole on 10/20/2016.
  */
-@Autonomous(name="EagleBot: Autonomous")
-public class AutonomousOpMode extends OpMode
+@Autonomous(name="EagleBot: Autonomous Blue")
+public class AutonomousOpModeBlue extends OpMode
 {
     EagleBotCommon AL = new EagleBotCommon();
     //drivemoter declaration
@@ -33,7 +33,7 @@ public class AutonomousOpMode extends OpMode
         //correct for motors being on oposite sides
         driveLeft.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         driveRight.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-         //set inital positions and speeds
+        //set inital positions and speeds
         driveLeft.setPower(0);
         driveRight.setPower(0);
         // use encoders 1440 ticks pre rev for tetrix 1220 for andymark
@@ -53,7 +53,8 @@ public class AutonomousOpMode extends OpMode
         telemetry.addData("color red",colorSensor.red());
         telemetry.addData("color blue",colorSensor.blue());
         locker.setPosition(0.5);
-        if (colorSensor.red()>colorSensor.blue())
+        colorSensor.enableLed(true);
+        if (colorSensor.red()<colorSensor.blue())
         {
             ButtionR.setPosition(1);
         }
@@ -62,16 +63,17 @@ public class AutonomousOpMode extends OpMode
             ButtionL.setPosition(1);
         }
 
-       //AL.DriveForwardEncoder(6,driveRight,driveLeft);//half the feild forward
-       // AL.TurnLeftEncoders(91,driveRight,driveLeft); // turn to face becon
+        //AL.DriveForwardEncoder(6,driveRight,driveLeft);//half the feild forward
+        // AL.TurnLeftEncoders(91,driveRight,driveLeft); // turn to face becon
         //AL.DriveForwardEncoder(68,driveRight,driveLeft); //aproach beacon*/
     }
 
     @Override
     public void loop()
     {
+        colorSensor.enableLed(true);
         //Servo locker = hwMap.servo.get("locker");
-       // locker.setPosition(0.5);
+        // locker.setPosition(0.5);
         // some code using light sensor to hit all the beacons
     }
 }

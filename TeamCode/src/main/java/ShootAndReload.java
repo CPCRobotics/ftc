@@ -59,25 +59,24 @@ public class ShootAndReload implements Runnable
             moters.telemetry.addData("sleep interupt",e.getMessage());
         }
         shooter.setPower(0);
+        loader.setPosition(0.8);
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setTargetPosition(-1440);
-        //load
-        //loader.setPosition(0.8);
         shooter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         shooter.setPower(-1);
         moters.telemetry.addData("Waiting for Shooter", "");
         while (shooter.isBusy()) {
         }
+        shooter.setPower(0);
+        loader.setPosition(0);
         shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //loader.setPosition(0.5);
         moters.telemetry.addData("exited run and shoot","released lock");
-       /*
         try{
             Thread.sleep(1000);
         }
         catch(Exception e)
         {}
-        */
         moters.telemetry.clear();
 
     }

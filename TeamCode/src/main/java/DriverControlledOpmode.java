@@ -26,7 +26,7 @@ public class DriverControlledOpmode extends OpMode
     Servo ButtionL= null;
     Servo ButtionR = null;
     Servo locker  = null;
-    int shootCalls =0;
+    boolean shootonce = true;
 
     Runnable task = null;
 
@@ -65,7 +65,7 @@ public class DriverControlledOpmode extends OpMode
         arm.setPower(0);
 
         loader = hwMap.servo.get("loader");
-        loader.setPosition(0.1);
+        loader.setPosition(0);
         locker = hwMap.servo.get("locker");
         locker.setPosition(1);
         ButtionL = hwMap.servo.get("buttionL");
@@ -100,7 +100,7 @@ public class DriverControlledOpmode extends OpMode
         }
         else
         {
-            loader.setPosition(0.2);
+            loader.setPosition(0);
         }
 
         if(gamepad2.a &&locked)
@@ -115,8 +115,9 @@ public class DriverControlledOpmode extends OpMode
             locked = true;
             telemetry.update();
         }
-        if(gamepad2.right_trigger > 0.1)
+        if(gamepad2.right_trigger > 0.1 && shootonce)
         {
+            shootonce = false;
             //if this doesnt work make task class level
             //telemetry.addData("Enter shootReload handler","");
             try {
@@ -132,6 +133,10 @@ public class DriverControlledOpmode extends OpMode
                 telemetry.addData("shootReloadersError", e.getMessage());
             }
 
+        }
+        if(gamepad2.right_trigger == 0)
+        {
+            shootonce = true;
         }
         if(gamepad2.dpad_left)
         {
