@@ -20,7 +20,9 @@ public class AutonomousOpModeLeftPos extends OpMode
     Runnable task = null;
     boolean cs = true;
     EagleBotCommon AL = new EagleBotCommon();
-    //drivemoter declaration
+    EagleBotHardware hardware = new EagleBotHardware();
+
+    /*//drivemoter declaration
     DcMotor driveLeft   = null;
     DcMotor  driveRight  = null;
     //servo declaration
@@ -31,12 +33,13 @@ public class AutonomousOpModeLeftPos extends OpMode
     ColorSensor colorSensor = null;
     ColorSensor BW = null;
 
-    HardwareMap hwMap = null;
+    HardwareMap hwMap = null;*/
     @Override
     public void init()
     {
+        hardware.init(hardwareMap,this.telemetry);
         executor = Executors.newFixedThreadPool(2);
-        hwMap = super.hardwareMap;
+        /*hwMap = super.hardwareMap;
         //initalize drive motors
         driveLeft   = hwMap.dcMotor.get("driveLeft");
         driveRight  = hwMap.dcMotor.get("driveRight");
@@ -57,7 +60,7 @@ public class AutonomousOpModeLeftPos extends OpMode
         BW=hwMap.colorSensor.get("bw");
         //locker.setPosition(0.5);
         ButtionL.setPosition(0.1);
-        ButtionR.setPosition(0);
+        ButtionR.setPosition(0);*/
     }
 
     @Override
@@ -83,42 +86,16 @@ public class AutonomousOpModeLeftPos extends OpMode
             } catch (Exception e) {
                 telemetry.addData("error exception", e.getMessage());
             }*/
-            AL.DriveForwardEncoder(43, driveRight, driveLeft);
+            AL.DriveForwardEncoder(43, hardware.driveRight, hardware.driveLeft);
             telemetry.addData("drove forward"," trying to turn");
-            AL.TurnLeftEncoders(50, driveRight, driveLeft);
+            AL.TurnLeftEncoders(50, hardware.driveRight, hardware.driveLeft);
             telemetry.addData("turned"," left");
-            AL.TurnRightEncoders(50, driveRight, driveLeft);
+            AL.TurnRightEncoders(50, hardware.driveRight, hardware.driveLeft);
             telemetry.addData("turnd right"," trying to move");
-            AL.DriveForwardEncoder(8, driveRight, driveLeft);
+            AL.DriveForwardEncoder(8, hardware.driveRight, hardware.driveLeft);
             telemetry.addData("moved","");
             looponce = false;
         }
-            /*colorSensor.enableLed(true);
-        BW.enableLed(true);
-        if(cs)
-        {
-            telemetry.addData("BW blue", BW.blue());
-            telemetry.addData("BW red", BW.red());
-            telemetry.addData("BW green", BW.green());
-            telemetry.addData("cs blue", colorSensor.blue());
-            telemetry.addData("cs red", colorSensor.red());
-            telemetry.addData("cs green", colorSensor.green());
-            cs = false;
-        }
-        telemetry.update();
-        if (BW.red() > 0 && BW.blue() > 0 && BW.green() > 0 && BW.red() <  0 && BW.blue() > 0 && BW.green() > 0 )
-        {
-            if (colorSensor.red() > colorSensor.blue())
-            {
-                ButtionR.setPosition(1);
-            }
-            else
-            {
-                ButtionL.setPosition(1);
-            }
-        }*/
-        //Servo locker = hwMap.servo.get("locker");
-       // locker.setPosition(0.5);
-        // some code using light sensor to hit all the beacons
+
     }
 }
