@@ -39,6 +39,14 @@ public class ShootAndReload implements Runnable
         TouchSensor touchSensor = moters.touchSensor;
         //unlock to shoot
         lock.setPosition(1);
+        try
+        {
+            Thread.sleep(500);
+        }
+        catch(Exception e)
+        {
+            moters.telemetry.addData("error exception",e.getMessage());
+        }
         //shooter.setTargetPosition(2080);//3/4 of a revolution
         //shooter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -49,6 +57,7 @@ public class ShootAndReload implements Runnable
         }
         //lock
         moters.telemetry.addData("TouchSensor is Pressed","");
+        loader.setPosition(0.9);
         lock.setPosition(0.5);
         try
         {
@@ -59,7 +68,6 @@ public class ShootAndReload implements Runnable
             moters.telemetry.addData("sleep interupt",e.getMessage());
         }
         shooter.setPower(0);
-        loader.setPosition(0.8);
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setTargetPosition(-1440);
         shooter.setMode(DcMotor.RunMode.RUN_TO_POSITION);

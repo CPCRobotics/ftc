@@ -102,6 +102,9 @@ public class EagleBotCommon
         //run full speed forward
         DR.setPower(1);
         DL.setPower(1);
+        while (DR.isBusy())
+    {
+    }
     }
     public void DriveBackwardEncoders(int dist, DcMotor DR, DcMotor DL)
     {
@@ -124,6 +127,9 @@ public class EagleBotCommon
         //run full speed in reverse
         DR.setPower(-1);
         DL.setPower(-1);
+        while (DR.isBusy())
+        {
+        }
     }
     //******if 1/2 rev in each wheal results in a 90 deg turn then A(deg)=A/180 rev************
     //ticks needed = A/180*1440
@@ -146,6 +152,9 @@ public class EagleBotCommon
         //run full speed in reverse
         DR.setPower(-1);
         DL.setPower(1);
+        while (DR.isBusy())
+        {
+        }
 
     }
     public void TurnLeftEncoders(int angle, DcMotor DR, DcMotor DL)
@@ -165,6 +174,9 @@ public class EagleBotCommon
         //run full speed in reverse
         DR.setPower(1);
         DL.setPower(-1);
+        while (DR.isBusy())
+        {
+        }
 
     }
 }

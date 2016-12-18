@@ -146,12 +146,10 @@ public class DriverControlledOpmode extends OpMode
         {
             ButtionR.setPosition(1);
         }
-        if(gamepad2.dpad_up)
+       /* if(gamepad2.dpad_up)
         {
-            executor.shutdown();
-            while (!executor.isTerminated())
-            {}
-        }
+
+        }*/
         if (gamepad2.dpad_down)
         {
             ButtionR.setPosition(0.1);

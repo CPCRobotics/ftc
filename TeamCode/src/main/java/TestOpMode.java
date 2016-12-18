@@ -1,4 +1,5 @@
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -9,6 +10,7 @@ import android.hardware.SensorManager;
  * Created by ben4toole on 10/20/2016.
  */
 @Autonomous(name="EagleBot: Test")
+@Disabled
 public class TestOpMode extends OpMode
 {
     EagleBotCommon AL = new EagleBotCommon();
@@ -46,7 +48,7 @@ public class TestOpMode extends OpMode
         //Servo locker = hwMap.servo.get("locker");
         //locker.setPosition(0.5);
         telemetry.addData("Starting",driveLeft);
-        AL.DriveForwardEncoder(90,driveRight,driveLeft);
+        AL.DriveForwardEncoder(36,driveRight,driveLeft);
         //AL.DriveForwardEncoder(6,driveRight,driveLeft);//half the feild forward
         AL.TurnLeftEncoders(90,driveRight,driveLeft); // turn to face becon
         //AL.DriveForwardEncoder(68,driveRight,driveLeft); //aproach beacon*/
