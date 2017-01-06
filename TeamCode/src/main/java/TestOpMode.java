@@ -1,66 +1,37 @@
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.GyroSensor;
+
+import android.content.Context;
+import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
-/**
- * Created by ben4toole on 10/20/2016.
- */
+
 @Autonomous(name="EagleBot: Test")
 @Disabled
 public class TestOpMode extends OpMode
 {
-    EagleBotCommon AL = new EagleBotCommon();
-    //drivemoter declaration
-    DcMotor driveLeft   = null;
-    DcMotor  driveRight  = null;
-    //servo declaration
-    Servo locker = null;
-    HardwareMap hwMap = null;
+    SensorManager sensorMgr;
+    GyroSensor Gyro;
     @Override
     public void init()
     {
-        hwMap = super.hardwareMap;
-        //initalize drive motors
-        driveLeft   = hwMap.dcMotor.get("driveLeft");
-        driveRight  = hwMap.dcMotor.get("driveRight");
-        //correct for motors being on oposite sides
-        //driveLeft.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
-        //driveRight.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-         //set inital positions and speeds
-        driveLeft.setPower(0);
-        driveRight.setPower(0);
-        // use encoders 1440 ticks pre rev for tetrix 1220 for andymark
-        driveLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        driveRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //locker = hwMap.servo.get("locker");
-       // Servo locker = hwMap.servo.get("locker");
-        //locker.setPosition(0.5);
+
+        sensorMgr = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
+        GmagSensor = sensorMgr.getDefaultSensor(Sensor.TYPE_GYROSCOPE );
+
     }
 
     @Override
     public void start()
     {
-        //HardwareMap hwMap = super.hardwareMap;
-        //Servo locker = hwMap.servo.get("locker");
-        //locker.setPosition(0.5);
-        telemetry.addData("Starting",driveLeft);
-        AL.DriveForwardEncoder(36,driveRight,driveLeft);
-        //AL.DriveForwardEncoder(6,driveRight,driveLeft);//half the feild forward
-        AL.TurnLeftEncoders(90,driveRight,driveLeft); // turn to face becon
-        //AL.DriveForwardEncoder(68,driveRight,driveLeft); //aproach beacon*/
-
-
+        telemetry.addData("gmag",0);
     }
 
     @Override
     public void loop()
     {
-        //Servo locker = hwMap.servo.get("locker");
-       // locker.setPosition(0.5);
-        // some code using light sensor to hit all the beacons
+
     }
 }
