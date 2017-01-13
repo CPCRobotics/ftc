@@ -13,13 +13,13 @@ import android.hardware.SensorManager;
 public class TestOpMode extends OpMode
 {
     SensorManager sensorMgr;
-    GyroSensor Gyro;
+    Sensor Gyro;
     @Override
     public void init()
     {
 
         sensorMgr = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
-        GmagSensor = sensorMgr.getDefaultSensor(Sensor.TYPE_GYROSCOPE );
+        Gyro = sensorMgr.getDefaultSensor(Sensor.TYPE_GYROSCOPE );
 
     }
 

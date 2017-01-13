@@ -38,7 +38,8 @@ public class AutonomousOpModeLeftPos extends OpMode
     public void init()
     {
         hardware.init(hardwareMap,this.telemetry);
-        executor = Executors.newFixedThreadPool(2);
+        //executor = Executors.newFixedThreadPool(2);
+        //task = new ShootAndReload(hardware);
         /*hwMap = super.hardwareMap;
         //initalize drive motors
         driveLeft   = hwMap.dcMotor.get("driveLeft");
@@ -70,6 +71,17 @@ public class AutonomousOpModeLeftPos extends OpMode
        //AL.DriveForwardEncoder(6,driveRight,driveLeft);//half the feild forward
        // AL.TurnLeftEncoders(91,driveRight,driveLeft); // turn to face becon
         //AL.DriveForwardEncoder(68,driveRight,driveLeft); //aproach beacon*/
+        /*AL.DriveForwardEncoder(-24, hardware.driveRight, hardware.driveLeft);
+        executor.execute(task);
+        executor.execute(task);
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }*/
     }
 
     @Override
@@ -78,21 +90,18 @@ public class AutonomousOpModeLeftPos extends OpMode
         if(looponce)
         {
             telemetry.addData("attempt to instantiate task", "");
-            //task = new ShootAndReload(new DriverControlledOpmode());
-            //executor.execute(new ShootAndReload(this);
-           // executor.execute(new ShootAndReload(new DriverControlledOpmode()));
-          /*  try {
-                Thread.sleep(5000);
-            } catch (Exception e) {
-                telemetry.addData("error exception", e.getMessage());
-            }*/
-            AL.DriveForwardEncoder(43, hardware.driveRight, hardware.driveLeft);
+           // AL.DriveForwardEncoder(24, hardware.driveRight, hardware.driveLeft);
+           // executor.execute(task);
+           // executor.execute(task);
+            hardware.sweeper.setPower(-1);
+            AL.DriveForwardEncoder(73, hardware.driveRight, hardware.driveLeft,0.6);
             telemetry.addData("drove forward"," trying to turn");
-            AL.TurnLeftEncoders(50, hardware.driveRight, hardware.driveLeft);
+            //AL.TurnLeftEncoders(50, hardware.driveRight, hardware.driveLeft);
             telemetry.addData("turned"," left");
-            AL.TurnRightEncoders(50, hardware.driveRight, hardware.driveLeft);
+            //AL.TurnRightEncoders(50, hardware.driveRight, hardware.driveLeft);
             telemetry.addData("turnd right"," trying to move");
-            AL.DriveForwardEncoder(8, hardware.driveRight, hardware.driveLeft);
+            //AL.DriveForwardEncoder(20, hardware.driveRight, hardware.driveLeft,0.3);
+            hardware.sweeper.setPower(0);
             telemetry.addData("moved","");
             looponce = false;
         }

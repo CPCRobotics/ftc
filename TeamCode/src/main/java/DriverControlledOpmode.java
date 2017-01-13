@@ -80,12 +80,15 @@ public class DriverControlledOpmode extends OpMode
     @Override
     public void loop()
     {
+        telemetry.addData("arm encoder",hardware.arm.getCurrentPosition());
         telemetry.addData("Locked:",locked);
         //loader.setPosition(gamepad1.right_stick_y);
         double left = gamepad1.left_stick_y;
         double right = gamepad1.right_stick_y;
         double speedMultiplyer = 0.8;
         int shootCalls = 0;
+
+        //hardware.arm.setPower(gamepad2.left_stick_y);
 
         hardware.driveLeft.setPower( left*speedMultiplyer );
         hardware.driveRight.setPower(right*speedMultiplyer);
@@ -97,7 +100,7 @@ public class DriverControlledOpmode extends OpMode
         }
         else
         {
-            hardware.loader.setPosition(0);
+            //hardware.loader.setPosition(0);
         }
 
         if(gamepad2.a &&locked)
@@ -133,7 +136,7 @@ public class DriverControlledOpmode extends OpMode
             }
         }
 
-        if(gamepad2.right_trigger == 0)
+        if(gamepad2.right_trigger <= 0.05)
         {
             shootonce = true;
         }

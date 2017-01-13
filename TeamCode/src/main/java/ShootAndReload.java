@@ -56,11 +56,10 @@ public class ShootAndReload implements Runnable
         }
         //lock
         hardware.telemetry.addData("TouchSensor is Pressed","");
-        loader.setPosition(0.9);
         lock.setPosition(0.5);
         try
         {
-            Thread.sleep(500);
+            Thread.sleep(250);
         }
         catch(Exception e)
         {
@@ -75,16 +74,21 @@ public class ShootAndReload implements Runnable
         while (shooter.isBusy()) {
         }
         shooter.setPower(0);
-        loader.setPosition(0);
-        shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        //loader.setPosition(0.5);
-        hardware.telemetry.addData("exited run and shoot","released lock");
-        try{
-            Thread.sleep(1000);
+
+        //load the ball
+        loader.setPosition(0.9);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        try
+        {
+            Thread.sleep(500);
         }
-        catch(Exception e)
-        {}
-        hardware.telemetry.clear();
+        catch (InterruptedException e)
+        {
+            hardware.telemetry.addData("sleep interupt",e.getMessage());
+            e.printStackTrace();
+        }
+        loader.setPosition(0);
+        hardware.telemetry.addData("exited run and shoot","released lock");
 
     }
 }

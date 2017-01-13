@@ -81,13 +81,13 @@ public class EagleBotCommon
     //drive by encoders
     // use encoders 1440 ticks pre rev for tetrix 1220 or 1120 for andymark
     //ticks needed = 1440*dist/wheal circumference
-    public void DriveForwardEncoder(int dist, DcMotor DR, DcMotor DL)
+    public void DriveForwardEncoder(int dist, DcMotor DR, DcMotor DL, double power)
     {
         //constants to calculate dist in ticks assuming dist and cir are same units
         int cir = 12,tickConstant=1440,ticks;
 
         //calculate dist in ticks
-        ticks = tickConstant*dist/cir;
+        ticks = tickConstant*dist/cir*-1;
 
         // set encode values to 0
         DR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -100,19 +100,21 @@ public class EagleBotCommon
         DL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //run full speed forward
-        DR.setPower(1);
-        DL.setPower(1);
+        DR.setPower(power);
+        DL.setPower(power);
         while (DR.isBusy())
-    {
+         {
+         }
+        DR.setPower(0);
+        DL.setPower(0);
     }
-    }
-    public void DriveBackwardEncoders(int dist, DcMotor DR, DcMotor DL)
+    public void DriveBackwardEncoders(int dist, DcMotor DR, DcMotor DL, double power)
     {
         //constants to calculate dist in ticks assuming dist and cir are same units
         int cir = 12,tickConstant=1440,ticks;
 
         //calculate dist in ticks
-        ticks = tickConstant*dist/cir;
+        ticks = tickConstant*dist/cir*-1;
 
         // set encode values to 0
         DR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -125,11 +127,13 @@ public class EagleBotCommon
         DL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //run full speed in reverse
-        DR.setPower(-1);
-        DL.setPower(-1);
+        DR.setPower(-power);
+        DL.setPower(-power);
         while (DR.isBusy())
         {
         }
+        DR.setPower(0);
+        DL.setPower(0);
     }
     //******if 1/2 rev in each wheal results in a 90 deg turn then A(deg)=A/180 rev************
     //ticks needed = A/180*1440

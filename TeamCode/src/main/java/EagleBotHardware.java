@@ -56,7 +56,7 @@ public class EagleBotHardware
 
         arm = hwMap.dcMotor.get("arm");
         arm.setDirection( DcMotor.Direction.REVERSE );
-        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER );
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         arm.setPower(0);
 
         loader = hwMap.servo.get("loader");
