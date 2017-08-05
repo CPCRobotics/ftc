@@ -81,7 +81,7 @@ public class JoshuaTele extends OpMode
         telemetry.addData("Status", "Running: " + runtime.toString());
 
         // eg: "a" button driver forward
-        if (gamepad1.a == true){
+        if (gamepad1.a == true) {
             hardware.leftMotor.setPower(1);
             hardware.rightMotor.setPower(1);
         }else{
