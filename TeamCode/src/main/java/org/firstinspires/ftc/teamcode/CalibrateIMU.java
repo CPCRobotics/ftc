@@ -34,6 +34,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ReadWriteFile;
@@ -49,7 +50,7 @@ import java.io.File;
 import java.util.Locale;
 
 /**
- * {@link SensorBNO055IMUCalibration} calibrates the IMU accelerometer per
+ * {@link CalibrateIMU} calibrates the IMU accelerometer per
  * "Section 3.11 Calibration" of the BNO055 specification.
  *
  * <p>Manual calibration of the IMU is definitely NOT necessary: except for the magnetometer
@@ -101,17 +102,18 @@ import java.util.Locale;
  * @see <a href="https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST_BNO055_DS000_14.pdf">BNO055 specification</a>
  */
 @TeleOp(name = "Sensor: BNO055 IMU Calibration", group = "Sensor")
-public class SensorBNO055IMUCalibration extends LinearOpMode
+//@Disabled                            // Uncomment this to add to the opmode list
+public class CalibrateIMU extends LinearOpMode
     {
     //----------------------------------------------------------------------------------------------
     // State
     //----------------------------------------------------------------------------------------------
 
     // Our sensors, motors, and other devices go here, along with other long term state
-    private BNO055IMU imu;
+    BNO055IMU imu;
 
     // State used for updating telemetry
-    private Orientation angles;
+    Orientation angles;
 
     //----------------------------------------------------------------------------------------------
     // Main logic
@@ -160,7 +162,7 @@ public class SensorBNO055IMUCalibration extends LinearOpMode
                 // when you initialize the IMU in an opmode in which it is used. If you
                 // have more than one IMU on your robot, you'll of course want to use
                 // different configuration file names for each.
-                String filename = "AdafruitIMUCalibration.json";
+                String filename = "BNO055IMUCalibration.json";
                 File file = AppUtil.getInstance().getSettingsFile(filename);
                 ReadWriteFile.writeFile(file, calibrationData.serialize());
                 telemetry.log().add("saved to '%s'", filename);
@@ -176,7 +178,7 @@ public class SensorBNO055IMUCalibration extends LinearOpMode
         }
     }
 
-    private void composeTelemetry() {
+    void composeTelemetry() {
 
         // At the beginning of each telemetry update, grab a bunch of data
         // from the IMU that we will then display in separate lines.
@@ -223,11 +225,11 @@ public class SensorBNO055IMUCalibration extends LinearOpMode
     // Formatting
     //----------------------------------------------------------------------------------------------
 
-    private String formatAngle(AngleUnit angleUnit, double angle) {
+    String formatAngle(AngleUnit angleUnit, double angle) {
         return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
     }
 
-    private String formatDegrees(double degrees){
+    String formatDegrees(double degrees){
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
 }
