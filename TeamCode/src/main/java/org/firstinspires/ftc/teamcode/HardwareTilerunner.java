@@ -1,9 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+
+import java.util.Arrays;
 
 /**
  * This is NOT an opmode.
@@ -17,42 +25,72 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Motor channel:  Right drive motor:       "right_drive"
 
  */
-public class HardwareTilerunner
+class HardwareTilerunner
 {
     /* Public OpMode members. */
-    public DcMotor  leftMotor   = null;
-    public DcMotor  rightMotor  = null;
+    DcMotor  leftMotor   = null;
+    DcMotor  rightMotor  = null;
 
-    /* local OpMode members. */
-    HardwareMap hwMap           =  null;
+    public static final int TICKS_PER_REVOLUTION = 1120;
+
+    // 4" * pi = 12.5663"
+    public static final double WHEEL_CIRCUMFERENCE = 12.5663;
+
+    /*
+        wheel-revs-per-robot-rev = robot-base-diameter / wheel-circumference
+        robot-base-diameter = 15"
+        wheel-diameter = 4"
+        15" / 4" = 3.75
+     */
+    public static final double WHEEL_REVS_PER_ROBOT_REV = 3.75;
+
+    DcMotor motorPair;
+
+    BNO055IMU imu;
+
     private ElapsedTime period  = new ElapsedTime();
 
-    /* Constructor */
-    public HardwareTilerunner(){
-
-    }
-
     /* Initialize standard Hardware interfaces */
-    public void init( HardwareMap ahwMap )
+    void init( HardwareMap hardwareMap )
     {
-        // Save reference to Hardware map
-        hwMap = ahwMap;
 
         // Define and Initialize Motors
-        leftMotor   = hwMap.dcMotor.get("left_drive");
-        rightMotor  = hwMap.dcMotor.get("right_drive");
+        leftMotor   = hardwareMap.dcMotor.get("left_drive");
+        rightMotor  = hardwareMap.dcMotor.get("right_drive");
+        motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
         leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
         // Set all motors to zero power
-        leftMotor.setPower(0);
-        rightMotor.setPower(0);
-
+        motorPair.setPower(0);
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
-        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorPair.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+
+        // Set up the parameters with which we will use our IMU. Note that integration
+        // algorithm here just reports accelerations to the logcat log; it doesn't actually
+        // provide positional information.
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+
+    }
+
+    double getHeading() {
+        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
 
     /***
