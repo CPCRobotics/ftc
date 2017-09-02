@@ -32,13 +32,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcontroller.external.samples.TemplateOpMode_Iterative;
 
 
 @TeleOp( name="TankDrive", group="Iterative Opmode" )  // @Autonomous(...) is the other common choice
@@ -46,7 +42,7 @@ public class TeleOp_OpMode extends OpMode
 {
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
-    private HardwareTilerunner hardware = new HardwareTilerunner();
+    private Tilerunner hardware = new Tilerunner();
 
     /*
      * Code to run ONCE when the driver hits INIT

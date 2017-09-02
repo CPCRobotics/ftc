@@ -26,7 +26,7 @@ import java.util.Arrays;
  * Motor channel:  Right drive motor:       "right_drive"
 
  */
-class HardwareTilerunner
+class Tilerunner
 {
     /* Public OpMode members. */
 
@@ -42,6 +42,10 @@ class HardwareTilerunner
         15" / 4" = 3.75
      */
     public static final double WHEEL_REVS_PER_ROBOT_REV = 3.75;
+
+
+    private static double THRESHOLD_TICKS = Tilerunner.TICKS_PER_REVOLUTION;
+    private static double THRESHOLD_HEADING = 30;
 
     DcMotor  leftMotor;
     DcMotor  rightMotor;
@@ -120,5 +124,55 @@ class HardwareTilerunner
         // Reset the cycle clock for the next pass.
         period.reset();
     }
+
+    private static double difference(double source, double now) {
+        return Math.abs(source - now) % 360;
+    }
+
+    /**
+     *
+     * @return the speed to run according to the goal distance left
+     */
+    private double calculateSpeed(double dist, double threshold) {
+
+        // Slow down when the distance to the target is less than 3 * the distance of the wheel
+        return Math.min(1, Math.max(0.5, dist / threshold) );
+    }
+
+    void move(BusyWaitHandler waitHandler, double inches, double power) {
+        int ticks = (int)(Tilerunner.TICKS_PER_REVOLUTION * inches / Tilerunner.WHEEL_CIRCUMFERENCE);
+
+        motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorPair.setTargetPosition( ticks );
+        motorPair.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorPair.setPower(power);
+
+        while (leftMotor.isBusy() && waitHandler.isActive()) {
+            motorPair.setPower(calculateSpeed(motorPair.getTargetPosition() - motorPair.getCurrentPosition(), THRESHOLD_TICKS));
+        }
+    }
+
+    void stop() {
+        motorPair.setPower(0);
+    }
+
+    void turn(BusyWaitHandler waitHandler, double direction, double degrees) {
+        double heading = getHeading();
+
+        motorPair.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftMotor.setPower(direction);
+        rightMotor.setPower(-direction);
+
+        while ( difference(heading, getHeading()) > degrees && waitHandler.isActive()) {
+            double power = direction * calculateSpeed(difference(heading, getHeading()), THRESHOLD_HEADING);
+            telemetry.addData("speed", power);
+            telemetry.addData("delta", difference(heading, getHeading()));
+            leftMotor.setPower(power);
+            rightMotor.setPower(-power);
+        }
+        motorPair.setPower(0);
+    }
+
+
 }
 

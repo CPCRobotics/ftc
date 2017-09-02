@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 @Autonomous( name="SquareAuto", group="Iterative OpMode")
 public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
 
-    private HardwareTilerunner tileRunner = new HardwareTilerunner();
+    private Tilerunner tileRunner = new Tilerunner();
 
     private String mode = "Stopped";
 
@@ -32,8 +32,8 @@ public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
         tileRunner.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         mode = "Calibrating";
-        TilerunnerUtils.turn(tileRunner, this, 0.5, 180);
-        TilerunnerUtils.turn(tileRunner, this, 0.5, 180);
+        tileRunner.turn(this, 0.5, 180);
+        tileRunner.turn(this, -0.5, 180);
         while (opModeIsActive()) {
             moveEdge();
         }
@@ -42,9 +42,9 @@ public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
 
     private void moveEdge() {
         mode = "forward";
-        TilerunnerUtils.move(tileRunner, this, 36, 1);
+        tileRunner.move(this, 36, 1);
         mode = "turning";
-        TilerunnerUtils.turn(tileRunner, this, 1, 90);
+        tileRunner.turn(this, 1, 90);
     }
 
     private void composeTelemetry() {

@@ -42,7 +42,7 @@ public class JoshuaTele extends OpMode
 {
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
-    private HardwareTilerunner hardware = new HardwareTilerunner();
+    private Tilerunner hardware = new Tilerunner();
 
     /*
      * Code to run ONCE when the driver hits INIT

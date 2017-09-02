@@ -43,7 +43,7 @@ public class TestLinear extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
-    private HardwareTilerunner hardware = new HardwareTilerunner();
+    private Tilerunner hardware = new Tilerunner();
 
     @Override
     public void runOpMode() {
