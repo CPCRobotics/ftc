@@ -48,7 +48,7 @@ public class TestLinear extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Initialize the robot hardware object passing it the OpModes hardwareMap.
-        hardware.init( hardwareMap );
+        hardware.init( hardwareMap, telemetry );
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.configuration.MotorConfigurationType;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Enables mass changing a group of DcMotors.
@@ -29,14 +30,18 @@ public class DCMotorGroup implements DcMotor {
             dcMotor.setMotorType(motorType);
     }
 
+    private DcMotor getSingleMotor() {
+        return dcMotors.iterator().next();
+    }
+
     @Override
     public DcMotorController getController() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getController();
     }
 
     @Override
     public int getPortNumber() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getPortNumber();
     }
 
     @Override
@@ -47,7 +52,7 @@ public class DCMotorGroup implements DcMotor {
 
     @Override
     public ZeroPowerBehavior getZeroPowerBehavior() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getZeroPowerBehavior();
     }
 
     @Override
@@ -58,7 +63,7 @@ public class DCMotorGroup implements DcMotor {
 
     @Override
     public boolean getPowerFloat() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getPowerFloat();
     }
 
     @Override
@@ -69,17 +74,17 @@ public class DCMotorGroup implements DcMotor {
 
     @Override
     public int getTargetPosition() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getTargetPosition();
     }
 
     @Override
     public boolean isBusy() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().isBusy();
     }
 
     @Override
     public int getCurrentPosition() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getCurrentPosition();
     }
 
     @Override
@@ -90,7 +95,7 @@ public class DCMotorGroup implements DcMotor {
 
     @Override
     public RunMode getMode() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getMode();
     }
 
     @Override
@@ -101,7 +106,7 @@ public class DCMotorGroup implements DcMotor {
 
     @Override
     public Direction getDirection() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getDirection();
     }
 
     @Override
@@ -112,27 +117,27 @@ public class DCMotorGroup implements DcMotor {
 
     @Override
     public double getPower() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getPower();
     }
 
     @Override
     public Manufacturer getManufacturer() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getManufacturer();
     }
 
     @Override
     public String getDeviceName() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getDeviceName();
     }
 
     @Override
     public String getConnectionInfo() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getConnectionInfo();
     }
 
     @Override
     public int getVersion() {
-        throw new UnsupportedOperationException();
+        return getSingleMotor().getVersion();
     }
 
     @Override

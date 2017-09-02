@@ -57,7 +57,7 @@ public class TeleOp_OpMode extends OpMode
         telemetry.addData("Status", "Initialized");
 
         // Initialize the robot hardware object passing it the OpModes hardwareMap.
-        hardware.init( hardwareMap );
+        hardware.init( hardwareMap, telemetry );
     }
 
     /*

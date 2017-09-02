@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -28,8 +29,6 @@ import java.util.Arrays;
 class HardwareTilerunner
 {
     /* Public OpMode members. */
-    DcMotor  leftMotor   = null;
-    DcMotor  rightMotor  = null;
 
     public static final int TICKS_PER_REVOLUTION = 1120;
 
@@ -44,14 +43,16 @@ class HardwareTilerunner
      */
     public static final double WHEEL_REVS_PER_ROBOT_REV = 3.75;
 
+    DcMotor  leftMotor;
+    DcMotor  rightMotor;
     DcMotor motorPair;
-
     BNO055IMU imu;
+    Telemetry telemetry;
 
     private ElapsedTime period  = new ElapsedTime();
 
     /* Initialize standard Hardware interfaces */
-    void init( HardwareMap hardwareMap )
+    void init( HardwareMap hardwareMap, Telemetry telemetry )
     {
 
         // Define and Initialize Motors
@@ -87,10 +88,12 @@ class HardwareTilerunner
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
+        this.telemetry = telemetry;
+
     }
 
     double getHeading() {
-        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
     }
 
     /***
