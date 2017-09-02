@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -30,10 +29,11 @@ class Tilerunner
 {
     /* Public OpMode members. */
 
-    public static final int TICKS_PER_REVOLUTION = 1120;
+    // Ticks that make up the circumference of the wheel
+    private static final int TICKS_PER_REVOLUTION = 1120;
 
     // 4" * pi = 12.5663"
-    public static final double WHEEL_CIRCUMFERENCE = 12.5663;
+    private static final double WHEEL_CIRCUMFERENCE = 12.5663;
 
     /*
         wheel-revs-per-robot-rev = robot-base-diameter / wheel-circumference
@@ -100,34 +100,13 @@ class Tilerunner
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
     }
 
-    /***
-     *
-     * waitForTick implements a periodic delay. However, this acts like a metronome with a regular
-     * periodic tick.  This is used to compensate for varying processing times for each cycle.
-     * The function looks at the elapsed cycle time, and sleeps for the remaining time interval.
-     *
-     * @param periodMs  Length of wait cycle in mSec.
-     */
-    public void waitForTick(long periodMs) {
-
-        long  remaining = periodMs - (long)period.milliseconds();
-
-        // sleep for the remaining portion of the regular cycle period.
-        if (remaining > 0) {
-            try {
-                Thread.sleep(remaining);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        // Reset the cycle clock for the next pass.
-        period.reset();
-    }
-
     private static double difference(double source, double now) {
-        return Math.abs(source - now) % 360;
+        double delta = source - now;
+
+        return delta >= 0 ? delta % 360 : (delta+360) % 360;
     }
+
+    // Utility Commands
 
     /**
      *
@@ -152,10 +131,6 @@ class Tilerunner
         }
     }
 
-    void stop() {
-        motorPair.setPower(0);
-    }
-
     void turn(BusyWaitHandler waitHandler, double direction, double degrees) {
         double heading = getHeading();
 
@@ -163,16 +138,18 @@ class Tilerunner
         leftMotor.setPower(direction);
         rightMotor.setPower(-direction);
 
-        while ( difference(heading, getHeading()) > degrees && waitHandler.isActive()) {
-            double power = direction * calculateSpeed(difference(heading, getHeading()), THRESHOLD_HEADING);
-            telemetry.addData("speed", power);
-            telemetry.addData("delta", difference(heading, getHeading()));
+        double delta = difference(heading, getHeading());
+        while ( delta < degrees && waitHandler.isActive()) {
+            double power = direction * calculateSpeed(degrees - delta, THRESHOLD_HEADING);
+            telemetry.addData("goal", degrees);
+            telemetry.addData("delta", delta);
             leftMotor.setPower(power);
             rightMotor.setPower(-power);
+
+            delta = difference(heading, getHeading());
         }
         motorPair.setPower(0);
     }
-
 
 }
 

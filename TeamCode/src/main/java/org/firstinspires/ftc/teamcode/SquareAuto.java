@@ -34,6 +34,7 @@ public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
         mode = "Calibrating";
         tileRunner.turn(this, 0.5, 180);
         tileRunner.turn(this, -0.5, 180);
+
         while (opModeIsActive()) {
             moveEdge();
         }
@@ -48,18 +49,19 @@ public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
     }
 
     private void composeTelemetry() {
-        telemetry.addData("current position (left)", new Func<Integer>() {
-            @Override
-            public Integer value() {
-                return tileRunner.leftMotor.getCurrentPosition();
-            }
-        });
-
-        telemetry.addData("current position (right)", new Func<Integer>() {
-            public Integer value() {
-                return tileRunner.rightMotor.getCurrentPosition();
-            }
-        });
+        telemetry.addLine()
+                .addData("current position (left)", new Func<Integer>() {
+                    @Override
+                    public Integer value() {
+                        return tileRunner.leftMotor.getCurrentPosition();
+                    }
+                })
+                .addData("current position (right)", new Func<Integer>() {
+                    @Override
+                    public Integer value() {
+                        return tileRunner.rightMotor.getCurrentPosition();
+                    }
+                });
 
         telemetry.addData("target position (left)", new Func<Integer>() {
             @Override
