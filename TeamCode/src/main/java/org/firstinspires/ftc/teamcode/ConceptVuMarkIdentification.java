@@ -105,7 +105,7 @@ public class ConceptVuMarkIdentification extends LinearOpMode {
          * and paste it in to your code on the next line, between the double quotes.
          */
         // TODO Store vuforia license key in a secure way
-        parameters.vuforiaLicenseKey =  "";
+        parameters.vuforiaLicenseKey =  hardwareMap.appContext.getString(R.string.vuphoria);
 
         /*
          * We also indicate which camera on the RC that we wish to use.
