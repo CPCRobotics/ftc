@@ -12,20 +12,17 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
 /**
- * Created by samuel on 9/22/17.
- */
-
-/**
  * Utitiy class for Vuphoria image recognition
  */
 
-class EyesightUtil {
+@SuppressWarnings("WeakerAccess")
+public class EyesightUtil {
 
     static VuforiaLocalizer vuforia;
     static VuforiaTrackables relicTrackables;
     static VuforiaTrackable relicTemplate;
 
-    static void init(OpMode opMode) {
+    public static void init(OpMode opMode) {
         HardwareMap hardwareMap = opMode.hardwareMap;
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -55,15 +52,15 @@ class EyesightUtil {
 
     }
 
-    static void start() {
+    public static void start() {
         relicTrackables.activate();
     }
 
-    static RelicRecoveryVuMark getPictograph() {
+    public static RelicRecoveryVuMark getPictograph() {
         return RelicRecoveryVuMark.from(relicTemplate);
     }
 
-    static OpenGLMatrix getPose() {
+    public static OpenGLMatrix getPose() {
         return ((VuforiaTrackableDefaultListener)relicTemplate.getListener()).getPose();
     }
 }

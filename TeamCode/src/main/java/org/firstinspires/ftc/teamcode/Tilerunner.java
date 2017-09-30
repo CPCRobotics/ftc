@@ -26,7 +26,7 @@ import java.util.Arrays;
 
  */
 @SuppressWarnings("WeakerAccess")
-class Tilerunner
+public class Tilerunner
 {
     /* Public OpMode members. */
 
