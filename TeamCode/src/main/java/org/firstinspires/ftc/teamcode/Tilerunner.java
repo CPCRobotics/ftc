@@ -25,15 +25,10 @@ import java.util.Arrays;
  * Motor channel:  Right drive motor:       "right_drive"
 
  */
+@SuppressWarnings("WeakerAccess")
 class Tilerunner
 {
     /* Public OpMode members. */
-
-    // Ticks that make up the circumference of the wheel
-    private static final int TICKS_PER_REVOLUTION = 1120;
-
-    // 4" * pi = 12.5663"
-    private static final double WHEEL_CIRCUMFERENCE = 12.5663;
 
     /*
         wheel-revs-per-robot-rev = robot-base-diameter / wheel-circumference
@@ -42,18 +37,28 @@ class Tilerunner
         15" / 4" = 3.75
      */
     public static final double WHEEL_REVS_PER_ROBOT_REV = 3.75;
-
-
+    // Ticks that make up the circumference of the wheel
+    private static final int TICKS_PER_REVOLUTION = 1120;
+    // 4" * pi = 12.5663"
+    private static final double WHEEL_CIRCUMFERENCE = 12.5663;
     private static double THRESHOLD_TICKS = Tilerunner.TICKS_PER_REVOLUTION;
     private static double THRESHOLD_HEADING = 30;
 
     DcMotor  leftMotor;
     DcMotor  rightMotor;
     DcMotor motorPair;
+
+    DcMotor liftMotor;
     BNO055IMU imu;
     Telemetry telemetry;
 
     private ElapsedTime period  = new ElapsedTime();
+
+    private static double difference(double source, double now) {
+        double delta = source - now;
+
+        return delta >= 0 ? delta % 360 : (delta + 360) % 360;
+    }
 
     /* Initialize standard Hardware interfaces */
     void init( HardwareMap hardwareMap, Telemetry telemetry )
@@ -62,16 +67,20 @@ class Tilerunner
         // Define and Initialize Motors
         leftMotor   = hardwareMap.dcMotor.get("left_drive");
         rightMotor  = hardwareMap.dcMotor.get("right_drive");
+        liftMotor = hardwareMap.dcMotor.get("lift");
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
         leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+        liftMotor.setDirection(DcMotor.Direction.FORWARD); // TODO Ensure this is the correct direction
 
         // Set all motors to zero power
         motorPair.setPower(0);
+        liftMotor.setPower(0);
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
         motorPair.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
 
@@ -98,12 +107,6 @@ class Tilerunner
 
     double getHeading() {
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
-    }
-
-    private static double difference(double source, double now) {
-        double delta = source - now;
-
-        return delta >= 0 ? delta % 360 : (delta+360) % 360;
     }
 
     // Utility Commands
@@ -149,6 +152,21 @@ class Tilerunner
             delta = difference(heading, getHeading());
         }
         motorPair.setPower(0);
+    }
+
+    void lift(BusyWaitHandler waitHandler, int distanceTicks, double power) {
+
+        // Stop lift motor and program it to run `distanceTicks` ticks at `power` speed.
+        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor.setTargetPosition(distanceTicks);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor.setPower(power);
+
+        // Wait until either the waitHandler says it's time to stop or the lift motor goes to its
+        //      destination
+        //noinspection StatementWithEmptyBody
+        while (liftMotor.isBusy() && waitHandler.isActive()) {
+        }
     }
 
 }
