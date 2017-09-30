@@ -83,6 +83,14 @@ public class TeleOp_OpMode extends OpMode
         // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
         hardware.leftMotor.setPower( -gamepad1.left_stick_y );
         hardware.rightMotor.setPower( -gamepad1.right_stick_y );
+
+        if (gamepad1.dpad_up) {
+            hardware.liftMotor.setPower(1);
+        } else if (gamepad1.dpad_down) {
+            hardware.liftMotor.setPower(-1);
+        } else {
+            hardware.liftMotor.setPower(0);
+        }
     }
 
     /*

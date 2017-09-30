@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.strategy;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+
 /**
  * Picks up a glyph and moves it to the correct cryptobox column
  */
@@ -7,15 +9,40 @@ package org.firstinspires.ftc.teamcode.strategy;
 public class MoveGlyphStrategy {
 
     public void pickUpGlyph() {
+        // If pictograph isn't read yet, read it
+        if (PictographStrategy.getCryptoboxKey() == CryptoboxColumn.UNKNOWN)
+            PictographStrategy.readCryptoboxKey();
+
         moveToGlyph();
         grabGlyph();
         goToCryptobox();
-        CryptoboxColumn column = decideCryptoboxColumn();
-        moveToCryptoboxColumn(column);
+        moveToCryptoboxColumn(PictographStrategy.getCryptoboxKey());
         putDownGlyph();
     }
 
     private void moveToGlyph() {
+        turnToGlyphPit();
+        moveToGlyphPit();
+        Position pos = findNearestGlyph();
+        goToPosition(pos);
+    }
+
+    // Turn from jewels to look at glyph pit
+    private void turnToGlyphPit() {
+        throw new UnsupportedOperationException();
+    }
+
+    // Move from jewels to glyph pit
+    private void moveToGlyphPit() {
+        throw new UnsupportedOperationException();
+    }
+
+    // Find nearest glyph from robot position
+    private Position findNearestGlyph() {
+        throw new UnsupportedOperationException();
+    }
+
+    private void goToPosition(Position pos) {
         throw new UnsupportedOperationException();
     }
 

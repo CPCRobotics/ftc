@@ -1,33 +1,21 @@
 package org.firstinspires.ftc.teamcode.strategy;
 
-import org.firstinspires.ftc.teamcode.Tilerunner;
+import org.firstinspires.ftc.teamcode.EyesightUtil;
 
 /**
  * Finds what Cryptobox Key to go to
  */
+@SuppressWarnings("WeakerAccess")
 public class PictographStrategy {
 
-    private Tilerunner tileRunner;
+    private static CryptoboxColumn column = CryptoboxColumn.UNKNOWN;
 
-    public PictographStrategy(Tilerunner tileRunner) {
-        this.tileRunner = tileRunner;
+    public static CryptoboxColumn readCryptoboxKey() {
+        column = CryptoboxColumn.fromVuMark(EyesightUtil.getPictograph());
+        return getCryptoboxKey();
     }
 
-    public CryptoboxColumn readCryptoboxKey() {
-        goToPictogram();
-        readPictogram();
-        return getKeyFromPictogram();
-    }
-
-    private void goToPictogram() {
-        throw new UnsupportedOperationException();
-    }
-
-    private void readPictogram() {
-        throw new UnsupportedOperationException();
-    }
-
-    private CryptoboxColumn getKeyFromPictogram() {
-        throw new UnsupportedOperationException();
+    public static CryptoboxColumn getCryptoboxKey() {
+        return column;
     }
 }
