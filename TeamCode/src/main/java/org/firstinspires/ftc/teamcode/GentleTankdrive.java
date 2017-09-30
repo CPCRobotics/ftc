@@ -40,6 +40,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @TeleOp(name = "Gentle TankDrive", group = "Iterative Opmode")
 // @Autonomous(...) is the other common choice
 public class GentleTankdrive extends OpMode {
+
+    private final static double SPEED_GAIN = 3;
+    private final static double MOTOR_DEADZONE = 0.1;
+
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
     private Tilerunner hardware = new Tilerunner();
@@ -51,8 +55,13 @@ public class GentleTankdrive extends OpMode {
         return Math.min(Math.max(value, min), max);
     }
 
+
     private double calculateSpeed(double currentSpeed, double joystickPower) {
-        return (joystickPower - currentSpeed) / 3 + joystickPower;
+        // Make moving the robot more sensitive when the joystick is closer to 0
+        double realJoystickPower = joystickPower * Math.abs(joystickPower);
+
+        // Slowly ramp up speed to full speed
+        return (realJoystickPower - currentSpeed) / SPEED_GAIN + currentSpeed;
     }
 
     /*
@@ -89,8 +98,14 @@ public class GentleTankdrive extends OpMode {
         telemetry.addData("Status", "Running: " + runtime.toString());
 
         // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
-        hardware.leftMotor.setPower(calculateSpeed(speedLeft, -gamepad1.left_stick_y));
-        hardware.rightMotor.setPower(calculateSpeed(speedRight, -gamepad1.right_stick_y));
+        speedLeft = calculateSpeed(speedLeft, -gamepad1.left_stick_y);
+        speedRight = calculateSpeed(speedRight, -gamepad1.right_stick_y);
+
+        telemetry.addData("Left Joystick Power", -gamepad1.left_stick_y);
+        telemetry.addData("Left Wheel Power", speedLeft);
+
+        hardware.leftMotor.setPower(speedLeft);
+        hardware.rightMotor.setPower(speedRight);
     }
 
     /*

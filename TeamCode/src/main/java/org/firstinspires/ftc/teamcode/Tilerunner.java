@@ -67,7 +67,14 @@ public class Tilerunner
         // Define and Initialize Motors
         leftMotor   = hardwareMap.dcMotor.get("left_drive");
         rightMotor  = hardwareMap.dcMotor.get("right_drive");
-        liftMotor = hardwareMap.dcMotor.get("lift");
+
+        try {
+            liftMotor = hardwareMap.dcMotor.get("lift");
+        } catch (RuntimeException e) {
+            telemetry.addData("error", "LIFT MOTOR MISSING: " + e.getMessage());
+            liftMotor = new NullDcMotor();
+        }
+
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
         leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
