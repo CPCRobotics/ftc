@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ThreadPool;
 
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -31,44 +32,20 @@ public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
         // Start the logging of measured acceleration
         tileRunner.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        mode = "Calibrating";
-        tileRunner.turn(this, 0.5, 180);
-        tileRunner.turn(this, -0.5, 180);
+        mode = "CALIBRATE";
+        tileRunner.calibrate(this);
+        mode = "RIGHT";
+        tileRunner.turn(this, 1, 180);
+        mode = "DONE";
+        telemetry.update();
 
-        while (opModeIsActive()) {
-            moveEdge();
+        while (isActive()) {
+            try { Thread.sleep(10); } catch (InterruptedException e) {Thread.currentThread().interrupt();}
         }
 
     }
 
-    private void moveEdge() {
-        mode = "forward";
-        tileRunner.move(this, 36, 1);
-        mode = "turning";
-        tileRunner.turn(this, 1, 90);
-    }
-
     private void composeTelemetry() {
-        telemetry.addLine()
-                .addData("current position (left)", new Func<Integer>() {
-                    @Override
-                    public Integer value() {
-                        return tileRunner.leftMotor.getCurrentPosition();
-                    }
-                })
-                .addData("current position (right)", new Func<Integer>() {
-                    @Override
-                    public Integer value() {
-                        return tileRunner.rightMotor.getCurrentPosition();
-                    }
-                });
-
-        telemetry.addData("target position (left)", new Func<Integer>() {
-            @Override
-            public Integer value() {
-                return tileRunner.leftMotor.getTargetPosition();
-            }
-        });
 
         telemetry.addData("heading", new Func<Double>() {
             @Override
@@ -83,12 +60,38 @@ public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
                 return mode;
             }
         });
+
+        telemetry.addLine()
+                .addData("imucalib", new Func<Object>() {
+                    @Override
+                    public Object value() {
+                        return String.format("%x", tileRunner.imu.getCalibrationStatus().calibrationStatus);
+                    }
+                })
+                .addData("imustatus", new Func<Object>() {
+                    @Override
+                    public Object value() {
+                        return tileRunner.imu.getSystemStatus().toShortString();
+                    }
+                });
+
     }
 
     @Override
     public boolean isActive() {
         telemetry.update();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
 
         return opModeIsActive();
+    }
+
+    @Override
+    public void sleep(int millis) {
+        super.sleep(millis);
     }
 }

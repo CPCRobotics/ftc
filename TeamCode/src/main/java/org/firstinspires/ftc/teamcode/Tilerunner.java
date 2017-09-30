@@ -54,10 +54,30 @@ public class Tilerunner
 
     private ElapsedTime period  = new ElapsedTime();
 
-    private static double difference(double source, double now) {
-        double delta = source - now;
+    private enum Direction {
+        CLOCKWISE {
+            public double distanceDegrees(double start, double end) {
+                double dist = end-start;
+                return (dist >= 0) ? dist : dist + 360;
+            }
+        },
+        COUNTERCLOCKWISE {
+            public double distanceDegrees(double start, double end) {
+                double dist = start-end;
+                return (dist >= 0) ? dist : dist + 360;
+            }
 
-        return delta >= 0 ? delta % 360 : (delta + 360) % 360;
+        };
+
+        public abstract double distanceDegrees(double start, double end);
+
+        public static Direction fromPower(double power) {
+            if (power > 0) {
+                return CLOCKWISE;
+            } else {
+                return COUNTERCLOCKWISE;
+            }
+        }
     }
 
     /* Initialize standard Hardware interfaces */
@@ -141,24 +161,48 @@ public class Tilerunner
         }
     }
 
-    void turn(BusyWaitHandler waitHandler, double direction, double degrees) {
-        double heading = getHeading();
+    void turn(BusyWaitHandler waitHandler, double directionPower, double destinationDegrees) {
+        final double startHeading = getHeading();
+        Direction direction = Direction.fromPower(directionPower);
 
         motorPair.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftMotor.setPower(direction);
-        rightMotor.setPower(-direction);
+        leftMotor.setPower(directionPower);
+        rightMotor.setPower(-directionPower);
 
-        double delta = difference(heading, getHeading());
-        while ( delta < degrees && waitHandler.isActive()) {
-            double power = direction * calculateSpeed(degrees - delta, THRESHOLD_HEADING);
-            telemetry.addData("goal", degrees);
-            telemetry.addData("delta", delta);
-            leftMotor.setPower(power);
-            rightMotor.setPower(-power);
+        double delta = direction.distanceDegrees(startHeading, getHeading());
+        while ( delta < destinationDegrees && waitHandler.isActive()) {
+            //double power = directionPower * calculateSpeed(degrees - delta, THRESHOLD_HEADING);
 
-            delta = difference(heading, getHeading());
+            telemetry.addLine()
+                    .addData("start", startHeading)
+                    .addData("goal", destinationDegrees)
+                    .addData("delta", delta);
+
+//            leftMotor.setPower(power);
+//            rightMotor.setPower(-power);
+
+            delta = direction.distanceDegrees(startHeading, getHeading());
         }
         motorPair.setPower(0);
+
+        telemetry.addLine()
+                .addData("start", startHeading)
+                .addData("goal", destinationDegrees)
+                .addData("delta", delta)
+                .addData("isActive", waitHandler.isActive());
+
+    }
+
+    void calibrate(BusyWaitHandler waitHandler) {
+        leftMotor.setPower(0.5);
+        rightMotor.setPower(-0.5);
+
+        waitHandler.sleep(250);
+
+        leftMotor.setPower(-0.5);
+        rightMotor.setPower(0.5);
+
+        waitHandler.sleep(250);
     }
 
     void lift(BusyWaitHandler waitHandler, int distanceTicks, double power) {

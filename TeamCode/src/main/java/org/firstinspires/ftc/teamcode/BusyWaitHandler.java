@@ -6,4 +6,5 @@ package org.firstinspires.ftc.teamcode;
 
 public interface BusyWaitHandler {
     boolean isActive();
+    void sleep(int millis);
 }
