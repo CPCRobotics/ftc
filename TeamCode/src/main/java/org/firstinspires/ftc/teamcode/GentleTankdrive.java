@@ -58,10 +58,13 @@ public class GentleTankdrive extends OpMode {
 
     private double calculateSpeed(double currentSpeed, double joystickPower) {
         // Make moving the robot more sensitive when the joystick is closer to 0
-        double realJoystickPower = joystickPower * Math.abs(joystickPower);
+        double targetPower = joystickPower * Math.abs(joystickPower);
+
+        // Avoid "deadzone" where the motor doesn't have enough power to move the robot
+        targetPower = targetPower * (1 - MOTOR_DEADZONE) + MOTOR_DEADZONE * Math.signum(targetPower);
 
         // Slowly ramp up speed to full speed
-        return (realJoystickPower - currentSpeed) / SPEED_GAIN + currentSpeed;
+        return (targetPower - currentSpeed) / SPEED_GAIN + currentSpeed;
     }
 
     /*
