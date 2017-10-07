@@ -33,19 +33,21 @@ public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
         tileRunner.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         mode = "CALIBRATE";
-        tileRunner.calibrate(this);
+        tileRunner.calibrate();
         mode = "RIGHT";
         tileRunner.turn(this, 1, 180);
         mode = "DONE";
         telemetry.update();
 
         while (isActive()) {
-            try { Thread.sleep(10); } catch (InterruptedException e) {Thread.currentThread().interrupt();}
+            Thread.sleep(10);
         }
 
     }
 
     private void composeTelemetry() {
+
+        telemetry.setAutoClear(false);
 
         telemetry.addData("heading", new Func<Double>() {
             @Override

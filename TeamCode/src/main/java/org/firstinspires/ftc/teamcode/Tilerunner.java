@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -42,7 +44,7 @@ public class Tilerunner
     // 4" * pi = 12.5663"
     private static final double WHEEL_CIRCUMFERENCE = 12.5663;
     private static double THRESHOLD_TICKS = Tilerunner.TICKS_PER_REVOLUTION;
-    private static double THRESHOLD_HEADING = 30;
+    private static double THRESHOLD_HEADING = 180;
 
     DcMotor  leftMotor;
     DcMotor  rightMotor;
@@ -57,16 +59,15 @@ public class Tilerunner
     private enum Direction {
         CLOCKWISE {
             public double distanceDegrees(double start, double end) {
-                double dist = end-start;
+                double dist = start-end;
                 return (dist >= 0) ? dist : dist + 360;
             }
         },
         COUNTERCLOCKWISE {
             public double distanceDegrees(double start, double end) {
-                double dist = start-end;
+                double dist = end-start;
                 return (dist >= 0) ? dist : dist + 360;
             }
-
         };
 
         public abstract double distanceDegrees(double start, double end);
@@ -144,7 +145,7 @@ public class Tilerunner
      */
     private double calculateSpeed(double dist, double threshold) {
 
-        // Slow down when the distance to the target is less than 3 * the distance of the wheel
+        // Slow down when the distance to the target is less than the threshold
         return Math.min(1, Math.max(0.5, dist / threshold) );
     }
 
@@ -156,12 +157,26 @@ public class Tilerunner
         motorPair.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorPair.setPower(power);
 
+        telemetry.addLine()
+                .addData("mode", leftMotor.getMode())
+                .addData("target", leftMotor.getTargetPosition())
+                .addData("pos", leftMotor.getCurrentPosition());
+
         while (leftMotor.isBusy() && waitHandler.isActive()) {
-            motorPair.setPower(calculateSpeed(motorPair.getTargetPosition() - motorPair.getCurrentPosition(), THRESHOLD_TICKS));
+            telemetry.addLine()
+                    .addData("mode", leftMotor.getMode())
+                    .addData("target", leftMotor.getTargetPosition())
+                    .addData("pos", leftMotor.getCurrentPosition());
+            //motorPair.setPower(calculateSpeed(motorPair.getTargetPosition() - motorPair.getCurrentPosition(), THRESHOLD_TICKS));
         }
+
+        telemetry.addLine()
+                .addData("mode", leftMotor.getMode())
+                .addData("target", leftMotor.getTargetPosition())
+                .addData("pos", leftMotor.getCurrentPosition());
     }
 
-    void turn(BusyWaitHandler waitHandler, double directionPower, double destinationDegrees) {
+    void turn(BusyWaitHandler waitHandler, double directionPower, double destinationDegrees) throws InterruptedException {
         final double startHeading = getHeading();
         Direction direction = Direction.fromPower(directionPower);
 
@@ -170,39 +185,45 @@ public class Tilerunner
         rightMotor.setPower(-directionPower);
 
         double delta = direction.distanceDegrees(startHeading, getHeading());
-        while ( delta < destinationDegrees && waitHandler.isActive()) {
-            //double power = directionPower * calculateSpeed(degrees - delta, THRESHOLD_HEADING);
+        while ( (delta < destinationDegrees || delta > 300) && waitHandler.isActive()) {
+            double power = directionPower * calculateSpeed(destinationDegrees - delta, THRESHOLD_HEADING);
 
             telemetry.addLine()
-                    .addData("start", startHeading)
+                    .addData("power", power)
+                    .addData("heading", getHeading())
                     .addData("goal", destinationDegrees)
                     .addData("delta", delta);
 
-//            leftMotor.setPower(power);
-//            rightMotor.setPower(-power);
+            leftMotor.setPower(power);
+            rightMotor.setPower(-power);
 
             delta = direction.distanceDegrees(startHeading, getHeading());
+            Thread.sleep(1);
         }
         motorPair.setPower(0);
+        motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         telemetry.addLine()
                 .addData("start", startHeading)
+                .addData("heading", getHeading())
                 .addData("goal", destinationDegrees)
-                .addData("delta", delta)
-                .addData("isActive", waitHandler.isActive());
+                .addData("delta", delta);
 
     }
 
-    void calibrate(BusyWaitHandler waitHandler) {
+    void calibrate() throws InterruptedException {
         leftMotor.setPower(0.5);
         rightMotor.setPower(-0.5);
 
-        waitHandler.sleep(250);
+        Thread.sleep(250);
 
         leftMotor.setPower(-0.5);
         rightMotor.setPower(0.5);
 
-        waitHandler.sleep(250);
+        Thread.sleep(250);
+        motorPair.setPower(0);
+        motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Thread.sleep(250);
     }
 
     void lift(BusyWaitHandler waitHandler, int distanceTicks, double power) {
