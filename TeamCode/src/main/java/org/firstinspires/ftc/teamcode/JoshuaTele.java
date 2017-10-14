@@ -36,6 +36,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.util.logging.Logger;
+
 
 @TeleOp( name="Joshua's", group="Iterative Opmode" )  // @Autonomous(...) is the other common choice
 public class JoshuaTele extends OpMode
@@ -50,7 +52,7 @@ public class JoshuaTele extends OpMode
     @Override
     public void init()
     {
-        telemetry.addData("Status", "Initialized");
+        Twigger.getInstance().addData("Status", "Initialized");
 
         // Initialize the robot hardware object passing it the OpModes hardwareMap.
         hardware.init( hardwareMap, telemetry );
@@ -78,7 +80,7 @@ public class JoshuaTele extends OpMode
      */
     @Override
     public void loop() {
-        telemetry.addData("Status", "Running: " + runtime.toString());
+        Twigger.getInstance().addData("Status", "Running: " + runtime.toString());
 
         // eg: "a" button driver forward
         if (gamepad1.a == true) {

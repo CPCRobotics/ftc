@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -45,14 +43,13 @@ public class Tilerunner
     private static final double WHEEL_CIRCUMFERENCE = 12.5663;
     private static double THRESHOLD_TICKS = Tilerunner.TICKS_PER_REVOLUTION;
     private static double THRESHOLD_HEADING = 180;
-
+    public final static double MOTOR_DEADZONE = 0.1;
+    DcMotor  clawMotor;
     DcMotor  leftMotor;
     DcMotor  rightMotor;
     DcMotor motorPair;
-
     DcMotor liftMotor;
     BNO055IMU imu;
-    Telemetry telemetry;
 
     private ElapsedTime period  = new ElapsedTime();
 
@@ -80,37 +77,33 @@ public class Tilerunner
             }
         }
     }
-
+    DcMotor createDcMotor(HardwareMap hardwareMap, String motorName){
+        DcMotor motor;
+        try{
+            motor=hardwareMap.dcMotor.get(motorName);
+        } catch (RuntimeException e) {
+            Twigger.getInstance().addData("error", motorName+ " motor missing: "+ e.getMessage());
+            return new NullDcMotor();
+        }
+        motor.setDirection(DcMotor.Direction.FORWARD);
+        motor.setPower(0);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        return motor;
+    }
     /* Initialize standard Hardware interfaces */
     void init( HardwareMap hardwareMap, Telemetry telemetry )
     {
 
-        // Define and Initialize Motors
-        leftMotor   = hardwareMap.dcMotor.get("left_drive");
-        rightMotor  = hardwareMap.dcMotor.get("right_drive");
+        Twigger.getInstance().setTelemetry(telemetry);
 
-        try {
-            liftMotor = hardwareMap.dcMotor.get("lift");
-        } catch (RuntimeException e) {
-            telemetry.addData("error", "LIFT MOTOR MISSING: " + e.getMessage());
-            liftMotor = new NullDcMotor();
-        }
+        // Define and Initialize Motors
+        leftMotor   = createDcMotor(hardwareMap, "left_drive");
+        rightMotor  = createDcMotor(hardwareMap, "right_drive");
+        rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
-        leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
-        rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
-        liftMotor.setDirection(DcMotor.Direction.FORWARD); // TODO Ensure this is the correct direction
-
-        // Set all motors to zero power
-        motorPair.setPower(0);
-        liftMotor.setPower(0);
-        // Set all motors to run without encoders.
-        // May want to use RUN_USING_ENCODERS if encoders are installed.
-        motorPair.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
+        liftMotor = createDcMotor(hardwareMap,"lift_drive");
 
         // Set up the parameters with which we will use our IMU. Note that integration
         // algorithm here just reports accelerations to the logcat log; it doesn't actually
@@ -129,8 +122,6 @@ public class Tilerunner
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
-        this.telemetry = telemetry;
-
     }
 
     double getHeading() {
@@ -146,10 +137,10 @@ public class Tilerunner
     private double calculateSpeed(double dist, double threshold) {
 
         // Slow down when the distance to the target is less than the threshold
-        return Math.min(1, Math.max(0.5, dist / threshold) );
+        return Math.min(1, Math.max(MOTOR_DEADZONE, dist / threshold) );
     }
 
-    void move(BusyWaitHandler waitHandler, double inches, double power) {
+    void move(BusyWaitHandler waitHandler, double power, double inches) {
         int ticks = (int)(Tilerunner.TICKS_PER_REVOLUTION * inches / Tilerunner.WHEEL_CIRCUMFERENCE);
 
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -157,20 +148,20 @@ public class Tilerunner
         motorPair.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorPair.setPower(power);
 
-        telemetry.addLine()
+        Twigger.getInstance().addLine()
                 .addData("mode", leftMotor.getMode())
                 .addData("target", leftMotor.getTargetPosition())
                 .addData("pos", leftMotor.getCurrentPosition());
 
         while (leftMotor.isBusy() && waitHandler.isActive()) {
-            telemetry.addLine()
+            Twigger.getInstance().addLine()
                     .addData("mode", leftMotor.getMode())
                     .addData("target", leftMotor.getTargetPosition())
                     .addData("pos", leftMotor.getCurrentPosition());
             //motorPair.setPower(calculateSpeed(motorPair.getTargetPosition() - motorPair.getCurrentPosition(), THRESHOLD_TICKS));
         }
 
-        telemetry.addLine()
+        Twigger.getInstance().addLine()
                 .addData("mode", leftMotor.getMode())
                 .addData("target", leftMotor.getTargetPosition())
                 .addData("pos", leftMotor.getCurrentPosition());
@@ -188,7 +179,7 @@ public class Tilerunner
         while ( (delta < destinationDegrees || delta > 300) && waitHandler.isActive()) {
             double power = directionPower * calculateSpeed(destinationDegrees - delta, THRESHOLD_HEADING);
 
-            telemetry.addLine()
+            Twigger.getInstance().addLine()
                     .addData("power", power)
                     .addData("heading", getHeading())
                     .addData("goal", destinationDegrees)
@@ -203,7 +194,7 @@ public class Tilerunner
         motorPair.setPower(0);
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        telemetry.addLine()
+        Twigger.getInstance().addLine()
                 .addData("start", startHeading)
                 .addData("heading", getHeading())
                 .addData("goal", destinationDegrees)
@@ -240,6 +231,18 @@ public class Tilerunner
         while (liftMotor.isBusy() && waitHandler.isActive()) {
         }
     }
+    void moveClaw(BusyWaitHandler waitHandler, int distanceTicks, double power) {
+        // Stop claw motor and program it to run `distanceTicks` ticks at `power` speed.
+        clawMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        clawMotor.setTargetPosition(distanceTicks);
+        clawMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        clawMotor.setPower(power);
 
+        // Wait until either the waitHandler says it's time to stop or the claw motor goes to its
+        //      destination
+        //noinspection StatementWithEmptyBody
+        while (clawMotor.isBusy() && waitHandler.isActive()) {
+        }
+    }
 }
 

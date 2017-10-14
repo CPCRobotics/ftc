@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ThreadPool;
 
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -34,13 +33,11 @@ public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
 
         mode = "CALIBRATE";
         tileRunner.calibrate();
-        mode = "RIGHT";
-        tileRunner.turn(this, 1, 180);
-        mode = "DONE";
-        telemetry.update();
+        mode = "SQUARE";
 
         while (isActive()) {
-            Thread.sleep(10);
+            tileRunner.move(this, 1, 36);
+            tileRunner.turn(this,1,90);
         }
 
     }
@@ -49,21 +46,21 @@ public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
 
         telemetry.setAutoClear(false);
 
-        telemetry.addData("heading", new Func<Double>() {
+        Twigger.getInstance().addData("heading", new Func<Double>() {
             @Override
             public Double value() {
                 return tileRunner.getHeading();
             }
         });
 
-        telemetry.addData("mode", new Func<String>() {
+        Twigger.getInstance().addData("mode", new Func<String>() {
             @Override
             public String value() {
                 return mode;
             }
         });
 
-        telemetry.addLine()
+        Twigger.getInstance()
                 .addData("imucalib", new Func<Object>() {
                     @Override
                     public Object value() {

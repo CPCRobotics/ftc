@@ -38,11 +38,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 @TeleOp(name = "Gentle TankDrive", group = "Iterative Opmode")
-// @Autonomous(...) is the other common choice
-public class GentleTankdrive extends OpMode {
+public class TankDrive extends OpMode {
 
     private final static double SPEED_GAIN = 3;
-    private final static double MOTOR_DEADZONE = 0.1;
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
@@ -61,7 +59,7 @@ public class GentleTankdrive extends OpMode {
         double targetPower = joystickPower * Math.abs(joystickPower);
 
         // Avoid "deadzone" where the motor doesn't have enough power to move the robot
-        targetPower = targetPower * (1 - MOTOR_DEADZONE) + MOTOR_DEADZONE * Math.signum(targetPower);
+        targetPower = targetPower * (1 - Tilerunner.MOTOR_DEADZONE) + Tilerunner.MOTOR_DEADZONE * Math.signum(targetPower);
 
         // Slowly ramp up speed to full speed
         return (targetPower - currentSpeed) / SPEED_GAIN + currentSpeed;
@@ -98,17 +96,32 @@ public class GentleTankdrive extends OpMode {
      */
     @Override
     public void loop() {
-        telemetry.addData("Status", "Running: " + runtime.toString());
+        Twigger.getInstance().addData("Status", "Running: " + runtime.toString());
 
         // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
         speedLeft = calculateSpeed(speedLeft, -gamepad1.left_stick_y);
         speedRight = calculateSpeed(speedRight, -gamepad1.right_stick_y);
 
-        telemetry.addData("Left Joystick Power", -gamepad1.left_stick_y);
-        telemetry.addData("Left Wheel Power", speedLeft);
+        Twigger.getInstance().addData("Left Joystick Power", -gamepad1.left_stick_y);
+        Twigger.getInstance().addData("Left Wheel Power", speedLeft);
 
         hardware.leftMotor.setPower(speedLeft);
         hardware.rightMotor.setPower(speedRight);
+
+
+        if (gamepad1.dpad_up) {
+            hardware.liftMotor.setPower(1);
+        } else if (gamepad1.dpad_down) {
+            hardware.liftMotor.setPower(-1);
+        } else {
+            hardware.liftMotor.setPower(0);
+        }
+
+        if (gamepad1.left_trigger>0 ||gamepad2.left_trigger>0){
+            hardware.clawMotor.setPower(1);
+        } else if (gamepad1.right_trigger>0||gamepad2.right_trigger>0){
+            hardware.clawMotor.setPower(-1);
+        }
     }
 
     /*
