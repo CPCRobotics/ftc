@@ -36,7 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.util.logging.Logger;
+import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 
 @TeleOp( name="Joshua's", group="Iterative Opmode" )  // @Autonomous(...) is the other common choice

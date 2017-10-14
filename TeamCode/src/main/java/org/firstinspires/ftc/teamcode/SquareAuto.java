@@ -1,17 +1,20 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
  * Created by samuel on 8/11/17
  */
 
 @Autonomous( name="SquareAuto", group="Iterative OpMode")
+@Disabled
 public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
 
     private Tilerunner tileRunner = new Tilerunner();
@@ -32,7 +35,7 @@ public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
         tileRunner.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         mode = "CALIBRATE";
-        tileRunner.calibrate();
+        tileRunner.calibrate(this);
         mode = "SQUARE";
 
         while (isActive()) {
@@ -89,8 +92,4 @@ public class SquareAuto extends LinearOpMode implements BusyWaitHandler{
         return opModeIsActive();
     }
 
-    @Override
-    public void sleep(int millis) {
-        super.sleep(millis);
-    }
 }

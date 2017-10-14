@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.twigger;
 
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -6,6 +6,7 @@ import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Twigger - helper class that combines both Telemetry and RobotLog
@@ -43,8 +44,9 @@ public class Twigger {
         public String value() {
             StringBuilder sb = new StringBuilder();
 
-            for (String s : dataFuncs.keySet())
-                sb.append(String.format("%s: %s | ", s, dataFuncs.get(s)));
+            for (Map.Entry<String, Func<String>> e : dataFuncs.entrySet()) {
+                sb.append(String.format("%s: %s | ", e.getKey(), e.getValue().value()));
+            }
 
             return sb.toString();
         }
@@ -62,6 +64,10 @@ public class Twigger {
             line.addData(name, data);
             dataFuncs.put(name, data);
             return this;
+        }
+
+        public Twigger done() {
+            return Twigger.getInstance();
         }
     }
 
@@ -95,9 +101,23 @@ public class Twigger {
         return this;
     }
 
-    public void update() {
+    public Twigger remove(String name) {
+        dataFuncs.remove(name);
+        return this;
+    }
+
+    public Twigger update() {
         telemetry.update();
-        for (String n : dataFuncs.keySet())
-            RobotLog.d("%s: %s", n, dataFuncs.get(n).value());
+        for (Map.Entry<String, Func<String>> e : dataFuncs.entrySet()) {
+            RobotLog.d("%s: %s", e.getKey(), e.getValue().value());
+        }
+        return this;
+    }
+
+    public Twigger sendOnce(Object data) {
+        telemetry.addData("", data);
+        RobotLog.d("%s", data);
+
+        return this;
     }
 }

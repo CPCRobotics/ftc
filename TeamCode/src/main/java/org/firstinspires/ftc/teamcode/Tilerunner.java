@@ -10,6 +10,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.teamcode.nulls.NullBNO055IMU;
+import org.firstinspires.ftc.teamcode.nulls.NullDcMotor;
+import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 import java.util.Arrays;
 
@@ -41,9 +44,11 @@ public class Tilerunner
     private static final int TICKS_PER_REVOLUTION = 1120;
     // 4" * pi = 12.5663"
     private static final double WHEEL_CIRCUMFERENCE = 12.5663;
-    private static double THRESHOLD_TICKS = Tilerunner.TICKS_PER_REVOLUTION;
-    private static double THRESHOLD_HEADING = 180;
-    public final static double MOTOR_DEADZONE = 0.1;
+    private static final double THRESHOLD_TICKS = Tilerunner.TICKS_PER_REVOLUTION;
+    private static final double THRESHOLD_HEADING = 180;
+    public static final double MOTOR_DEADZONE = 0.2;
+
+    private static final double TURN_CORRECTION_THRESHOLD = 2.5; // degrees
     DcMotor  clawMotor;
     DcMotor  leftMotor;
     DcMotor  rightMotor;
@@ -81,8 +86,8 @@ public class Tilerunner
         DcMotor motor;
         try{
             motor=hardwareMap.dcMotor.get(motorName);
-        } catch (RuntimeException e) {
-            Twigger.getInstance().addData("error", motorName+ " motor missing: "+ e.getMessage());
+        } catch (IllegalArgumentException e) {
+            Twigger.getInstance().sendOnce("WARN: " + motorName + " motor missing: "+ e.getMessage());
             return new NullDcMotor();
         }
         motor.setDirection(DcMotor.Direction.FORWARD);
@@ -119,8 +124,13 @@ public class Tilerunner
         // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
         // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
         // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
+        try {
+            imu = hardwareMap.get(BNO055IMU.class, "imu");
+            imu.initialize(parameters);
+        } catch (IllegalArgumentException e) {
+            imu = new NullBNO055IMU();
+            Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
+        }
 
     }
 
@@ -147,29 +157,28 @@ public class Tilerunner
         motorPair.setTargetPosition( ticks );
         motorPair.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorPair.setPower(power);
-
-        Twigger.getInstance().addLine()
-                .addData("mode", leftMotor.getMode())
-                .addData("target", leftMotor.getTargetPosition())
-                .addData("pos", leftMotor.getCurrentPosition());
-
         while (leftMotor.isBusy() && waitHandler.isActive()) {
-            Twigger.getInstance().addLine()
+            Twigger.getInstance().addLine(".move()")
                     .addData("mode", leftMotor.getMode())
                     .addData("target", leftMotor.getTargetPosition())
                     .addData("pos", leftMotor.getCurrentPosition());
-            //motorPair.setPower(calculateSpeed(motorPair.getTargetPosition() - motorPair.getCurrentPosition(), THRESHOLD_TICKS));
+
+            motorPair.setPower(calculateSpeed(motorPair.getTargetPosition() - motorPair.getCurrentPosition(), THRESHOLD_TICKS));
         }
 
-        Twigger.getInstance().addLine()
-                .addData("mode", leftMotor.getMode())
-                .addData("target", leftMotor.getTargetPosition())
-                .addData("pos", leftMotor.getCurrentPosition());
+        Twigger.getInstance()
+                .update()
+                .remove(".move()");
     }
 
     void turn(BusyWaitHandler waitHandler, double directionPower, double destinationDegrees) throws InterruptedException {
+
+        final double directionSign = Math.signum(directionPower) * Math.signum(destinationDegrees);
+        Direction direction = Direction.fromPower(directionSign);
+
+        directionPower = Math.abs(directionPower);
+        destinationDegrees = Math.abs(destinationDegrees);
         final double startHeading = getHeading();
-        Direction direction = Direction.fromPower(directionPower);
 
         motorPair.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftMotor.setPower(directionPower);
@@ -178,8 +187,10 @@ public class Tilerunner
         double delta = direction.distanceDegrees(startHeading, getHeading());
         while ( (delta < destinationDegrees || delta > 300) && waitHandler.isActive()) {
             double power = directionPower * calculateSpeed(destinationDegrees - delta, THRESHOLD_HEADING);
+            power = Math.max(MOTOR_DEADZONE, power);
+            power *= directionSign;
 
-            Twigger.getInstance().addLine()
+            Twigger.getInstance().addLine(".turn()")
                     .addData("power", power)
                     .addData("heading", getHeading())
                     .addData("goal", destinationDegrees)
@@ -194,25 +205,29 @@ public class Tilerunner
         motorPair.setPower(0);
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        Twigger.getInstance().addLine()
+        Twigger.getInstance().addLine(".turn()")
                 .addData("start", startHeading)
                 .addData("heading", getHeading())
                 .addData("goal", destinationDegrees)
                 .addData("delta", delta);
 
+        Thread.sleep(100);
+
+        // If we have overshot over 5°, correct it at half the speed.
+        double overshoot = delta - destinationDegrees;
+        if (overshoot > TURN_CORRECTION_THRESHOLD)
+            turn(waitHandler, -directionPower/5, overshoot);
+
+        Twigger.getInstance()
+                .update()
+                .remove(".turn()");
     }
 
-    void calibrate() throws InterruptedException {
-        leftMotor.setPower(0.5);
-        rightMotor.setPower(-0.5);
+    void calibrate(BusyWaitHandler waitHandler) throws InterruptedException {
 
-        Thread.sleep(250);
+        turn(waitHandler, 0.25, 15);
+        turn(waitHandler, 0.25, -15);
 
-        leftMotor.setPower(-0.5);
-        rightMotor.setPower(0.5);
-
-        Thread.sleep(250);
-        motorPair.setPower(0);
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Thread.sleep(250);
     }
