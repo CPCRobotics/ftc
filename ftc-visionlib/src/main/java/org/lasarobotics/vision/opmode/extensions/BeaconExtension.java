@@ -6,7 +6,7 @@ package org.lasarobotics.vision.opmode.extensions;
 
 import org.lasarobotics.vision.detection.objects.Rectangle;
 import org.lasarobotics.vision.ftc.resq.Beacon;
-import org.lasarobotics.vision.opmode.VisionOpMode;
+import org.lasarobotics.vision.opmode.VisionOpModeCore;
 import org.lasarobotics.vision.util.ScreenOrientation;
 import org.opencv.core.Mat;
 
@@ -92,22 +92,22 @@ public class BeaconExtension implements VisionExtension {
     }
 
     @Override
-    public void init(VisionOpMode opmode) {
+    public void init(VisionOpModeCore opmode) {
         //Initialize all detectors here
         beacon = new Beacon();
     }
 
     @Override
-    public void loop(VisionOpMode opmode) {
+    public void loop(VisionOpModeCore opmode) {
 
     }
 
     @Override
-    public Mat frame(VisionOpMode opmode, Mat rgba, Mat gray) {
+    public Mat frame(VisionOpModeCore opmode, Mat rgba, Mat gray) {
         try {
             //Get screen orientation data
             ScreenOrientation orientation = ScreenOrientation.getFromAngle(
-                    VisionOpMode.rotation.getRotationCompensationAngle());
+                    VisionOpModeCore.rotation.getRotationCompensationAngle());
 
             //Get color analysis
             this.analysis = beacon.analyzeFrame(rgba, gray, orientation);
@@ -120,7 +120,7 @@ public class BeaconExtension implements VisionExtension {
     }
 
     @Override
-    public void stop(VisionOpMode opmode) {
+    public void stop(VisionOpModeCore opmode) {
 
     }
 }

@@ -5,17 +5,18 @@
 package org.lasarobotics.vision.opmode.extensions;
 
 import org.lasarobotics.vision.opmode.VisionOpMode;
+import org.lasarobotics.vision.opmode.VisionOpModeCore;
 import org.opencv.core.Mat;
 
 /**
- * Interface for vision extensions for VisionOpMode
+ * Interface for vision extensions for JewelsVisionOpMode
  */
 public interface VisionExtension {
-    void init(VisionOpMode opmode);
+    void init(VisionOpModeCore opmode);
 
-    void loop(VisionOpMode opmode);
+    void loop(VisionOpModeCore opmode);
 
-    Mat frame(VisionOpMode opmode, Mat rgba, Mat gray);
+    Mat frame(VisionOpModeCore opmode, Mat rgba, Mat gray);
 
-    void stop(VisionOpMode opmode);
+    void stop(VisionOpModeCore opmode);
 }

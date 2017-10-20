@@ -15,6 +15,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.android.Sensors;
+import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
+import org.lasarobotics.vision.opmode.extensions.ImageRotationExtension;
 import org.lasarobotics.vision.util.FPS;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -27,7 +29,7 @@ import org.opencv.core.Size;
 /**
  * Core OpMode class containing most OpenCV functionality
  */
-abstract class VisionOpModeCore extends OpMode implements CameraBridgeViewBase.CvCameraViewListener2 {
+public abstract class VisionOpModeCore extends OpMode implements CameraBridgeViewBase.CvCameraViewListener2 {
     private static final int initialMaxSize = 1200;
     public static JavaCameraView openCVCamera;
     private static boolean initialized = false;
@@ -35,6 +37,8 @@ abstract class VisionOpModeCore extends OpMode implements CameraBridgeViewBase.C
     public int width, height;
     public FPS fps;
     public Sensors sensors;
+    public static final ImageRotationExtension rotation = new ImageRotationExtension();
+    public static final CameraControlExtension cameraControl = new CameraControlExtension();
 
     public VisionOpModeCore() {
         initialized = false;

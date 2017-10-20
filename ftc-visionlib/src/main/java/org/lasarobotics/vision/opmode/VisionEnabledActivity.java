@@ -23,7 +23,7 @@ import org.opencv.core.Mat;
  */
 public abstract class VisionEnabledActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
     private static CameraBridgeViewBase openCVCamera;
-    private TestableVisionOpMode opMode;
+    private VisionOpModeCore opMode;
     private final BaseLoaderCallback openCVLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -46,7 +46,7 @@ public abstract class VisionEnabledActivity extends Activity implements CameraBr
 
     }
 
-    protected final void initializeVision(int framePreview, TestableVisionOpMode opMode) {
+    protected final void initializeVision(int framePreview, VisionOpModeCore opMode) {
         openCVCamera = (CameraBridgeViewBase) findViewById(framePreview);
         openCVCamera.setVisibility(SurfaceView.VISIBLE);
         openCVCamera.setCvCameraViewListener(this);

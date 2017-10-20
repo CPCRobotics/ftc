@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 LASA Robotics and Contributors
+ * Modified from LASA Robotics sample code.
+ * Original source Copyright (c) 2015 LASA Robotics and Contributors
  * MIT licensed
  */
 
@@ -8,12 +9,13 @@ package com.lasarobotics.tests.camera;
 import android.os.Bundle;
 import android.view.WindowManager;
 
-import org.lasarobotics.vision.opmode.TestableVisionOpMode;
 import org.lasarobotics.vision.opmode.VisionEnabledActivity;
+
+import cpcs.vision.JewelsTestableVisionOpMode;
 
 public class CameraTestActivity extends VisionEnabledActivity {
 
-    private TestableVisionOpMode opmode;
+    private JewelsTestableVisionOpMode opmode;
 
     public CameraTestActivity() {
         super();

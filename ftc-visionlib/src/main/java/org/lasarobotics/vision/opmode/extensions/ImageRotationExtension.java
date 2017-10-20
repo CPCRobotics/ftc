@@ -12,7 +12,7 @@ import android.util.Log;
 import org.lasarobotics.vision.android.Sensors;
 import org.lasarobotics.vision.android.Util;
 import org.lasarobotics.vision.image.Transform;
-import org.lasarobotics.vision.opmode.VisionOpMode;
+import org.lasarobotics.vision.opmode.VisionOpModeCore;
 import org.lasarobotics.vision.util.ScreenOrientation;
 import org.opencv.core.Mat;
 
@@ -185,17 +185,17 @@ public class ImageRotationExtension implements VisionExtension {
 
 
     @Override
-    public void init(VisionOpMode opmode) {
+    public void init(VisionOpModeCore opmode) {
         sensors.resume();
     }
 
     @Override
-    public void loop(VisionOpMode opmode) {
+    public void loop(VisionOpModeCore opmode) {
 
     }
 
     @Override
-    public Mat frame(VisionOpMode opmode, Mat rgba, Mat gray) {
+    public Mat frame(VisionOpModeCore opmode, Mat rgba, Mat gray) {
         if (isInverted)
             Transform.flip(rgba, Transform.FlipType.FLIP_ACROSS_X);
         if (zeroOrientation != ScreenOrientation.LANDSCAPE)
@@ -204,7 +204,7 @@ public class ImageRotationExtension implements VisionExtension {
     }
 
     @Override
-    public void stop(VisionOpMode opmode) {
+    public void stop(VisionOpModeCore opmode) {
         sensors.stop();
     }
 }

@@ -9,7 +9,7 @@ package org.lasarobotics.vision.opmode.extensions;
 import android.hardware.Camera;
 import android.util.Log;
 
-import org.lasarobotics.vision.opmode.VisionOpMode;
+import org.lasarobotics.vision.opmode.VisionOpModeCore;
 import org.lasarobotics.vision.util.MathUtil;
 import org.opencv.core.Mat;
 
@@ -114,7 +114,7 @@ public class CameraControlExtension implements VisionExtension {
     }
 
     @Override
-    public void init(VisionOpMode opmode) {
+    public void init(VisionOpModeCore opmode) {
         paramsSet = false;
         colorTemp = ColorTemperature.AUTO;
         expoComp = 0;
@@ -122,13 +122,13 @@ public class CameraControlExtension implements VisionExtension {
     }
 
     @Override
-    public void loop(VisionOpMode opmode) {
+    public void loop(VisionOpModeCore opmode) {
 
     }
 
     @Override
     @SuppressWarnings("AccessStaticViaInstance")
-    public Mat frame(VisionOpMode opmode, Mat rgba, Mat gray) {
+    public Mat frame(VisionOpModeCore opmode, Mat rgba, Mat gray) {
         if (opmode.openCVCamera == null)
             paramsSet = false;
         if (paramsSet || opmode.openCVCamera == null) return rgba;
@@ -171,7 +171,7 @@ public class CameraControlExtension implements VisionExtension {
 
     @SuppressWarnings("AccessStaticViaInstance")
     @Override
-    public void stop(VisionOpMode opmode) {
+    public void stop(VisionOpModeCore opmode) {
         if (opmode.openCVCamera == null)
             return;
 

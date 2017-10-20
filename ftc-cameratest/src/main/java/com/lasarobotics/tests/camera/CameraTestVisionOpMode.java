@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2015 LASA Robotics and Contributors
+ * Modified from LASA Robotics sample code.
+ * Original source Copyright (c) 2015 LASA Robotics and Contributors
  * MIT licensed
  */
 
 package com.lasarobotics.tests.camera;
 
 import org.lasarobotics.vision.android.Cameras;
-import org.lasarobotics.vision.ftc.resq.Beacon;
 import org.lasarobotics.vision.image.Drawing;
-import org.lasarobotics.vision.opmode.TestableVisionOpMode;
 import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
 import org.lasarobotics.vision.util.ScreenOrientation;
 import org.lasarobotics.vision.util.color.Color;
@@ -18,11 +17,14 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
 
+import cpcs.vision.JewelsDetector;
+import cpcs.vision.JewelsTestableVisionOpMode;
+
 /**
  * Vision OpMode run by the Camera Test Activity
  * Use TestableVisionOpModes in testing apps ONLY (but you can easily convert between opmodes just by changingt t
  */
-public class CameraTestVisionOpMode extends TestableVisionOpMode {
+public class CameraTestVisionOpMode extends JewelsTestableVisionOpMode {
 
     @Override
     public void init() {
@@ -44,31 +46,19 @@ public class CameraTestVisionOpMode extends TestableVisionOpMode {
 
         /**
          * Enable extensions. Use what you need.
-         * If you turn on the BEACON extension, it's best to turn on ROTATION too.
+         * If you turn on the JEWEL extension, it's best to turn on ROTATION too.
          */
-        enableExtension(Extensions.BEACON);         //Beacon detection
+        enableExtension(Extensions.BLUR);           //Apply a blur to the image
+        enableExtension(Extensions.JEWELS);         //JewelsDetector detection
         enableExtension(Extensions.ROTATION);       //Automatic screen rotation correction
         enableExtension(Extensions.CAMERA_CONTROL); //Manual camera control
-
-        /**
-         * Set the beacon analysis method
-         * Try them all and see what works!
-         */
-        beacon.setAnalysisMethod(Beacon.AnalysisMethod.FAST);
-
-        /**
-         * Set color tolerances
-         * 0 is default, -1 is minimum and 1 is maximum tolerance
-         */
-        beacon.setColorToleranceRed(0);
-        beacon.setColorToleranceBlue(0);
 
         /**
          * Debug drawing
          * Enable this only if you're running test app - otherwise, you should turn it off
          * (Although it doesn't harm anything if you leave it on, only slows down image processing)
          */
-        beacon.enableDebug();
+        jewels.enableDebug();
 
         /**
          * Set the rotation parameters of the screen
@@ -126,43 +116,30 @@ public class CameraTestVisionOpMode extends TestableVisionOpMode {
         rgba = super.frame(rgba, gray);
         gray = Color.rapidConvertRGBAToGRAY(rgba);
 
-        //Display a Grid-system every 50 pixels
-        /*final int dist = 50;
-        for (int x = width/2 + 50; x<width; x+=dist)
-            Drawing.drawLine(rgba, new Point(x, 0), new Point(x, height), new ColorRGBA("#88888822"), 1);
-        for (int x = width/2 - 50; x>=0; x-=dist)
-            Drawing.drawLine(rgba, new Point(x, 0), new Point(x, height), new ColorRGBA("#88888822"), 1);
-        Drawing.drawLine(rgba, new Point(width/2, 0), new Point(width/2, height), new ColorRGBA("#ffffff44"), 1);
-        for (int y = height/2 + 50; y<height; y+=dist)
-            Drawing.drawLine(rgba, new Point(0, y), new Point(width, y), new ColorRGBA("#88888822"), 1);
-        for (int y = height/2 - 50; y>=0; y-=dist)
-            Drawing.drawLine(rgba, new Point(0, y), new Point(width, y), new ColorRGBA("#88888822"), 1);
-        Drawing.drawLine(rgba, new Point(0, height/2), new Point(width, height/2), new ColorRGBA("#ffffff44"), 1);*/
-
-        //Get beacon analysis
-        Beacon.BeaconAnalysis beaconAnalysis = beacon.getAnalysis();
+        //Get jewel analysis
+        JewelsDetector.JewelAnalysis beaconAnalysis = jewels.getAnalysis();
 
         //Display confidence
         Drawing.drawText(rgba, "Confidence: " + beaconAnalysis.getConfidenceString(),
-                new Point(0, 50), 1.0f, new ColorGRAY(255));
+                new Point(0, 50), 0.5f, new ColorGRAY(255));
 
         //Display beacon color
         Drawing.drawText(rgba, beaconAnalysis.getColorString(),
-                new Point(0, 8), 1.0f, new ColorGRAY(255), Drawing.Anchor.BOTTOMLEFT);
+                new Point(0, 8), 0.5f, new ColorGRAY(255), Drawing.Anchor.BOTTOMLEFT);
 
         //Display FPS
-        Drawing.drawText(rgba, "FPS: " + fps.getFPSString(), new Point(0, 24), 1.0f, new ColorRGBA("#ffffff"));
+        Drawing.drawText(rgba, "FPS: " + fps.getFPSString(), new Point(0, 24), 0.5f, new ColorRGBA("#ffffff"));
 
-        //Display Beacon Center
-        Drawing.drawText(rgba, "Center: " + beacon.getAnalysis().getCenter().toString(), new Point(0, 78), 1.0f, new ColorRGBA("#ffffff"));
+        //Display JewelsDetector Center
+        Drawing.drawText(rgba, "Center: " + jewels.getAnalysis().getCenterString(), new Point(0, 78), 0.5f, new ColorRGBA("#ffffff"));
 
-        //Display analysis method
-        Drawing.drawText(rgba, beacon.getAnalysisMethod().toString() + " Analysis",
-                new Point(width - 300, 40), 1.0f, new ColorRGBA("#FFC107"));
+        //Display inch offset to center
+        Drawing.drawText(rgba, "Center Adjust: " + jewels.getAnalysis().getCenterAdjustmentString(),
+                new Point(width - 300, 40), 0.5f, new ColorRGBA("#ffffff"));
 
         //Display rotation sensor compensation
         Drawing.drawText(rgba, "Rot: " + rotation.getRotationCompensationAngle()
-                + " (" + sensors.getScreenOrientation() + ")", new Point(0, 50), 1.0f, new ColorRGBA("#ffffff"), Drawing.Anchor.BOTTOMLEFT); //"#2196F3"
+                + " (" + sensors.getScreenOrientation() + ")", new Point(0, 50), 0.5f, new ColorRGBA("#ffffff"), Drawing.Anchor.BOTTOMLEFT); //"#2196F3"
 
         return rgba;
     }
