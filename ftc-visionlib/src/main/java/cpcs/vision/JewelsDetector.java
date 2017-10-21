@@ -189,13 +189,9 @@ public final class JewelsDetector {
     }
 
     private static Contour findLargest(List<Contour> contours, Contour ... exclusions) {
-        if (contours.size() < 1) {
-            return null;
-        }
         Contour largest = null;
         double maxArea = 0.0f;
-        for (int i = 0; i < contours.size(); i++) {
-            Contour c = contours.get(i);
+        for (Contour c : contours) {
             if (c.area() > maxArea && !isInsideExclusion(c, exclusions)) {
                 largest = c;
                 maxArea = c.area();
@@ -209,9 +205,12 @@ public final class JewelsDetector {
         // Take center of the test contour. See if the point (center) is in any
         // of the exclusions.
         //
+
         if (exclusions.length == 0) {
+            // Return early to avoid unnecessary test.centroid()
             return false;
         }
+
         Point center = test.centroid();
         for (Contour exclusion : exclusions) {
             if (Imgproc.pointPolygonTest(exclusion.getDoubleData(), center, false) > 0) {
@@ -261,16 +260,6 @@ public final class JewelsDetector {
      */
     public void disableDebug() {
         this.debug = false;
-    }
-
-    /**
-     * Analysis method
-     */
-    public enum AnalysisMethod {
-        /**
-         * Default method - selects the two largest contours and analyzes them
-         */
-        DEFAULT;
     }
 
     /**

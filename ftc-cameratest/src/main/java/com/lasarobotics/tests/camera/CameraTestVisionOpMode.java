@@ -10,7 +10,6 @@ import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.image.Drawing;
 import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
 import org.lasarobotics.vision.util.ScreenOrientation;
-import org.lasarobotics.vision.util.color.Color;
 import org.lasarobotics.vision.util.color.ColorGRAY;
 import org.lasarobotics.vision.util.color.ColorRGBA;
 import org.opencv.core.Mat;
@@ -42,7 +41,8 @@ public class CameraTestVisionOpMode extends JewelsTestableVisionOpMode {
          * Larger = sometimes more accurate, but also much slower
          * After this method runs, it will set the "width" and "height" of the frame
          **/
-        this.setFrameSize(new Size(900, 900));
+        blur.setBlurWidth(5);
+        this.setFrameSize(new Size(500, 500));
 
         /**
          * Enable extensions. Use what you need.
@@ -114,7 +114,6 @@ public class CameraTestVisionOpMode extends JewelsTestableVisionOpMode {
 
         //Run all extensions, then get matrices
         rgba = super.frame(rgba, gray);
-        gray = Color.rapidConvertRGBAToGRAY(rgba);
 
         //Get jewel analysis
         JewelsDetector.JewelAnalysis beaconAnalysis = jewels.getAnalysis();
