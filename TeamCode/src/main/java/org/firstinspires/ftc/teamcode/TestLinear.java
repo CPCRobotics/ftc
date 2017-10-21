@@ -33,12 +33,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.twigger.Twigger;
+
 
 @Autonomous(name="TestLinear" )
+@Disabled
 public class TestLinear extends LinearOpMode {
 
     /* Declare OpMode members. */
@@ -50,16 +54,16 @@ public class TestLinear extends LinearOpMode {
         // Initialize the robot hardware object passing it the OpModes hardwareMap.
         hardware.init( hardwareMap, telemetry );
 
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
+        Twigger.getInstance().addData("Status", "Initialized");
+        Twigger.getInstance().update();
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
 
         // run until the end of the match (driver presses STOP)
         do {
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.update();
+            Twigger.getInstance().addData("Status", "Run Time: " + runtime.toString());
+            Twigger.getInstance().update();
 
             hardware.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
             hardware.leftMotor.setTargetPosition( 1000 );
