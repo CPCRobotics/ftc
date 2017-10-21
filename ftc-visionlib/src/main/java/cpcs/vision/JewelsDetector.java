@@ -63,9 +63,10 @@ public final class JewelsDetector {
         if (readOppositeAxis)
             //Force the analysis box to transpose inself in place
             bounds = new Rectangle(
-                    new Point(bounds.center().y / img.height() * img.width(),
-                            bounds.center().x / img.width() * img.height()),
-                    bounds.height(), bounds.width()).clip(new Rectangle(img.size()));
+                        new Point(bounds.center().y / img.height() * img.width(),
+                                  bounds.center().x / img.width()  * img.height()),
+                        bounds.height(), bounds.width()
+                    ).clip(new Rectangle(img.size()));
         if (!swapLeftRight && readOppositeAxis)
             //Force the analysis box to flip across its primary axis
             bounds = new Rectangle(
@@ -121,10 +122,7 @@ public final class JewelsDetector {
 
         Point bestRedCenter = redBounding.center();
         Point bestBlueCenter = blueBounding.center();
-        Point bestWhiteCenter = null;
-        if (whiteBounding != null) {
-            bestWhiteCenter = whiteBounding.center();
-        }
+        Point bestWhiteCenter = (whiteBounding != null) ? whiteBounding.center() : null;
 
         //DEBUG R/B text
         if (debug) {
@@ -221,8 +219,9 @@ public final class JewelsDetector {
      */
     private static Contour outerContour(Contour contour) {
         if (contour == null) {
-            return contour;
+            return null;
         }
+
         MatOfInt hullIndexMat = new MatOfInt();
         MatOfPoint contourMat = contour.getData();
         int height = contourMat.height();

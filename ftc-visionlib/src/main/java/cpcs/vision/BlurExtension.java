@@ -43,9 +43,9 @@ public class BlurExtension implements VisionExtension {
 
     @Override
     public Mat frame(VisionOpModeCore opmode, Mat img, Mat gray) {
-        Mat output = img;
+        Mat output;
         try {
-            Rectangle bounds = new Rectangle(img.size());
+            new Rectangle(img.size());
             Mat blurred = img.clone();
             Imgproc.medianBlur(img, blurred, blurWidth);
             output = blurred;
