@@ -34,12 +34,6 @@ public final class JewelsDetector {
     private boolean debug = false;
 
     /**
-     * Instantiate a jewel detector
-     */
-    public JewelsDetector() {
-    }
-
-    /**
      * Analyze the current frame using the selected analysis method
      *
      * @param img  Image to analyze
@@ -68,7 +62,6 @@ public final class JewelsDetector {
         //Bound the image
         if (readOppositeAxis)
             //Force the analysis box to transpose inself in place
-            //noinspection SuspiciousNameCombination
             bounds = new Rectangle(
                     new Point(bounds.center().y / img.height() * img.width(),
                             bounds.center().x / img.width() * img.height()),
@@ -144,10 +137,10 @@ public final class JewelsDetector {
         }
 
         // pixels per inch
-        double redFactor = ((redBounding.height() + redBounding.width()) / 2) / JewelConstants.JEWEL_DIAMETER;
-        double blueFactor = ((blueBounding.height() + blueBounding.width()) / 2) / JewelConstants.JEWEL_DIAMETER;
-        double scaleFactor = (redFactor + blueFactor) / 2;
-        double minWidth = scaleFactor * JewelConstants.MIN_DISTANCE;
+        final double redFactor = ((redBounding.height() + redBounding.width()) / 2) / JewelConstants.JEWEL_DIAMETER;
+        final double blueFactor = ((blueBounding.height() + blueBounding.width()) / 2) / JewelConstants.JEWEL_DIAMETER;
+        final double scaleFactor = (redFactor + blueFactor) / 2;
+        final double minWidth = scaleFactor * JewelConstants.MIN_DISTANCE;
 
         double whiteToBlue, whiteToRed, center, confidence = 1.0;
         if (bestWhiteCenter == null) {

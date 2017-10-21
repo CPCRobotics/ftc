@@ -92,6 +92,8 @@ public class TestOpenCV extends JewelsLinearVisionOpMode {
                 discardFrame();
                 frameCount++;
             }
+
+            telemetry.update();
             sleep(1); // Allow other processes to run
         }
     }
