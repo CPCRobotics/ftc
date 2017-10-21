@@ -16,11 +16,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    sourceSets.main {
+        jni.srcDirs = []
+        jniLibs.srcDir rootProject.file('libs')
+    }
 }
 
 repositories {
     flatDir {
-        dirs 'libs'
+        dirs rootProject.file('libs')
     }
 }
 
