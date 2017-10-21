@@ -6,26 +6,32 @@ package org.firstinspires.ftc.teamcode.strategy;
 
 public class JewelTopplerStrategy {
 
-    public void toppleEnemyJewel() {
+    private JewelTopplerStrategy() {}
+
+    enum JewelDirection {
+        LEFT(-1), RIGHT(1);
+        int power;
+
+        JewelDirection(int power) {
+            this.power = power;
+        }
+    }
+
+    public static void toppleEnemyJewel() {
         goToJewels();
-        readJewelColors();
-        locateEnemyJewels();
-        takeDownEnemyJewel();
+        JewelDirection jd = locateEnemyJewel();
+        takeDownEnemyJewel(jd);
     }
 
-    private void goToJewels() {
+    private static void goToJewels() {
         throw new UnsupportedOperationException();
     }
 
-    private void readJewelColors() {
+    private static JewelDirection locateEnemyJewel() {
         throw new UnsupportedOperationException();
     }
 
-    private void locateEnemyJewels() {
-        throw new UnsupportedOperationException();
-    }
-
-    private void takeDownEnemyJewel() {
+    private static void takeDownEnemyJewel(JewelDirection jd) {
         throw new UnsupportedOperationException();
     }
 }
