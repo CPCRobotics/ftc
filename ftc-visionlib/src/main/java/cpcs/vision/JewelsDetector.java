@@ -43,22 +43,20 @@ public final class JewelsDetector {
      * Analyze the current frame using the selected analysis method
      *
      * @param img  Image to analyze
-     * @param gray Grayscale image to analyze
      * @return JewelsDetector analysis class
      */
-    public JewelAnalysis analyzeFrame(Mat img, Mat gray) {
-        return analyzeFrame(img, gray, ScreenOrientation.LANDSCAPE);
+    public JewelAnalysis analyzeFrame(Mat img) {
+        return analyzeFrame(img, ScreenOrientation.LANDSCAPE);
     }
 
     /**
      * Analyze the current frame using the selected analysis method
      *
      * @param img         Image to analyze
-     * @param gray        Grayscale image to analyze
      * @param orientation Screen orientation compensation, given by the android.Sensors class
      * @return JewelsDetector analysis class
      */
-    public JewelAnalysis analyzeFrame(Mat img, Mat gray, ScreenOrientation orientation) {
+    public JewelAnalysis analyzeFrame(Mat img, ScreenOrientation orientation) {
         //Figure out which way to read the image
         double orientationAngle = orientation.getAngle();
         boolean swapLeftRight = orientationAngle >= 180; //swap if LANDSCAPE_WEST or PORTRAIT_REVERSE

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.lasarobotics.tests.camera"
+    package="cpcs.vision.test"
     android:versionCode="1000"
     android:versionName="1.0">
 
@@ -12,7 +12,7 @@
         tools:replace="android:theme,android:icon">
 
         <activity
-            android:name="com.lasarobotics.tests.camera.CameraTestActivity"
+            android:name="cpcs.vision.CameraTestActivity"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/app_name"
             android:screenOrientation="landscape">

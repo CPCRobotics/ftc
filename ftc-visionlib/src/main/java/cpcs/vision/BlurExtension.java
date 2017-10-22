@@ -4,15 +4,13 @@
 package cpcs.vision;
 
 import org.lasarobotics.vision.detection.objects.Rectangle;
-import org.lasarobotics.vision.opmode.VisionOpModeCore;
-import org.lasarobotics.vision.opmode.extensions.VisionExtension;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 /**
  * Extension that supports finding and reading jewel color data
  */
-public class BlurExtension implements VisionExtension {
+public class BlurExtension extends VisionExtension {
     private int blurWidth = 5;
 
     /**
@@ -34,15 +32,7 @@ public class BlurExtension implements VisionExtension {
     }
 
     @Override
-    public void init(VisionOpModeCore opmode) {
-    }
-
-    @Override
-    public void loop(VisionOpModeCore opmode) {
-    }
-
-    @Override
-    public Mat frame(VisionOpModeCore opmode, Mat img, Mat gray) {
+    public Mat onFrame(Mat img) {
         Mat output = img;
         try {
             Rectangle bounds = new Rectangle(img.size());
@@ -54,9 +44,5 @@ public class BlurExtension implements VisionExtension {
             output = img;
         }
         return output;
-    }
-
-    @Override
-    public void stop(VisionOpModeCore opmode) {
     }
 }
