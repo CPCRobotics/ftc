@@ -8,35 +8,20 @@ import org.lasarobotics.vision.util.color.ColorRGBA;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
-/**
- * Created by Jamie on 10/21/2017.
- */
-
-public class CameraTestOverlayExtension extends VisionExtension {
+public class CameraTestOverlayExtension extends CameraStatsExtension {
 
     JewelsExtension jewels = null;
     ImageRotationExtension rotation = null;
-    public FPS fps;
-    public Sensors sensors;
 
     @Override
     public void onEnabled() {
         jewels = vision.getExtension(JewelsExtension.class);
         rotation = vision.getExtension(ImageRotationExtension.class);
-        fps = new FPS();
-        sensors = new Sensors();
-    }
-
-    @Override
-    public void onDisabled() {
-        if (sensors != null) {
-            sensors.stop();
-        }
     }
 
     @Override
     public Mat onFrame(Mat rgba) {
-        fps.update();
+        rgba = super.onFrame(rgba);
 
         //Get jewel analysis
         JewelsDetector.JewelAnalysis analysis = jewels.getAnalysis();

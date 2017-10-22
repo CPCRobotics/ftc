@@ -22,7 +22,7 @@ public class CameraTestActivity extends VisionEnabledActivity {
     private final JewelsExtension jewels = new JewelsExtension();
     private final ImageRotationExtension rotation = new ImageRotationExtension();
     private final CameraControlExtension cameraControl = new CameraControlExtension();
-    private final CameraTestOverlayExtension debugOverlay = new CameraTestOverlayExtension();
+    private final CameraStatsExtension debugOverlay = new CameraStatsExtension();
 
     public CameraTestActivity() {
         super();
