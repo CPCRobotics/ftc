@@ -1,4 +1,4 @@
-package cpcs.vision;
+package cpc.robotics.vision;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -14,12 +14,9 @@ import android.os.Build;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import android.view.ViewGroup;
 
-import org.lasarobotics.vision.android.Util;
 import org.opencv.BuildConfig;
-import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
@@ -28,16 +25,17 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.Closeable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static android.view.View.VISIBLE;
 
-//
-// Based on JavaCameraView, but without creating a new view. There is no preview
-//
-public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callback, Closeable {
+/**
+ * Based on OpenCV JavaCameraView using the V1 Camera API. This version works without needing to
+ * be associated with a SurfaceView. Conversely, a SurfaceView can be provided when preview
+ * rendering is required.
+ */
+public class VisionHelper implements Closeable {
 
     private static final int MAGIC_TEXTURE_ID = 10;
     private static final String TAG = "VisionHelper";
@@ -55,8 +53,8 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
 
     private int mState = STOPPED;
     private Bitmap mCacheBitmap;
-    //private boolean mSurfaceExist;
-    private final Object mSyncObject = new Object();
+    private final Object mStateSyncObject = new Object();
+    private final Object mFrameSyncObject = new Object();
 
     protected CopyOnWriteArrayList<VisionExtension> extensions = new CopyOnWriteArrayList<>();
     protected int mPreviewFormat = ImageFormat.NV21;
@@ -71,6 +69,21 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
     private SurfaceTexture mSurfaceTexture;
     private SurfaceView mView = null;
 
+    /**
+     * This class interface is abstract representation of single frame from camera for onCameraFrame callback
+     * Attention: Do not use objects, that represents this interface out of onCameraFrame callback!
+     */
+    public interface CameraViewFrame {
+
+        /**
+         * This method returns RGBA Mat with frame
+         */
+        public Mat rgba();
+    };
+
+    /**
+     * Actual (hidden) implementation of CameraViewFrame
+     */
     private class CameraViewFrameImpl implements CameraViewFrame {
 
         @Override
@@ -99,20 +112,111 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
 
         private Mat mYuvFrameData;
         private Mat mRgba;
-        private int mWidth;
-        private int mHeight;
     };
 
-    public VisionHelper(int cameraId, int width, int height) {
-        this(Util.getContext(), cameraId, width, height);
+    /**
+     * Worker thread feeds frames from camera to callback.
+     */
+    private class CameraWorker implements Runnable {
+
+        @Override
+        public void run() {
+            while(!stopThread) {
+                boolean hasFrame = false;
+                synchronized (mFrameSyncObject) {
+                    try {
+                        while (!mCameraFrameReady) {
+                            mFrameSyncObject.wait();
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        stopThread = true;
+                    }
+                    if (mCameraFrameReady)
+                    {
+                        mChainIdx = 1 - mChainIdx;
+                        mCameraFrameReady = false;
+                        hasFrame = true;
+                    }
+                }
+
+                if (!stopThread && hasFrame) {
+                    if (!mFrameChain[1 - mChainIdx].empty())
+                        deliverAndDrawFrame(mCameraFrame[1 - mChainIdx]);
+                }
+            }
+            Log.d(TAG, "Finish processing thread");
+        }
     }
 
+    private final Camera.PreviewCallback previewCallbacks = new Camera.PreviewCallback() {
+
+        /**
+         * Camera callback for the camera 'preview' with is actually to capture a buffer to allow
+         * OpenCV processing.
+         * @param frame Frame data
+         * @param camera Camera frame was received from
+         */
+        @Override
+        public void onPreviewFrame(byte[] frame, Camera camera) {
+            synchronized (mFrameSyncObject) {
+                mFrameChain[mChainIdx].put(0, 0, frame);
+                mCameraFrameReady = true;
+                mFrameSyncObject.notify();
+            }
+            if (mCamera != null)
+                mCamera.addCallbackBuffer(mBuffer);
+        }
+    };
+
+    private final SurfaceHolder.Callback surfaceHolderCallbacks = new SurfaceHolder.Callback() {
+
+        @Override
+        public void surfaceCreated(SurfaceHolder surfaceHolder) {
+            // deferred to surfaceChanged
+        }
+
+        @Override
+        public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+            Log.d(TAG, "surfaceChanged event");
+            synchronized(mStateSyncObject) {
+                if (!mSurfaceExist) {
+                    mSurfaceExist = true;
+                    checkCurrentState();
+                } else {
+                    /** Surface changed. We need to stop camera and restart with new parameters */
+                /* Pretend that old surface has been destroyed */
+                    mSurfaceExist = false;
+                    checkCurrentState();
+                /* Now use new surface. Say we have it now */
+                    mSurfaceExist = true;
+                    checkCurrentState();
+                }
+            }
+        }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+            synchronized(mStateSyncObject) {
+                mSurfaceExist = false;
+                checkCurrentState();
+            }
+        }
+    };
+
+    /**
+     * Construct a VisionHelper bound to a Context.
+     * @param context Context, should be an Activity
+     * @param cameraId Specify which camera, e.g. CAMERA_FACING_BACK
+     * @param width Maximum width of camera capture
+     * @param height Maximum height of camera capture
+     */
     public VisionHelper(Context context, int cameraId, int width, int height) {
         mContext = context;
         mCameraIndex = cameraId;
         mWidth = width;
         mHeight = height;
-        OpenCVLoader.initDebug();
+        OpenCVLoader.initDebug(); // Ensure OpenCV is loaded
     }
 
     public Context getContext() {
@@ -124,11 +228,12 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
     }
 
     /**
-     * When used in a close block, disable camera
+     * Allows try(VisionHelper var = new VisionHelper(...)) { ... } block
+     * Ensures resources are released, and camera is available for re-use.
      */
     @Override
     public void close() {
-        disableView();
+        disable();
         for(VisionExtension extension : extensions) {
             extension.close();
         }
@@ -197,18 +302,6 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
     }
 
     /**
-     * This class interface is abstract representation of single frame from camera for onCameraFrame callback
-     * Attention: Do not use objects, that represents this interface out of onCameraFrame callback!
-     */
-    public interface CameraViewFrame {
-
-        /**
-         * This method returns RGBA Mat with frame
-         */
-        public Mat rgba();
-    };
-
-    /**
      * This method is invoked when camera preview has started. After this method is invoked
      * the frames will start to be delivered to client via the onCameraFrame() callback.
      * @param width -  the width of the frames that will be delivered
@@ -242,7 +335,7 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
      */
     public void setView(SurfaceView view) {
         mView = view;
-        view.getHolder().addCallback(this);
+        view.getHolder().addCallback(this.surfaceHolderCallbacks);
         checkCurrentState();
     }
 
@@ -255,27 +348,49 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
     }
 
     /**
-     * This method is provided for clients, so they can enable the camera connection.
-     * The actual onCameraViewStarted callback will be delivered only after both this method is called and surface is available
+     * Public exposed method to indicate camera operation is desired. It's not actually enabled
+     * unless other conditions are met when a view is attached.
      */
-    public final void enableView() {
-        synchronized(mSyncObject) {
+    public final void enable() {
+        synchronized(mStateSyncObject) {
             mEnabled = true;
             checkCurrentState();
         }
     }
 
     /**
-     * This method is provided for clients, so they can disable camera connection and stop
-     * the delivery of frames
-     *
+     * Disable operation of camera.
      */
-    public final void disableView() {
-        synchronized(mSyncObject) {
+    public final void disable() {
+        synchronized(mStateSyncObject) {
             mEnabled = false;
             checkCurrentState();
         }
     }
+
+    /**
+     * Prior to first enable, desired width. After camera is enabled, actual width.
+     * @return width
+     */
+    public int getWidth()
+    {
+        return mWidth;
+    }
+
+    /**
+     * Prior to first enable, desired height. After camera is enabled, actual height.
+     * @return height
+     */
+    public int getHeight()
+    {
+        return mHeight;
+    }
+
+    /**
+     * Underlying V1 camera if camera is enabled, else null.
+     * @return camera
+     */
+    public Camera getCamera() { return mCamera; }
 
     /**
      * Called when mSyncObject lock is held
@@ -360,20 +475,14 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
         }
     }
 
-    public int getWidth()
-    {
-        return mWidth;
-    }
-
-    public int getHeight()
-    {
-        return mHeight;
-    }
-
-    public Camera getCamera() { return mCamera; }
-
+    /**
+     * Private helper used to initialize the underlying camera stream
+     * @param width
+     * @param height
+     * @return true if initialized
+     */
     private boolean initializeCamera(int width, int height) {
-        Log.d(TAG, "Initialize java camera");
+        Log.d(TAG, "Initialize camera");
         boolean result = true;
         synchronized (this) {
             mCamera = null;
@@ -444,7 +553,7 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
                     mBuffer = new byte[size];
 
                     mCamera.addCallbackBuffer(mBuffer);
-                    mCamera.setPreviewCallbackWithBuffer(this);
+                    mCamera.setPreviewCallbackWithBuffer(this.previewCallbacks);
 
                     mFrameChain = new Mat[2];
                     mFrameChain[0] = new Mat(mHeight + (mHeight/2), mWidth, CvType.CV_8UC1);
@@ -474,6 +583,9 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
         return result;
     }
 
+    /**
+     * Release the camera resources previously allocated.
+     */
     private final void releaseCamera() {
         synchronized (this) {
             if (mCamera != null) {
@@ -494,13 +606,18 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
         }
     }
 
-    // NOTE: On Android 4.1.x the function must be called before SurfaceTexture constructor!
-    protected void allocateCache()
-    {
+    protected void allocateCache() {
+        // NOTE: On Android 4.1.x the function must be called before SurfaceTexture constructor!
         mCacheBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
     }
 
-    public boolean connectCamera(int width, int height) {
+    /**
+     * Connect camera and start feeding frames to callbacks.
+     * @param width Maximum width
+     * @param height Maximum height
+     * @return true if success.
+     */
+    protected boolean connectCamera(int width, int height) {
 
         // Instantiate camera, create thread, enable extensions
 
@@ -525,7 +642,10 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
         return true;
     }
 
-    public void disconnectCamera() {
+    /**
+     * Disconnect camera cleanly
+     */
+    protected void disconnectCamera() {
         // Stop extensions, stop thread, release camera
         Log.d(TAG, "Disconnecting from camera");
         for(VisionExtension extension : extensions) {
@@ -538,8 +658,8 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
                 mThread.interrupt();
             }
             Log.d(TAG, "Notify thread");
-            synchronized (this) {
-                this.notify();
+            synchronized (mFrameSyncObject) {
+                mFrameSyncObject.notify();
             }
             Log.d(TAG, "Waiting for thread");
             if (mThread != null)
@@ -554,73 +674,6 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
         releaseCamera();
 
         mCameraFrameReady = false;
-    }
-
-    private class JavaCameraFrame implements CameraBridgeViewBase.CvCameraViewFrame {
-        @Override
-        public Mat gray() {
-            return mYuvFrameData.submat(0, mHeight, 0, mWidth);
-        }
-
-        @Override
-        public Mat rgba() {
-            if (mPreviewFormat == ImageFormat.NV21)
-                Imgproc.cvtColor(mYuvFrameData, mRgba, Imgproc.COLOR_YUV2RGBA_NV21, 4);
-            else if (mPreviewFormat == ImageFormat.YV12)
-                Imgproc.cvtColor(mYuvFrameData, mRgba, Imgproc.COLOR_YUV2RGB_I420, 4);  // COLOR_YUV2RGBA_YV12 produces inverted colors
-            else
-                throw new IllegalArgumentException("Preview Format can be NV21 or YV12");
-
-            return mRgba;
-        }
-
-        public JavaCameraFrame(Mat Yuv420sp, int width, int height) {
-            mWidth = width;
-            mHeight = height;
-            mYuvFrameData = Yuv420sp;
-            mRgba = new Mat();
-        }
-
-        public void release() {
-            mRgba.release();
-        }
-
-        private Mat mYuvFrameData;
-        private Mat mRgba;
-        private int mWidth;
-        private int mHeight;
-    };
-
-    private class CameraWorker implements Runnable {
-
-        @Override
-        public void run() {
-            while(!stopThread) {
-                boolean hasFrame = false;
-                synchronized (VisionHelper.this) {
-                    try {
-                        while (!mCameraFrameReady) {
-                            VisionHelper.this.wait();
-                        }
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        stopThread = true;
-                    }
-                    if (mCameraFrameReady)
-                    {
-                        mChainIdx = 1 - mChainIdx;
-                        mCameraFrameReady = false;
-                        hasFrame = true;
-                    }
-                }
-
-                if (!stopThread && hasFrame) {
-                    if (!mFrameChain[1 - mChainIdx].empty())
-                        deliverAndDrawFrame(mCameraFrame[1 - mChainIdx]);
-                }
-            }
-            Log.d(TAG, "Finish processing thread");
-        }
     }
 
     /**
@@ -714,52 +767,4 @@ public class VisionHelper implements Camera.PreviewCallback, SurfaceHolder.Callb
 
         }
     }
-
-    @Override
-    public void onPreviewFrame(byte[] frame, Camera arg1) {
-        Log.d(TAG, "Preview Frame received. Frame size: " + frame.length);
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Preview Frame received. Frame size: " + frame.length);
-        }
-        synchronized (this) {
-            mFrameChain[mChainIdx].put(0, 0, frame);
-            mCameraFrameReady = true;
-            this.notify();
-        }
-        if (mCamera != null)
-            mCamera.addCallbackBuffer(mBuffer);
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        // deferred to surfaceChanged
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-        Log.d(TAG, "surfaceChanged event");
-        synchronized(mSyncObject) {
-            if (!mSurfaceExist) {
-                mSurfaceExist = true;
-                checkCurrentState();
-            } else {
-                /** Surface changed. We need to stop camera and restart with new parameters */
-                /* Pretend that old surface has been destroyed */
-                mSurfaceExist = false;
-                checkCurrentState();
-                /* Now use new surface. Say we have it now */
-                mSurfaceExist = true;
-                checkCurrentState();
-            }
-        }
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        synchronized(mSyncObject) {
-            mSurfaceExist = false;
-            checkCurrentState();
-        }
-    }
-
 }

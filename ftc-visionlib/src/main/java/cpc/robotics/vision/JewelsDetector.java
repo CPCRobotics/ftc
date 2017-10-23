@@ -1,11 +1,11 @@
 /*
  * Red/Blue Jewel detection code,.
  *
- * Based on LASA Robotics Beacon detection code.
+ * Based in part on LASA Robotics Beacon detection code.
  * Original source Copyright (c) 2016 Arthur Pachachura, LASA Robotics, and contributors
  * MIT licensed
  */
-package cpcs.vision;
+package cpc.robotics.vision;
 
 import org.lasarobotics.vision.detection.ColorBlobDetector;
 import org.lasarobotics.vision.detection.objects.Contour;
@@ -50,7 +50,7 @@ public final class JewelsDetector {
     }
 
     /**
-     * Analyze the current frame using the selected analysis method
+     * Analyze the current frame to see if Jewels can be detected.
      *
      * @param img         Image to analyze
      * @param orientation Screen orientation compensation, given by the android.Sensors class
@@ -64,23 +64,25 @@ public final class JewelsDetector {
                 orientation == ScreenOrientation.PORTRAIT_REVERSE; //read other axis if any kind of portrait
         Rectangle bounds = new Rectangle(img.size());
         //Bound the image
-        if (readOppositeAxis)
+        if (readOppositeAxis) {
             //Force the analysis box to transpose inself in place
             //noinspection SuspiciousNameCombination
             bounds = new Rectangle(
                     new Point(bounds.center().y / img.height() * img.width(),
                             bounds.center().x / img.width() * img.height()),
                     bounds.height(), bounds.width()).clip(new Rectangle(img.size()));
-        if (!swapLeftRight && readOppositeAxis)
+        }
+        if (!swapLeftRight && readOppositeAxis) {
             //Force the analysis box to flip across its primary axis
             bounds = new Rectangle(
                     new Point((img.size().width / 2) + Math.abs(bounds.center().x - (img.size().width / 2)),
                             bounds.center().y), bounds.width(), bounds.height());
-        else if (swapLeftRight && !readOppositeAxis)
+        } else if (swapLeftRight && !readOppositeAxis) {
             //Force the analysis box to flip across its primary axis
             bounds = new Rectangle(
                     new Point(bounds.center().x, img.size().height - bounds.center().y),
                     bounds.width(), bounds.height());
+        }
         bounds = bounds.clip(new Rectangle(img.size()));
 
         //Get contours within the bounds
@@ -133,12 +135,12 @@ public final class JewelsDetector {
 
         //DEBUG R/B text
         if (debug) {
-            Drawing.drawText(img, "R", bestRedCenter, 1.0f, new ColorRGBA(255, 0, 0));
-            Drawing.drawText(img, "B", bestBlueCenter, 1.0f, new ColorRGBA(0, 0, 255));
+            Drawing.drawText(img, "R", bestRedCenter, 1.0f, new ColorRGBA("#FF00FF"));
+            Drawing.drawText(img, "B", bestBlueCenter, 1.0f, new ColorRGBA("#FF00FF"));
             if (bestWhiteCenter != null) {
-                Drawing.drawText(img, "W", bestWhiteCenter, 1.0f, new ColorRGBA(255, 255, 0));
+                Drawing.drawText(img, "W", bestWhiteCenter, 1.0f, new ColorRGBA("#FF00FF"));
             }
-            Drawing.drawRectangle(img, bounds, new ColorRGBA("#00aaaa"), 4);
+            Drawing.drawRectangle(img, bounds, new ColorRGBA("#00AAAA"), 4);
         }
 
         // pixels per inch
@@ -187,9 +189,6 @@ public final class JewelsDetector {
     }
 
     private static Contour findLargest(List<Contour> contours, Contour ... exclusions) {
-        if (contours.size() < 1) {
-            return null;
-        }
         Contour largest = null;
         double maxArea = 0.0f;
         for (int i = 0; i < contours.size(); i++) {
@@ -208,7 +207,7 @@ public final class JewelsDetector {
         // of the exclusions.
         //
         if (exclusions.length == 0) {
-            return false;
+            return false; // avoids unnecessary call to centroid
         }
         Point center = test.centroid();
         for (Contour exclusion : exclusions) {
@@ -259,16 +258,6 @@ public final class JewelsDetector {
      */
     public void disableDebug() {
         this.debug = false;
-    }
-
-    /**
-     * Analysis method
-     */
-    public enum AnalysisMethod {
-        /**
-         * Default method - selects the two largest contours and analyzes them
-         */
-        DEFAULT;
     }
 
     /**

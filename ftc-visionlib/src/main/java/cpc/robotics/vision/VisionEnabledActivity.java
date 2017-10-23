@@ -1,17 +1,12 @@
-package cpcs.vision;
+package cpc.robotics.vision;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
 
-import org.lasarobotics.vision.android.Sensors;
-import org.lasarobotics.vision.util.FPS;
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.core.Mat;
-
 /**
- * Initiates a VisionEnabledActivity
+ * Android Activity class to allow OpenCV UI's to be built around the VisionHelper class.
  */
 public abstract class VisionEnabledActivity extends Activity {
 
@@ -38,7 +33,7 @@ public abstract class VisionEnabledActivity extends Activity {
         super.onPause();
         if (vision != null) {
             Log.d(TAG, "paused");
-            vision.disableView();
+            vision.disable();
         }
     }
 
@@ -57,7 +52,7 @@ public abstract class VisionEnabledActivity extends Activity {
         Log.d(TAG, "resume");
         super.onResume();
         if (vision != null) {
-            vision.enableView();
+            vision.enable();
         }
     }
 }

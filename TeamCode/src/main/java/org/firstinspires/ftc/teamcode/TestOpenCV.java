@@ -6,21 +6,19 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.lasarobotics.vision.util.ScreenOrientation;
-import org.opencv.core.Size;
 
-import cpcs.vision.BlurExtension;
-import cpcs.vision.CameraControlExtension;
-import cpcs.vision.CameraStatsExtension;
-import cpcs.vision.ImageRotationExtension;
-import cpcs.vision.JewelsDetector;
-import cpcs.vision.JewelsExtension;
-import cpcs.vision.VisionExtension;
-import cpcs.vision.VisionHelper;
+import cpc.robotics.vision.BlurExtension;
+import cpc.robotics.vision.CameraControlExtension;
+import cpc.robotics.vision.CameraStatsExtension;
+import cpc.robotics.vision.ImageRotationExtension;
+import cpc.robotics.vision.JewelsDetector;
+import cpc.robotics.vision.JewelsExtension;
+import cpc.robotics.vision.VisionExtension;
+import cpc.robotics.vision.VisionHelper;
 
 @Autonomous(name="TestOpenCV" )
 public class TestOpenCV extends LinearOpMode {
     //Frame counter
-    int frameCount = 0;
     protected final BlurExtension blur = new BlurExtension();
     protected final JewelsExtension jewels = new JewelsExtension();
     protected final ImageRotationExtension rotation = new ImageRotationExtension();
@@ -40,7 +38,7 @@ public class TestOpenCV extends LinearOpMode {
         //rotation.setZeroOrientation(ScreenOrientation.LANDSCAPE_REVERSE);
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
         cameraControl.setAutoExposureCompensation();
-        vision.enableView();
+        vision.enable();
         return vision;
     }
 
@@ -68,7 +66,7 @@ public class TestOpenCV extends LinearOpMode {
                 telemetry.addData("Screen Rotation", rotation.getScreenOrientationActual());
                 telemetry.addData("Frame Rate", cameraStats.fps.getFPSString() + " FPS");
                 telemetry.addData("Frame Size", "Width: " + vision.getWidth() + " Height: " + vision.getHeight());
-                telemetry.addData("Frame Counter", frameCount);
+                telemetry.addData("Frame Counter", cameraStats.getFrame());
                 updateTelemetry(telemetry);
 
                 sleep(1); // Allow other processes to run

@@ -1,12 +1,12 @@
 /*
  * Red/Blue Jewel detection code constants.
  */
-package cpcs.vision;
+package cpc.robotics.vision;
 
 import org.lasarobotics.vision.util.color.ColorHSV;
 
 /**
- * Constants about Jewel platform
+ * Constants about Jewel platform and detection.
  */
 public abstract class JewelConstants {
     public static final double JEWEL_DIAMETER = 3.75;   // diameter of jewel in inches

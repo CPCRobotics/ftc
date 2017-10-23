@@ -2,16 +2,16 @@
  * Copyright (c) 2016 Arthur Pachachura, LASA Robotics, and contributors
  * MIT licensed
  */
-package cpcs.vision;
+package cpc.robotics.vision;
 
-import org.lasarobotics.vision.opmode.VisionOpModeCore;
 import org.opencv.core.Mat;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 /**
- * Class for vision extensions for vision.
+ * This is a mechanism for chaining image processing that is done on each frame of video retrieved.
+ * Call VisionHelper.addExtension() to add extensions in processing order. Extensions can be
+ * endabled or disabled, and are activated only when vision processing needs to be done.
  */
 public abstract class VisionExtension implements Closeable {
 

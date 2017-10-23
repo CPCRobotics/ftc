@@ -2,7 +2,7 @@
  * Copyright (c) 2016 Arthur Pachachura, LASA Robotics, and contributors
  * MIT licensed
  */
-package cpcs.vision;
+package cpc.robotics.vision;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;

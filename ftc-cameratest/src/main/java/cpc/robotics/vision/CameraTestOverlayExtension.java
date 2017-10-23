@@ -1,13 +1,14 @@
-package cpcs.vision;
+package cpc.robotics.vision;
 
-import org.lasarobotics.vision.android.Sensors;
 import org.lasarobotics.vision.image.Drawing;
-import org.lasarobotics.vision.util.FPS;
 import org.lasarobotics.vision.util.color.ColorGRAY;
 import org.lasarobotics.vision.util.color.ColorRGBA;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
+/**
+ * This is an extension that overlays debug information over the top of the preview image
+ */
 public class CameraTestOverlayExtension extends CameraStatsExtension {
 
     JewelsExtension jewels = null;

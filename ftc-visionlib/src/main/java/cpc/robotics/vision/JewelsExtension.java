@@ -5,7 +5,7 @@
  * Original source Copyright (c) 2016 Arthur Pachachura, LASA Robotics, and contributors
  * MIT licensed
  */
-package cpcs.vision;
+package cpc.robotics.vision;
 
 import org.lasarobotics.vision.util.ScreenOrientation;
 import org.opencv.core.Mat;

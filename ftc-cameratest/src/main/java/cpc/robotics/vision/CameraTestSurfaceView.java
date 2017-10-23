@@ -1,4 +1,4 @@
-package cpcs.vision;
+package cpc.robotics.vision;
 
 import android.content.Context;
 import android.util.AttributeSet;

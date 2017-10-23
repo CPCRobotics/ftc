@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2016 Arthur Pachachura, LASA Robotics, and contributors
+ * Based on LASA Robotics code,
+ * Original source Copyright (c) 2016 Arthur Pachachura, LASA Robotics, and contributors
  * MIT licensed
- *
- * Thank you to Brendan Hollaway (Venom) for parts of the algorithm.
  */
-package cpcs.vision;
+package cpc.robotics.vision;
 
 import android.hardware.Camera;
 import android.util.Log;

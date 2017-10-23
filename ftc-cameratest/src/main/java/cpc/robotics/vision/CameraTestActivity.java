@@ -4,7 +4,7 @@
  * MIT licensed
  */
 
-package cpcs.vision;
+package cpc.robotics.vision;
 
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -49,6 +49,13 @@ public class CameraTestActivity extends VisionEnabledActivity {
         cameraControl.setAutoExposureCompensation();
         jewels.enableDebug();
 
+        //
+        // Configures VisionHelper to output preview to CameraTestSurfaceView
+        //
         initializeVision(R.id.surfaceView, vision);
+
+        //
+        // Note that the camera is opened when activity is 'resumed', see base class
+        //
     }
 }
