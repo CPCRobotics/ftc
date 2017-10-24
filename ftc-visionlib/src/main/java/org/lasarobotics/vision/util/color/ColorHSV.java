@@ -75,4 +75,13 @@ public class ColorHSV extends Color {
     public int value() {
         return (int) scalar.val[2];
     }
+
+
+    @Override
+    public String toString() {
+        double hue = this.hue()/255.0*360.0;
+        double sat = this.saturation()/255.0*100.0;
+        double val = this.value()/255.0*100.0;
+        return String.format("H=%.1f/S=%.1f/V=%.1f", hue, sat, val);
+    }
 }
