@@ -1,12 +1,12 @@
 /*
  * Red/Blue Jewel detection code constants.
  */
-package cpcs.vision;
+package cpc.robotics.vision;
 
 import org.lasarobotics.vision.util.color.ColorHSV;
 
 /**
- * Constants about Jewel platform
+ * Constants about Jewel platform and detection.
  */
 public final class JewelConstants {
     private JewelConstants() {}

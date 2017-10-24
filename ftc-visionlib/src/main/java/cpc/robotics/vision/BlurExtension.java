@@ -1,19 +1,22 @@
 /*
- * Extension to blur the image
+ * Extension to blur the image. This is l
  */
-package cpcs.vision;
+package cpc.robotics.vision;
 
 import org.lasarobotics.vision.detection.objects.Rectangle;
-import org.lasarobotics.vision.opmode.VisionOpModeCore;
-import org.lasarobotics.vision.opmode.extensions.VisionExtension;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 /**
  * Extension that supports finding and reading jewel color data
  */
-public class BlurExtension implements VisionExtension {
-    private int blurWidth = 5;
+public class BlurExtension extends VisionExtension {
+    public static final int BLUR_NONE = 1; // Blur 1-pixel x 1-pixel
+    public static final int BLUR_LITTLE = 3; // Blur 3-pixels x 3-pixels
+    public static final int BLUR_MORE = 5; // Blur 5-pixels x 5-pixels
+    public static final int BLUR_LOTS = 7; // Blur 7-pixels x 7-pixels - very slow
+
+    private int blurWidth = BLUR_MORE;
 
     /**
      * Get current blur width
@@ -33,16 +36,13 @@ public class BlurExtension implements VisionExtension {
         this.blurWidth = blurWidth;
     }
 
+    /**
+     * Apply the opencv medianBlur algorithm.
+     * @param img input matrix
+     * @return modified matrix containing blurred image
+     */
     @Override
-    public void init(VisionOpModeCore opmode) {
-    }
-
-    @Override
-    public void loop(VisionOpModeCore opmode) {
-    }
-
-    @Override
-    public Mat frame(VisionOpModeCore opmode, Mat img, Mat gray) {
+    public Mat onFrame(Mat img) {
         Mat output = img;
         try {
             Rectangle bounds = new Rectangle(img.size());
@@ -54,9 +54,5 @@ public class BlurExtension implements VisionExtension {
             output = img;
         }
         return output;
-    }
-
-    @Override
-    public void stop(VisionOpModeCore opmode) {
     }
 }

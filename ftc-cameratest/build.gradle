@@ -5,7 +5,7 @@ android {
     buildToolsVersion '25.0.3'
 
     defaultConfig {
-        applicationId "org.lasarobotics.tests.camera"
+        applicationId "cpc.robotics.vision.test"
         minSdkVersion 19
         targetSdkVersion 19
     }

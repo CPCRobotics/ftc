@@ -5,20 +5,21 @@
  * Original source Copyright (c) 2016 Arthur Pachachura, LASA Robotics, and contributors
  * MIT licensed
  */
-package cpcs.vision;
+package cpc.robotics.vision;
 
-import org.lasarobotics.vision.opmode.VisionOpModeCore;
-import org.lasarobotics.vision.opmode.extensions.VisionExtension;
 import org.lasarobotics.vision.util.ScreenOrientation;
 import org.opencv.core.Mat;
 
 /**
  * Extension that supports finding and reading jewel color data
  */
-public class JewelsExtension implements VisionExtension {
+public class JewelsExtension extends VisionExtension {
     private JewelsDetector jewels;
-
     private JewelsDetector.JewelAnalysis analysis = new JewelsDetector.JewelAnalysis();
+    private ImageRotationExtension rotation = null;
+
+    public JewelsExtension() {
+    }
 
     /**
      * Get latest jewel analysis
@@ -44,35 +45,34 @@ public class JewelsExtension implements VisionExtension {
     }
 
     @Override
-    public void init(VisionOpModeCore opmode) {
-        //Initialize all detectors here
+    public void onCreate() {
+        // Create detector object(s).
         jewels = new JewelsDetector();
     }
 
     @Override
-    public void loop(VisionOpModeCore opmode) {
-
+    public void onEnabled() {
+        // Vision has been enabled
+        rotation = vision.getExtension(ImageRotationExtension.class);
+        if (rotation == null) {
+            rotation = new ImageRotationExtension(); // if not using rotation
+        }
     }
 
     @Override
-    public Mat frame(VisionOpModeCore opmode, Mat rgba, Mat gray) {
+    public Mat onFrame(Mat rgba) {
         try {
             //Get screen orientation data
             ScreenOrientation orientation = ScreenOrientation.getFromAngle(
-                    VisionOpModeCore.rotation.getRotationCompensationAngle());
+                    rotation.getRotationCompensationAngle());
 
             //Get color analysis
-            this.analysis = jewels.analyzeFrame(rgba, gray, orientation);
+            this.analysis = jewels.analyzeFrame(rgba, orientation);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return rgba;
-    }
-
-    @Override
-    public void stop(VisionOpModeCore opmode) {
-
     }
 }
