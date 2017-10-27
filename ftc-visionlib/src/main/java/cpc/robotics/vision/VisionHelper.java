@@ -736,31 +736,20 @@ public class VisionHelper implements Closeable {
                     float scale;
                     float width = canvas.getWidth();
                     float height = canvas.getHeight();
-                    if ((view.getLayoutParams().width == ViewGroup.LayoutParams.MATCH_PARENT) &&
-                            (view.getLayoutParams().height == ViewGroup.LayoutParams.MATCH_PARENT)) {
-                        scale = Math.max(0, Math.min(height / mHeight, width / mWidth));
-                    } else {
-                        scale = 0;
-                    }
+                    scale = Math.max(0, Math.min(height / mHeight, width / mWidth));
                     canvas.drawColor(0, android.graphics.PorterDuff.Mode.CLEAR);
-                    if (BuildConfig.DEBUG)
+                    if (BuildConfig.DEBUG) {
                         Log.d(TAG, "mStretch value: " + scale);
-
-                    if (scale != 0) {
-                        // scale
-                        canvas.drawBitmap(mCacheBitmap, new Rect(0,0,mCacheBitmap.getWidth(), mCacheBitmap.getHeight()),
-                                new Rect((int)((canvas.getWidth() - scale*mCacheBitmap.getWidth()) / 2),
-                                        (int)((canvas.getHeight() - scale*mCacheBitmap.getHeight()) / 2),
-                                        (int)((canvas.getWidth() - scale*mCacheBitmap.getWidth()) / 2 + scale*mCacheBitmap.getWidth()),
-                                        (int)((canvas.getHeight() - scale*mCacheBitmap.getHeight()) / 2 + scale*mCacheBitmap.getHeight())), null);
-                    } else {
-                        // center
-                        canvas.drawBitmap(mCacheBitmap, new Rect(0,0,mCacheBitmap.getWidth(), mCacheBitmap.getHeight()),
-                                new Rect((canvas.getWidth() - mCacheBitmap.getWidth()) / 2,
-                                        (canvas.getHeight() - mCacheBitmap.getHeight()) / 2,
-                                        (canvas.getWidth() - mCacheBitmap.getWidth()) / 2 + mCacheBitmap.getWidth(),
-                                        (canvas.getHeight() - mCacheBitmap.getHeight()) / 2 + mCacheBitmap.getHeight()), null);
                     }
+                    int offX = (int)(canvas.getWidth() - scale*mCacheBitmap.getWidth()) / 2;
+                    int offY = (int)(canvas.getHeight() - scale*mCacheBitmap.getHeight()) / 2;
+
+                    // scale
+                    canvas.drawBitmap(mCacheBitmap,
+                            new Rect(0,0,mCacheBitmap.getWidth(), mCacheBitmap.getHeight()),
+                            new Rect(offX, offY,
+                                    offX + (int)(scale*mCacheBitmap.getWidth()),
+                                    offY + (int)(scale*mCacheBitmap.getHeight())), null);
                     view.getHolder().unlockCanvasAndPost(canvas);
                 }
             }

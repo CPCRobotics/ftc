@@ -49,9 +49,9 @@ public class ViewColor extends VisionEnabledActivity implements SeekBar.OnSeekBa
         vision.addExtensions(blur, feedback, rotation, cameraControl);
         blur.setBlurWidth(3);
         rotation.setIsUsingSecondaryCamera(false);
-        rotation.disableAutoRotate();
+        //rotation.disableAutoRotate();
         //rotation.setActivityOrientationFixed(ScreenOrientation.LANDSCAPE);
-        rotation.setZeroOrientation(ScreenOrientation.LANDSCAPE_REVERSE);
+        //rotation.setZeroOrientation(ScreenOrientation.LANDSCAPE_REVERSE);
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
         cameraControl.setAutoExposureCompensation();
 
