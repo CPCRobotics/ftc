@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import android.hardware.Camera;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.lasarobotics.vision.util.ScreenOrientation;
@@ -17,6 +18,7 @@ import cpc.robotics.vision.VisionExtension;
 import cpc.robotics.vision.VisionHelper;
 
 @Autonomous(name="TestOpenCV" )
+@Disabled
 public class TestOpenCV extends LinearOpMode {
     //Frame counter
     protected final BlurExtension blur = new BlurExtension();

@@ -56,6 +56,10 @@ public class EyesightUtil {
         relicTrackables.activate();
     }
 
+    public static void stop() {
+        relicTrackables.deactivate();
+    }
+
     public static RelicRecoveryVuMark getPictograph() {
         return RelicRecoveryVuMark.from(relicTemplate);
     }
