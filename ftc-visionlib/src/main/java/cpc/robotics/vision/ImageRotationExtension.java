@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2016 Arthur Pachachura, LASA Robotics, and contributors
+ * Based on library by LASA Robotics
+ * Original source Copyright (c) 2016 Arthur Pachachura, LASA Robotics, and contributors
  * MIT licensed
  */
 package cpc.robotics.vision;

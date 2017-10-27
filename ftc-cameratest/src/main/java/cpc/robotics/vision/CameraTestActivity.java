@@ -42,7 +42,7 @@ public class CameraTestActivity extends VisionEnabledActivity {
         vision.addExtensions(blur, jewels, rotation, cameraControl, debugOverlay);
         blur.setBlurWidth(5);
         rotation.setIsUsingSecondaryCamera(false);
-        rotation.disableAutoRotate();
+        //rotation.disableAutoRotate();
         rotation.setActivityOrientationFixed(ScreenOrientation.LANDSCAPE);
         //rotation.setZeroOrientation(ScreenOrientation.LANDSCAPE_REVERSE);
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
