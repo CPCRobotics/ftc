@@ -67,8 +67,7 @@ public class TestOpenCV extends LinearOpMode {
                 telemetry.addData("Frame Rate", cameraStats.fps.getFPSString() + " FPS");
                 telemetry.addData("Frame Size", "Width: " + vision.getWidth() + " Height: " + vision.getHeight());
                 telemetry.addData("Frame Counter", cameraStats.getFrame());
-                updateTelemetry(telemetry);
-
+                telemetry.update();
                 sleep(1); // Allow other processes to run
             }
         }

@@ -45,7 +45,7 @@ public class BlurExtension extends VisionExtension {
     public Mat onFrame(Mat img) {
         Mat output = img;
         try {
-            Rectangle bounds = new Rectangle(img.size());
+            new Rectangle(img.size());
             Mat blurred = img.clone();
             Imgproc.medianBlur(img, blurred, blurWidth);
             output = blurred;
