@@ -49,11 +49,16 @@ public class Tilerunner
     public static final double MOTOR_DEADZONE = 0.2;
 
     private static final double TURN_CORRECTION_THRESHOLD = 2.5; // degrees
+
+    private static final int DISTANCE_REMOVE_GLYPH = 10; // TODO get needed ticks to remove glyph
+
     DcMotor  clawMotor;
     DcMotor  leftMotor;
     DcMotor  rightMotor;
     DcMotor motorPair;
     DcMotor liftMotor;
+    DcMotor jewelWhacker;
+
     BNO055IMU imu;
 
     private ElapsedTime period  = new ElapsedTime();
@@ -96,7 +101,7 @@ public class Tilerunner
         return motor;
     }
     /* Initialize standard Hardware interfaces */
-    void init( HardwareMap hardwareMap, Telemetry telemetry )
+    public void init( HardwareMap hardwareMap, Telemetry telemetry )
     {
 
         Twigger.getInstance().setTelemetry(telemetry);
@@ -109,6 +114,8 @@ public class Tilerunner
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
         liftMotor = createDcMotor(hardwareMap,"lift_drive");
+        clawMotor = createDcMotor(hardwareMap, "claw");
+        jewelWhacker = createDcMotor(hardwareMap, "jewel_whacker");
 
         // Set up the parameters with which we will use our IMU. Note that integration
         // algorithm here just reports accelerations to the logcat log; it doesn't actually
@@ -150,7 +157,7 @@ public class Tilerunner
         return Math.min(1, Math.max(MOTOR_DEADZONE, dist / threshold) );
     }
 
-    void move(BusyWaitHandler waitHandler, double power, double inches) {
+    public void move(BusyWaitHandler waitHandler, double power, double inches) {
         int ticks = (int)(Tilerunner.TICKS_PER_REVOLUTION * inches / Tilerunner.WHEEL_CIRCUMFERENCE);
 
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -171,7 +178,7 @@ public class Tilerunner
                 .remove(".move()");
     }
 
-    void turn(BusyWaitHandler waitHandler, double directionPower, double destinationDegrees) throws InterruptedException {
+    public void turn(BusyWaitHandler waitHandler, double directionPower, double destinationDegrees) throws InterruptedException {
 
         final double directionSign = Math.signum(directionPower) * Math.signum(destinationDegrees);
         Direction direction = Direction.fromPower(directionSign);
@@ -246,6 +253,7 @@ public class Tilerunner
         while (liftMotor.isBusy() && waitHandler.isActive()) {
         }
     }
+
     void moveClaw(BusyWaitHandler waitHandler, int distanceTicks, double power) {
         // Stop claw motor and program it to run `distanceTicks` ticks at `power` speed.
         clawMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -258,6 +266,18 @@ public class Tilerunner
         //noinspection StatementWithEmptyBody
         while (clawMotor.isBusy() && waitHandler.isActive()) {
         }
+    }
+
+    public void removeGlyph(BusyWaitHandler waitHandler, double power) {
+        moveClaw(waitHandler, DISTANCE_REMOVE_GLYPH, power);
+    }
+
+    public void activateJewelWhacker(BusyWaitHandler waitHandler) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void retractJewelWhacker(BusyWaitHandler waitHandler) {
+        throw new UnsupportedOperationException();
     }
 }
 

@@ -8,14 +8,9 @@ import org.firstinspires.ftc.teamcode.EyesightUtil;
 @SuppressWarnings("WeakerAccess")
 public class PictographStrategy {
 
-    private static CryptoboxColumn column = CryptoboxColumn.UNKNOWN;
+    private CryptoboxColumn column = CryptoboxColumn.UNKNOWN;
 
-    public static CryptoboxColumn readCryptoboxKey() {
-        column = CryptoboxColumn.fromVuMark(EyesightUtil.getPictograph());
-        return getCryptoboxKey();
-    }
-
-    public static CryptoboxColumn getCryptoboxKey() {
+    public CryptoboxColumn readCryptoboxKey() {
         return column;
     }
 }

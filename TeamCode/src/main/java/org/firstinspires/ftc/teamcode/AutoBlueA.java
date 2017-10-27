@@ -26,11 +26,6 @@ public class AutoBlueA extends LinearOpMode implements BusyWaitHandler {
         //tilerunner.calibrate(this);
 
         mode = "GO!";
-        tilerunner.move(this, 1, 33.5);
-        tilerunner.turn(this, 1, 90);
-        tilerunner.move(this, 1, 49);
-        tilerunner.turn(this, -1, 180);
-        tilerunner.move(this, 1, 49);
     }
 
     private void composeTelemetry() {
