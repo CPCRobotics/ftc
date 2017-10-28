@@ -61,7 +61,6 @@ public class JewelTopplerStrategy {
     }
 
     public void toppleEnemyJewel() throws InterruptedException {
-        visionHelper.enable();
 
         //JewelDirection jd = locateEnemyJewel();
         //Twigger.getInstance()
@@ -75,9 +74,9 @@ public class JewelTopplerStrategy {
     private JewelDirection locateEnemyJewel() throws InterruptedException {
         while (waitHandler.isActive()) {
             JewelsDetector.JewelAnalysis analysis = jewels.getAnalysis();
-            // Confidence level of < 25% is not reliable; wait until it is reliable
+            // Confidence level of < 50% is not reliable; wait until it is reliable
             //      (the jewels extension might have to think more)
-            if (analysis.getConfidence() < .25)
+            if (analysis.getConfidence() < .5)
                 continue;
 
             JewelsDetector.JewelColor leftColor = analysis.getLeftColor();

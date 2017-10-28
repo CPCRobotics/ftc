@@ -46,22 +46,26 @@ public class PlaceGlyphStrategy {
             case BLUE_A:
                 tilerunner.move(waitHandler, 1, 33.5 + cryptoboxOffset(column));
                 tilerunner.turn(waitHandler, -1, 90);
+                tilerunner.move(waitHandler, 1, 9);
                 break;
             case RED_A:
                 tilerunner.move(waitHandler, 1, -(33.5 - cryptoboxOffset(column)));
                 tilerunner.turn(waitHandler, -1, 90);
+                tilerunner.move(waitHandler, 1, 9);
                 break;
             case BLUE_FAR:
-                tilerunner.move(waitHandler, 1, 23);
+                tilerunner.move(waitHandler, 1, 28);
                 tilerunner.turn(waitHandler, 1, 90);
                 tilerunner.move(waitHandler, 1, 13 + cryptoboxOffset(column));
                 tilerunner.turn(waitHandler, -1, 90);
+                tilerunner.move(waitHandler, 1, 2);
                 break;
             case RED_FAR:
-                tilerunner.move(waitHandler, 1, -26);
+                tilerunner.move(waitHandler, 1, -28);
                 tilerunner.turn(waitHandler, 1, 90);
                 tilerunner.move(waitHandler, 1, 12.5 - cryptoboxOffset(column));
                 tilerunner.turn(waitHandler, 1, 90);
+                tilerunner.move(waitHandler, 1, 2);
                 break;
         }
     }
