@@ -16,6 +16,10 @@ public class AutoBlueFar extends LinearOpMode implements BusyWaitHandler {
     public void runOpMode() throws InterruptedException {
         AutonomousStrategy strategy = new AutonomousStrategy(TeamPosition.BLUE_FAR, this,
                 this);
+
+        waitForStart();
+
+        strategy.start();
     }
 
     @Override

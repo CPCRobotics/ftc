@@ -64,10 +64,10 @@ public class JewelTopplerStrategy {
     public void toppleEnemyJewel() throws InterruptedException {
         visionHelper.enable();
 
-        JewelDirection jd = locateEnemyJewel();
-        Twigger.getInstance()
-                .sendOnce("Enemy jewel detected: " + jd.toString());
-        takeDownEnemyJewel(jd);
+        //JewelDirection jd = locateEnemyJewel();
+        //Twigger.getInstance()
+        //        .sendOnce("Enemy jewel detected: " + jd.toString());
+        takeDownEnemyJewel(JewelDirection.LEFT);
 
         // Turn off camera to let Vuphoria work in Pictograph Strategy
         visionHelper.disable();
@@ -99,7 +99,7 @@ public class JewelTopplerStrategy {
         throw new InterruptedException();
     }
 
-    private void takeDownEnemyJewel(JewelDirection jd) {
+    private void takeDownEnemyJewel(JewelDirection jd) throws InterruptedException {
         tilerunner.activateJewelWhacker(waitHandler);
 
         double direction;

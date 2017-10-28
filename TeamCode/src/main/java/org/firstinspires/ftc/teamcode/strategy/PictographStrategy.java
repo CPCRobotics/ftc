@@ -25,7 +25,11 @@ public class PictographStrategy {
         EyesightUtil.start();
 
         tilerunner.move(waitHandler, -1, 6.5);
-        RelicRecoveryVuMark vuMark = EyesightUtil.getPictograph();
+        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.UNKNOWN;
+
+        while (vuMark == RelicRecoveryVuMark.UNKNOWN && waitHandler.isActive())
+            vuMark = EyesightUtil.getPictograph();
+
         tilerunner.move(waitHandler, 1, 6.5);
         return CryptoboxColumn.fromVuMark(vuMark);
     }

@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.nulls.NullBNO055IMU;
 import org.firstinspires.ftc.teamcode.nulls.NullDcMotor;
+import org.firstinspires.ftc.teamcode.nulls.NullServo;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 import java.util.Arrays;
@@ -53,11 +55,12 @@ public class Tilerunner
     private static final int DISTANCE_REMOVE_GLYPH = 10; // TODO get needed ticks to remove glyph
 
     DcMotor  clawMotor;
-    DcMotor  leftMotor;
-    DcMotor  rightMotor;
-    DcMotor motorPair;
+    public DcMotor  leftMotor;
+    public DcMotor  rightMotor;
+    public DcMotor motorPair;
     DcMotor liftMotor;
-    DcMotor jewelWhacker;
+
+    Servo jewelWhacker;
 
     BNO055IMU imu;
 
@@ -115,7 +118,6 @@ public class Tilerunner
 
         liftMotor = createDcMotor(hardwareMap,"lift_drive");
         clawMotor = createDcMotor(hardwareMap, "claw");
-        jewelWhacker = createDcMotor(hardwareMap, "jewel_whacker");
 
         // Set up the parameters with which we will use our IMU. Note that integration
         // algorithm here just reports accelerations to the logcat log; it doesn't actually
@@ -137,6 +139,14 @@ public class Tilerunner
         } catch (IllegalArgumentException e) {
             imu = new NullBNO055IMU();
             Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
+        }
+
+        try {
+            jewelWhacker = hardwareMap.servo.get("whacker");
+            jewelWhacker.setPosition(1);
+        } catch (IllegalArgumentException e) {
+            jewelWhacker = new NullServo();
+            Twigger.getInstance().sendOnce("WARN: Jewel Whacker Missing");
         }
 
     }
@@ -187,7 +197,9 @@ public class Tilerunner
         destinationDegrees = Math.abs(destinationDegrees);
         final double startHeading = getHeading();
 
-        motorPair.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorPair.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         leftMotor.setPower(directionPower);
         rightMotor.setPower(-directionPower);
 
@@ -199,9 +211,9 @@ public class Tilerunner
 
             Twigger.getInstance().addLine(".turn()")
                     .addData("power", power)
-                    .addData("heading", getHeading())
-                    .addData("goal", destinationDegrees)
-                    .addData("delta", delta);
+                    .addData("delta", delta)
+                    .addData("leftpos", leftMotor.getCurrentPosition())
+                    .addData("rightpos", rightMotor.getCurrentPosition());
 
             leftMotor.setPower(power);
             rightMotor.setPower(-power);
@@ -211,12 +223,6 @@ public class Tilerunner
         }
         motorPair.setPower(0);
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        Twigger.getInstance().addLine(".turn()")
-                .addData("start", startHeading)
-                .addData("heading", getHeading())
-                .addData("goal", destinationDegrees)
-                .addData("delta", delta);
 
         Thread.sleep(100);
 
@@ -272,12 +278,14 @@ public class Tilerunner
         moveClaw(waitHandler, DISTANCE_REMOVE_GLYPH, power);
     }
 
-    public void activateJewelWhacker(BusyWaitHandler waitHandler) {
-        throw new UnsupportedOperationException();
+    public void activateJewelWhacker(BusyWaitHandler waitHandler) throws InterruptedException {
+        jewelWhacker.setPosition(.75);
+        Thread.sleep(750);
+        jewelWhacker.setPosition(0);
     }
 
     public void retractJewelWhacker(BusyWaitHandler waitHandler) {
-        throw new UnsupportedOperationException();
+        jewelWhacker.setPosition(1);
     }
 }
 
