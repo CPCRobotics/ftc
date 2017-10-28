@@ -1,4 +1,4 @@
-include ':FtcRobotController', ':cpc-robotics-color-check'
+include ':FtcRobotController', ':cpc-robotics-color-check', ':cpc-robotics-logging'
 include ':TeamCode'
 include ':ftc-visionlib'
 include ':opencv-java'
