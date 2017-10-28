@@ -60,6 +60,11 @@ public class Tilerunner
     public DcMotor motorPair;
     DcMotor liftMotor;
 
+    private boolean liftOverride = false;
+
+    private static final int LIFT_LIMIT_LOWER = 0;
+    private static final int LIFT_LIMIT_UPPER = 100;
+
     Servo jewelWhacker;
 
     BNO055IMU imu;
@@ -113,10 +118,12 @@ public class Tilerunner
         leftMotor   = createDcMotor(hardwareMap, "left_drive");
         rightMotor  = createDcMotor(hardwareMap, "right_drive");
         rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
-
+        // Create a motor pair when manipulating both leftMotor and rightMotor
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
-        liftMotor = createDcMotor(hardwareMap,"lift_drive");
+        liftMotor = createDcMotor(hardwareMap,"lift");
+        liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         clawMotor = createDcMotor(hardwareMap, "claw");
 
         // Set up the parameters with which we will use our IMU. Note that integration
@@ -174,13 +181,18 @@ public class Tilerunner
         motorPair.setTargetPosition( ticks );
         motorPair.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorPair.setPower(power);
-        while (leftMotor.isBusy() && waitHandler.isActive()) {
-            Twigger.getInstance().addLine(".move()")
-                    .addData("mode", leftMotor.getMode())
-                    .addData("target", leftMotor.getTargetPosition())
-                    .addData("pos", leftMotor.getCurrentPosition());
 
-            motorPair.setPower(calculateSpeed(motorPair.getTargetPosition() - motorPair.getCurrentPosition(), THRESHOLD_TICKS));
+        while (leftMotor.isBusy() && waitHandler.isActive()) {
+            double currentPower = calculateSpeed(
+                    motorPair.getTargetPosition() -motorPair.getCurrentPosition(),
+                    THRESHOLD_TICKS);
+            Twigger.getInstance()
+                    .addLine(".move()")
+                        .addData("mode", leftMotor.getMode())
+                        .addData("target", leftMotor.getTargetPosition())
+                        .addData("pos", leftMotor.getCurrentPosition());
+
+            motorPair.setPower(currentPower);
         }
 
         Twigger.getInstance()
@@ -188,39 +200,47 @@ public class Tilerunner
                 .remove(".move()");
     }
 
-    public void turn(BusyWaitHandler waitHandler, double directionPower, double destinationDegrees) throws InterruptedException {
+    public void turn(BusyWaitHandler waitHandler, double power, double destinationDegrees)
+            throws InterruptedException {
 
-        final double directionSign = Math.signum(directionPower) * Math.signum(destinationDegrees);
+        // Get the sign (-1 or 1) from both directionPower and destinationDegrees
+        final double directionSign = Math.signum(power) * Math.signum(destinationDegrees);
         Direction direction = Direction.fromPower(directionSign);
 
-        directionPower = Math.abs(directionPower);
+        // Make directionPower and destinationDegrees positive
+        power = Math.abs(power);
         destinationDegrees = Math.abs(destinationDegrees);
+
         final double startHeading = getHeading();
 
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        leftMotor.setPower(directionPower);
-        rightMotor.setPower(-directionPower);
+        leftMotor.setPower(power);
+        rightMotor.setPower(-power);
 
         double delta = direction.distanceDegrees(startHeading, getHeading());
-        while ( (delta < destinationDegrees || delta > 300) && waitHandler.isActive()) {
-            double power = directionPower * calculateSpeed(destinationDegrees - delta, THRESHOLD_HEADING);
-            power = Math.max(MOTOR_DEADZONE, power);
-            power *= directionSign;
+        while ((delta < destinationDegrees || delta > 300) && waitHandler.isActive()) {
+
+            double currentPower = power * calculateSpeed(destinationDegrees - delta, THRESHOLD_HEADING);
+
+            currentPower = Math.max(MOTOR_DEADZONE, currentPower);
+            currentPower *= directionSign;
+
+            leftMotor.setPower(currentPower);
+            rightMotor.setPower(-currentPower);
+
+            delta = direction.distanceDegrees(startHeading, getHeading());
 
             Twigger.getInstance().addLine(".turn()")
-                    .addData("power", power)
+                    .addData("power", currentPower)
                     .addData("delta", delta)
                     .addData("leftpos", leftMotor.getCurrentPosition())
                     .addData("rightpos", rightMotor.getCurrentPosition());
 
-            leftMotor.setPower(power);
-            rightMotor.setPower(-power);
-
-            delta = direction.distanceDegrees(startHeading, getHeading());
             Thread.sleep(1);
         }
+
         motorPair.setPower(0);
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -229,38 +249,14 @@ public class Tilerunner
         // If we have overshot over 5°, correct it at half the speed.
         double overshoot = delta - destinationDegrees;
         if (overshoot > TURN_CORRECTION_THRESHOLD)
-            turn(waitHandler, -directionPower/5, overshoot);
+            turn(waitHandler, -power/5, overshoot);
 
         Twigger.getInstance()
                 .update()
                 .remove(".turn()");
     }
 
-    void calibrate(BusyWaitHandler waitHandler) throws InterruptedException {
-
-        turn(waitHandler, 0.25, 15);
-        turn(waitHandler, 0.25, -15);
-
-        motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Thread.sleep(250);
-    }
-
-    void lift(BusyWaitHandler waitHandler, int distanceTicks, double power) {
-
-        // Stop lift motor and program it to run `distanceTicks` ticks at `power` speed.
-        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftMotor.setTargetPosition(distanceTicks);
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.setPower(power);
-
-        // Wait until either the waitHandler says it's time to stop or the lift motor goes to its
-        //      destination
-        //noinspection StatementWithEmptyBody
-        while (liftMotor.isBusy() && waitHandler.isActive()) {
-        }
-    }
-
-    void moveClaw(BusyWaitHandler waitHandler, int distanceTicks, double power) {
+    void moveClaw(BusyWaitHandler waitHandler, int distanceTicks, double power) throws InterruptedException {
         // Stop claw motor and program it to run `distanceTicks` ticks at `power` speed.
         clawMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         clawMotor.setTargetPosition(distanceTicks);
@@ -270,22 +266,60 @@ public class Tilerunner
         // Wait until either the waitHandler says it's time to stop or the claw motor goes to its
         //      destination
         //noinspection StatementWithEmptyBody
-        while (clawMotor.isBusy() && waitHandler.isActive()) {
-        }
+        while (clawMotor.isBusy() && waitHandler.isActive())
+            Thread.sleep(10);
     }
 
-    public void removeGlyph(BusyWaitHandler waitHandler, double power) {
+    public void removeGlyph(BusyWaitHandler waitHandler, double power) throws InterruptedException {
         moveClaw(waitHandler, DISTANCE_REMOVE_GLYPH, power);
     }
 
-    public void activateJewelWhacker(BusyWaitHandler waitHandler) throws InterruptedException {
+    public void activateJewelWhacker() throws InterruptedException {
         jewelWhacker.setPosition(.75);
-        Thread.sleep(750);
+        Thread.sleep(750); // Let the tape straighten out
         jewelWhacker.setPosition(0);
     }
 
-    public void retractJewelWhacker(BusyWaitHandler waitHandler) {
+    public void retractJewelWhacker() {
         jewelWhacker.setPosition(1);
+    }
+
+    /**
+     * Toggles whether or not to override the lift
+     *
+     * @return the new lift status
+     */
+    public boolean toggleLiftOverride() {
+        liftOverride = !liftOverride;
+        Twigger.getInstance()
+                .sendOnce("Life Override Toggled: " + liftOverride);
+        return liftOverride;
+    }
+
+    public boolean getLiftOverride() {
+        return liftOverride;
+    }
+
+    /**
+     * Sets the lift power, preventing it to go above its limit.
+     * @param power
+     * @return true if lift is within limits
+     */
+    public boolean setLiftPower(double power) {
+        // Stop if trying to go below lower limit
+        if (power < 0 && liftMotor.getCurrentPosition() <= LIFT_LIMIT_LOWER) {
+            liftMotor.setPower(0);
+            return false;
+        }
+
+        // Stop if trying to go above lower limit
+        if (power > 0 && liftMotor.getCurrentPosition() >= LIFT_LIMIT_UPPER) {
+            liftMotor.setPower(0);
+            return false;
+        }
+
+        liftMotor.setPower(power);
+        return true;
     }
 }
 

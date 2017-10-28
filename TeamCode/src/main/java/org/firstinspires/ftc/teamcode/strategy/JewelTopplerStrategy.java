@@ -5,7 +5,6 @@ import android.hardware.Camera;
 
 import org.firstinspires.ftc.teamcode.BusyWaitHandler;
 import org.firstinspires.ftc.teamcode.Tilerunner;
-import org.firstinspires.ftc.teamcode.twigger.Twigger;
 import org.lasarobotics.vision.util.ScreenOrientation;
 
 import cpc.robotics.vision.BlurExtension;
@@ -100,7 +99,7 @@ public class JewelTopplerStrategy {
     }
 
     private void takeDownEnemyJewel(JewelDirection jd) throws InterruptedException {
-        tilerunner.activateJewelWhacker(waitHandler);
+        tilerunner.activateJewelWhacker();
 
         double direction;
         switch (jd) {
@@ -114,7 +113,7 @@ public class JewelTopplerStrategy {
         }
 
         tilerunner.move(waitHandler, 1, 2*direction);
-        tilerunner.retractJewelWhacker(waitHandler);
+        tilerunner.retractJewelWhacker();
         tilerunner.move(waitHandler, 1, -2*direction);
     }
 }

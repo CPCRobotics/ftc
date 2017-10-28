@@ -32,11 +32,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 
@@ -47,14 +47,12 @@ public class TankDrive extends OpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
-    private Tilerunner hardware = new Tilerunner();
+    private Tilerunner tilerunner = new Tilerunner();
 
     private double speedLeft = 0;
     private double speedRight = 0;
 
-    private double range(double value, double min, double max) {
-        return Math.min(Math.max(value, min), max);
-    }
+    private boolean liftOverrideButtonDepressed = false;
 
 
     private double calculateSpeed(double currentSpeed, double joystickPower) {
@@ -73,10 +71,10 @@ public class TankDrive extends OpMode {
      */
     @Override
     public void init() {
-        telemetry.addData("Status", "Initialized");
+        composeTelemetry();
 
-        // Initialize the robot hardware object passing it the OpModes hardwareMap.
-        hardware.init(hardwareMap, telemetry);
+        // Initialize the robot tilerunner object passing it the OpModes hardwareMap.
+        tilerunner.init(hardwareMap, telemetry);
     }
 
     /*
@@ -101,37 +99,50 @@ public class TankDrive extends OpMode {
     public void loop() {
         Twigger.getInstance().addData("Status", "Running: " + runtime.toString());
 
-        // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
+        // Wheels (left, right joysticks)
         speedLeft = calculateSpeed(speedLeft, -gamepad1.left_stick_y);
         speedRight = calculateSpeed(speedRight, -gamepad1.right_stick_y);
 
-        Twigger.getInstance().addData("Left Joystick Power", -gamepad1.left_stick_y);
-        Twigger.getInstance().addData("Left Wheel Power", speedLeft);
-
-        hardware.leftMotor.setPower(speedLeft);
-        hardware.rightMotor.setPower(speedRight);
+        tilerunner.leftMotor.setPower(speedLeft);
+        tilerunner.rightMotor.setPower(speedRight);
 
 
-        if (gamepad1.dpad_up) {
-            hardware.liftMotor.setPower(1);
-        } else if (gamepad1.dpad_down) {
-            hardware.liftMotor.setPower(-1);
-        } else {
-            hardware.liftMotor.setPower(0);
+        // Lift (D-Pad)
+        if (gamepad1.dpad_up)
+            tilerunner.setLiftPower(1);
+        else if (gamepad2.dpad_down)
+            tilerunner.setLiftPower(-1);
+
+        // Claw Motor (Triggers)
+        if (gamepad1.left_trigger > 0.2)
+            tilerunner.clawMotor.setPower(-gamepad1.left_trigger);
+        else if (gamepad1.right_trigger > 0.2)
+            tilerunner.clawMotor.setPower(gamepad1.right_trigger);
+
+        // Lift Override (B Button)
+        if (gamepad1.b && !liftOverrideButtonDepressed) {
+            liftOverrideButtonDepressed = true;
+            tilerunner.toggleLiftOverride();
+        } else if (!gamepad1.b) {
+            liftOverrideButtonDepressed = false;
         }
 
-        if (gamepad1.left_trigger>0 ||gamepad2.left_trigger>0){
-            hardware.clawMotor.setPower(1);
-        } else if (gamepad1.right_trigger>0||gamepad2.right_trigger>0){
-            hardware.clawMotor.setPower(-1);
-        }
     }
 
     /*
      * Code to run ONCE after the driver hits STOP
      */
     @Override
-    public void stop() {
+    public void stop() {}
+
+    private void composeTelemetry() {
+        Twigger.getInstance()
+                .addData("Lift Override", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return String.valueOf(tilerunner.getLiftOverride());
+                    }
+                });
     }
 
 }
