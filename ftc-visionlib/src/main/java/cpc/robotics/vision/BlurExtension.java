@@ -43,16 +43,11 @@ public class BlurExtension extends VisionExtension {
      */
     @Override
     public Mat onFrame(Mat img) {
-        Mat output = img;
         try {
-            new Rectangle(img.size());
-            Mat blurred = img.clone();
-            Imgproc.medianBlur(img, blurred, blurWidth);
-            output = blurred;
+            Imgproc.medianBlur(img, img, blurWidth);
         } catch (Exception e) {
             e.printStackTrace();
-            output = img;
         }
-        return output;
+        return img;
     }
 }

@@ -134,4 +134,13 @@ public abstract class VisionExtension implements Closeable {
     public boolean isEnabled() {
         return enabled;
     }
+
+    /**
+     * Allows an extension to resize the view.
+     * @param viewSize original size
+     * @return modified size or original size
+     */
+    public SizeI resize(SizeI viewSize) {
+        return viewSize;
+    }
 }

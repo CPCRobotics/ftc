@@ -19,10 +19,11 @@ public class CameraTestActivity extends VisionEnabledActivity {
 
     private VisionHelper vision;
     private final BlurExtension blur = new BlurExtension();
+    private final CropExtension crop = new CropExtension();
     private final JewelsExtension jewels = new JewelsExtension();
     private final ImageRotationExtension rotation = new ImageRotationExtension();
     private final CameraControlExtension cameraControl = new CameraControlExtension();
-    private final CameraStatsExtension debugOverlay = new CameraStatsExtension();
+    private final CameraTestOverlayExtension debugOverlay = new CameraTestOverlayExtension();
 
     public CameraTestActivity() {
         super();
@@ -38,8 +39,9 @@ public class CameraTestActivity extends VisionEnabledActivity {
 
         setContentView(R.layout.activity_cameratest);
 
-        vision = new VisionHelper(this, Camera.CameraInfo.CAMERA_FACING_BACK, 500, 500);
-        vision.addExtensions(blur, jewels, rotation, cameraControl, debugOverlay);
+        vision = new VisionHelper(this, Camera.CameraInfo.CAMERA_FACING_BACK, 900, 900);
+        vision.addExtensions(crop, blur, jewels, rotation, cameraControl, debugOverlay);
+        crop.setBounds(0.0, 25.0, 50.0, 50.0);
         blur.setBlurWidth(5);
         rotation.setIsUsingSecondaryCamera(false);
         //rotation.disableAutoRotate();

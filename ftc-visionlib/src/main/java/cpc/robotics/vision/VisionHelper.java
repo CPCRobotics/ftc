@@ -1,5 +1,6 @@
 package cpc.robotics.vision;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -58,8 +59,9 @@ public class VisionHelper implements Closeable {
 
     protected CopyOnWriteArrayList<VisionExtension> extensions = new CopyOnWriteArrayList<>();
     protected int mPreviewFormat = ImageFormat.NV21;
-    protected int mWidth;
-    protected int mHeight;
+    protected SizeI maxSize;
+    protected SizeI captureSize;
+    protected SizeI viewSize;
     protected int mCameraIndex; // e.. = Camera.CameraInfo.CAMERA_FACING_BACK;
     protected Context mContext;
     protected boolean mEnabled = false; // need to explicitly enable when ready
@@ -98,10 +100,8 @@ public class VisionHelper implements Closeable {
             return mRgba;
         }
 
-        public CameraViewFrameImpl(Mat Yuv420sp, int width, int height) {
+        public CameraViewFrameImpl(Mat Yuv420sp) {
             super();
-            mWidth = width;
-            mHeight = height;
             mYuvFrameData = Yuv420sp;
             mRgba = new Mat();
         }
@@ -208,15 +208,17 @@ public class VisionHelper implements Closeable {
      * Construct a VisionHelper bound to a Context.
      * @param context Context, should be an Activity
      * @param cameraId Specify which camera, e.g. CAMERA_FACING_BACK
-     * @param width Maximum width of camera capture
-     * @param height Maximum height of camera capture
+     * @param maxSize Maximum size of camera capture
      */
-    public VisionHelper(Context context, int cameraId, int width, int height) {
+    public VisionHelper(Context context, int cameraId, SizeI maxSize) {
         mContext = context;
         mCameraIndex = cameraId;
-        mWidth = width;
-        mHeight = height;
+        this.maxSize = maxSize;
         OpenCVLoader.initDebug(); // Ensure OpenCV is loaded
+    }
+
+    public VisionHelper(Context context, int cameraId, int width, int height) {
+        this(context, cameraId, new SizeI(width, height));
     }
 
     public Context getContext() {
@@ -304,10 +306,8 @@ public class VisionHelper implements Closeable {
     /**
      * This method is invoked when camera preview has started. After this method is invoked
      * the frames will start to be delivered to client via the onCameraFrame() callback.
-     * @param width -  the width of the frames that will be delivered
-     * @param height - the height of the frames that will be delivered
      */
-    public void onCameraViewStarted(int width, int height) {
+    public void onCameraViewStarted() {
     }
 
     /**
@@ -368,22 +368,24 @@ public class VisionHelper implements Closeable {
         }
     }
 
-    /**
-     * Prior to first enable, desired width. After camera is enabled, actual width.
-     * @return width
-     */
-    public int getWidth()
+    public SizeI getMaxSize()
     {
-        return mWidth;
+        return this.maxSize;
     }
 
-    /**
-     * Prior to first enable, desired height. After camera is enabled, actual height.
-     * @return height
-     */
-    public int getHeight()
+    public SizeI getCaptureSize()
     {
-        return mHeight;
+        return this.captureSize;
+    }
+
+    public SizeI getViewSize()
+    {
+        return this.viewSize;
+    }
+
+    public void setMaxSize(SizeI size)
+    {
+        this.maxSize = size;
     }
 
     /**
@@ -419,7 +421,7 @@ public class VisionHelper implements Closeable {
         switch(state) {
             case STARTED:
                 onEnterStartedState();
-                onCameraViewStarted(mWidth, mHeight);
+                onCameraViewStarted();
                 break;
             case STOPPED:
                 onEnterStoppedState();
@@ -453,7 +455,7 @@ public class VisionHelper implements Closeable {
     private final void onEnterStartedState() {
         Log.d(TAG, "call onEnterStartedState");
         /* Connect camera */
-        if (!connectCamera(getWidth(), getHeight())) {
+        if (!connectCamera(maxSize.width, maxSize.height)) {
             AlertDialog ad = new AlertDialog.Builder(mContext).create();
             ad.setCancelable(false); // This blocks the 'BACK' button
             ad.setMessage("It seems that you device does not support camera (or it is locked). Application will be closed.");
@@ -545,10 +547,15 @@ public class VisionHelper implements Closeable {
                     mCamera.setParameters(params);
                     params = mCamera.getParameters();
 
-                    mWidth = params.getPreviewSize().width;
-                    mHeight = params.getPreviewSize().height;
+                    captureSize = new SizeI(params.getPreviewSize().width, params.getPreviewSize().height);
+                    viewSize = captureSize;
+                    for (VisionExtension extension : extensions) {
+                        if (extension.isEnabled()) {
+                            viewSize = extension.resize(viewSize);
+                        }
+                    }
 
-                    int size = mWidth * mHeight;
+                    int size = captureSize.width * captureSize.height;
                     size  = size * ImageFormat.getBitsPerPixel(params.getPreviewFormat()) / 8;
                     mBuffer = new byte[size];
 
@@ -556,14 +563,14 @@ public class VisionHelper implements Closeable {
                     mCamera.setPreviewCallbackWithBuffer(this.previewCallbacks);
 
                     mFrameChain = new Mat[2];
-                    mFrameChain[0] = new Mat(mHeight + (mHeight/2), mWidth, CvType.CV_8UC1);
-                    mFrameChain[1] = new Mat(mHeight + (mHeight/2), mWidth, CvType.CV_8UC1);
+                    mFrameChain[0] = new Mat(captureSize.height + (captureSize.height/2), captureSize.width, CvType.CV_8UC1);
+                    mFrameChain[1] = new Mat(captureSize.height + (captureSize.height/2), captureSize.width, CvType.CV_8UC1);
 
                     allocateCache();
 
                     mCameraFrame = new CameraViewFrameImpl[2];
-                    mCameraFrame[0] = new CameraViewFrameImpl(mFrameChain[0], mWidth, mHeight);
-                    mCameraFrame[1] = new CameraViewFrameImpl(mFrameChain[1], mWidth, mHeight);
+                    mCameraFrame[0] = new CameraViewFrameImpl(mFrameChain[0]);
+                    mCameraFrame[1] = new CameraViewFrameImpl(mFrameChain[1]);
 
                     mSurfaceTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
                     mCamera.setPreviewTexture(mSurfaceTexture);
@@ -608,7 +615,7 @@ public class VisionHelper implements Closeable {
 
     protected void allocateCache() {
         // NOTE: On Android 4.1.x the function must be called before SurfaceTexture constructor!
-        mCacheBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+        mCacheBitmap = Bitmap.createBitmap(viewSize.width, viewSize.height, Bitmap.Config.ARGB_8888);
     }
 
     /**
@@ -736,7 +743,7 @@ public class VisionHelper implements Closeable {
                     float scale;
                     float width = canvas.getWidth();
                     float height = canvas.getHeight();
-                    scale = Math.max(0, Math.min(height / mHeight, width / mWidth));
+                    scale = Math.max(0, Math.min(height / viewSize.height, width / viewSize.width));
                     canvas.drawColor(0, android.graphics.PorterDuff.Mode.CLEAR);
                     if (BuildConfig.DEBUG) {
                         Log.d(TAG, "mStretch value: " + scale);

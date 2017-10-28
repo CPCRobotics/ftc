@@ -15,7 +15,7 @@ public class CameraTestOverlayExtension extends CameraStatsExtension {
     ImageRotationExtension rotation = null;
 
     @Override
-    public void onEnabled() {
+    public void onCreate() {
         jewels = vision.getExtension(JewelsExtension.class);
         rotation = vision.getExtension(ImageRotationExtension.class);
     }
@@ -43,7 +43,7 @@ public class CameraTestOverlayExtension extends CameraStatsExtension {
 
         //Display inch offset to center
         Drawing.drawText(rgba, "Center Adjust: " + jewels.getAnalysis().getCenterAdjustmentString(),
-                new Point(vision.getWidth() - 300, 40), 0.5f, new ColorRGBA("#ffffff"));
+                new Point(vision.getViewSize().width - 300, 40), 0.5f, new ColorRGBA("#ffffff"));
 
         //Display rotation sensor compensation
         Drawing.drawText(rgba, "Rot: " + rotation.getRotationCompensationAngle()
