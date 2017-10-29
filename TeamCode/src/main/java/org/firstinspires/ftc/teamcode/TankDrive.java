@@ -71,10 +71,18 @@ public class TankDrive extends OpMode {
      */
     @Override
     public void init() {
-        composeTelemetry();
 
         // Initialize the robot tilerunner object passing it the OpModes hardwareMap.
         tilerunner.init(hardwareMap, telemetry);
+
+
+        Twigger.getInstance()
+                .addData("Lift Override", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return String.valueOf(tilerunner.getLiftOverride());
+                    }
+                });
     }
 
     /*
@@ -134,15 +142,5 @@ public class TankDrive extends OpMode {
      */
     @Override
     public void stop() {}
-
-    private void composeTelemetry() {
-        Twigger.getInstance()
-                .addData("Lift Override", new Func<String>() {
-                    @Override
-                    public String value() {
-                        return String.valueOf(tilerunner.getLiftOverride());
-                    }
-                });
-    }
 
 }

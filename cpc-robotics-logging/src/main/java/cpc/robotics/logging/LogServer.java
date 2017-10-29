@@ -1,5 +1,7 @@
 package cpc.robotics.logging;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -87,11 +89,11 @@ public class LogServer extends NanoHTTPD {
      * This is used to capture a log entry, and also to serialize to JSON. Object is immutable,
      * so it is acceptable to have LogEntry values passed to LogEntry if desired.
      */
-    public static class LogEntry {
+    public static final class LogEntry {
         public final Date time; // cannot be null
         public final String tag; // cannot be null
         public final Object data; // expected to be immutable, may be null
-        public LogEntry(Date time, String tag, Object data) {
+        public LogEntry(@NonNull Date time, @NonNull String tag, @Nullable Object data) {
             this.time = time;
             this.tag = tag;
             this.data = data;
@@ -206,6 +208,7 @@ public class LogServer extends NanoHTTPD {
         }
         return parameters.get(name).get(0);
     }
+
     protected static Long getIntegerParameter(IHTTPSession session, String name) {
         String value = getFirstNamedParameter(session, name);
         if (value == null || value.length() == 0) {

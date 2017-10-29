@@ -144,7 +144,12 @@ public class Tilerunner
         // and named "imu".
         try {
             imu = hardwareMap.get(BNO055IMU.class, "imu");
-            imu.initialize(parameters);
+            Twigger.getInstance().sendOnce("Initializing IMU");
+
+            if (!imu.initialize(parameters))
+                throw new IllegalArgumentException();
+
+            Twigger.getInstance().sendOnce("Initialized IMU");
         } catch (IllegalArgumentException e) {
             imu = new NullBNO055IMU();
             Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
