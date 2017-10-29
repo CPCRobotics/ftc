@@ -103,16 +103,16 @@ public class JewelTopplerStrategy {
         double direction;
         switch (jd) {
             case LEFT:
-                direction = 1;
+                direction = -1;
                 break;
             case RIGHT:
             default:
-                direction = -1;
+                direction = 1;
                 break;
         }
 
-        tilerunner.move(waitHandler, 1, 2*direction);
+        tilerunner.move(waitHandler, 1, 3*direction);
         tilerunner.retractJewelWhacker();
-        tilerunner.move(waitHandler, 1, -2*direction);
+        tilerunner.move(waitHandler, 1, -3*direction);
     }
 }
