@@ -11,11 +11,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.nulls.NullBNO055IMU;
 import org.firstinspires.ftc.teamcode.nulls.NullDcMotor;
 import org.firstinspires.ftc.teamcode.nulls.NullServo;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
+import java.io.File;
 import java.util.Arrays;
 
 /**
@@ -54,11 +56,11 @@ public class Tilerunner
 
     private static final int DISTANCE_REMOVE_GLYPH = 10; // TODO get needed ticks to remove glyph
 
-    DcMotor  clawMotor;
+    public DcMotor  clawMotor;
     public DcMotor  leftMotor;
     public DcMotor  rightMotor;
     public DcMotor motorPair;
-    DcMotor liftMotor;
+    public DcMotor liftMotor;
 
     private boolean liftOverride = false;
 
@@ -144,6 +146,12 @@ public class Tilerunner
         // and named "imu".
         try {
             imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+            // Check if IMU Calibration exists
+            File file = AppUtil.getInstance().getSettingsFile(parameters.calibrationDataFile);
+            if (!file.exists())
+                Twigger.getInstance().sendOnce("WARN: Calibration File Doesn't Exist");
+
             Twigger.getInstance().sendOnce("Initializing IMU");
 
             if (!imu.initialize(parameters))
@@ -163,6 +171,7 @@ public class Tilerunner
             Twigger.getInstance().sendOnce("WARN: Jewel Whacker Missing");
         }
 
+        Twigger.getInstance().update();
     }
 
     double getHeading() {

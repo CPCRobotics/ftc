@@ -18,6 +18,8 @@ public class JewelsExtension extends VisionExtension {
     private JewelsDetector.JewelAnalysis analysis = new JewelsDetector.JewelAnalysis();
     private ImageRotationExtension rotation = null;
 
+    private JewelsDetector.JewelAnalysis bestAnalysis = analysis;
+
     public JewelsExtension() {
     }
 
@@ -69,10 +71,17 @@ public class JewelsExtension extends VisionExtension {
             //Get color analysis
             this.analysis = jewels.analyzeFrame(rgba, orientation);
 
+            if (analysis.getConfidence() > bestAnalysis.getConfidence())
+                bestAnalysis = analysis;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return rgba;
+    }
+
+    public JewelsDetector.JewelAnalysis getBestAnalysis() {
+        return bestAnalysis;
     }
 }

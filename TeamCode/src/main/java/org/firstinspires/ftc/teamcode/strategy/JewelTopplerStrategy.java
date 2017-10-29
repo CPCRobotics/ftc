@@ -3,13 +3,18 @@ package org.firstinspires.ftc.teamcode.strategy;
 import android.content.Context;
 import android.hardware.Camera;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.teamcode.BusyWaitHandler;
 import org.firstinspires.ftc.teamcode.Tilerunner;
+import org.firstinspires.ftc.teamcode.twigger.Twigger;
 import org.lasarobotics.vision.util.ScreenOrientation;
 
 import cpc.robotics.vision.BlurExtension;
 import cpc.robotics.vision.CameraControlExtension;
 import cpc.robotics.vision.CameraStatsExtension;
+import cpc.robotics.vision.CropExtension;
 import cpc.robotics.vision.ImageRotationExtension;
 import cpc.robotics.vision.JewelsDetector;
 import cpc.robotics.vision.JewelsExtension;
@@ -27,28 +32,36 @@ public class JewelTopplerStrategy {
     private final Tilerunner tilerunner;
 
     private final BlurExtension blur = new BlurExtension();
+    private final CropExtension crop = new CropExtension();
     private final JewelsExtension jewels = new JewelsExtension();
     private final ImageRotationExtension imageRot = new ImageRotationExtension();
     private final CameraControlExtension cameraControl = new CameraControlExtension();
-    private final CameraStatsExtension stats = new CameraStatsExtension();
+    private final CameraStatsExtension cameraStats = new CameraStatsExtension();
 
-    public JewelTopplerStrategy(TeamPosition position, BusyWaitHandler waitHandler, Context context,
-                                Tilerunner tilerunner) {
+    public JewelTopplerStrategy(TeamPosition position, BusyWaitHandler waitHandler,
+                                Context context, Tilerunner tilerunner) {
         this.position = position;
         this.waitHandler = waitHandler;
         this.tilerunner = tilerunner;
 
-        visionHelper = new VisionHelper(context, Camera.CameraInfo.CAMERA_FACING_BACK, 500, 500);
-        visionHelper.addExtensions(blur, jewels, imageRot, cameraControl, stats);
+        visionHelper = new VisionHelper(context, Camera.CameraInfo.CAMERA_FACING_BACK, 900, 900);
+        visionHelper.addExtensions(crop, blur, jewels, imageRot, cameraControl, cameraStats);
+
+        crop.setBounds(-10, 0, 50, 50);
         blur.setBlurWidth(5);
         imageRot.disableAutoRotate();
-        imageRot.setActivityOrientationFixed(ScreenOrientation.LANDSCAPE);
+        imageRot.setIsUsingSecondaryCamera(false);
+        imageRot.setZeroOrientation(ScreenOrientation.LANDSCAPE_REVERSE);
+        imageRot.setActivityOrientationFixed(ScreenOrientation.LANDSCAPE_REVERSE);
+
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
         cameraControl.setAutoExposureCompensation();
+
+        jewels.enableDebug();
     }
 
     enum JewelDirection {
-        LEFT(-1, "LEFT"), RIGHT(1, "RIGHT");
+        LEFT(-1, "LEFT"), RIGHT(1, "RIGHT"), UNKNOWN(0, "UNKNOWN");
         int power;
         String value;
 
@@ -62,22 +75,52 @@ public class JewelTopplerStrategy {
 
     public void toppleEnemyJewel() throws InterruptedException {
 
-        //JewelDirection jd = locateEnemyJewel();
-        //Twigger.getInstance()
-        //        .sendOnce("Enemy jewel detected: " + jd.toString());
-        takeDownEnemyJewel(JewelDirection.LEFT);
+        JewelDirection jd = JewelDirection.UNKNOWN;
+
+        try {
+            visionHelper.enable();
+            jd = locateEnemyJewel();
+        } finally {
+            visionHelper.disable();
+        }
+
+        Twigger.getInstance()
+                .sendOnce("Enemy jewel detected: " + jd.toString());
+        takeDownEnemyJewel(jd);
 
         // Turn off camera to let Vuphoria work in Pictograph Strategy
         visionHelper.disable();
     }
 
     private JewelDirection locateEnemyJewel() throws InterruptedException {
+        ElapsedTime time = new ElapsedTime();
+
         while (waitHandler.isActive()) {
-            JewelsDetector.JewelAnalysis analysis = jewels.getAnalysis();
-            // Confidence level of < 50% is not reliable; wait until it is reliable
-            //      (the jewels extension might have to think more)
-            if (analysis.getConfidence() < .5)
+
+            // Wait 3 seconds for the JewelsExtension to analyze the jewels
+            if (time.seconds() < 3) {
+                Thread.sleep(20);
                 continue;
+            }
+
+            final JewelsDetector.JewelAnalysis analysis = jewels.getBestAnalysis();
+
+            // Bad Analysis
+            if (analysis.getConfidence() < 0.75) {
+                Twigger.getInstance()
+                        .sendOnce("ERROR: Can't Find Jewel In Time");
+                return JewelDirection.UNKNOWN;
+            }
+
+            Twigger.getInstance()
+                    .addLine(".locateEnemyJewel()")
+                        .addData("colors", analysis.getColorString())
+                        .addData("confidence", analysis.getConfidenceString())
+                        .addData("center", analysis.getCenterString())
+                        .done()
+                    .update()
+                    .remove(".locateEnemyJewel()"); // TODO Add sendLineOnce implementation
+
 
             JewelsDetector.JewelColor leftColor = analysis.getLeftColor();
 
@@ -90,6 +133,7 @@ public class JewelTopplerStrategy {
                 return JewelDirection.LEFT;
             else if (leftColor == JewelsDetector.JewelColor.BLUE && position.isBlue())
                 return JewelDirection.RIGHT;
+
         }
 
         // Waithandler showed opmode is inactive; throw

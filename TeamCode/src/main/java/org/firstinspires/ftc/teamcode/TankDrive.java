@@ -120,12 +120,16 @@ public class TankDrive extends OpMode {
             tilerunner.setLiftPower(1);
         else if (gamepad2.dpad_down)
             tilerunner.setLiftPower(-1);
+        else
+            tilerunner.setLiftPower(0);
 
         // Claw Motor (Triggers)
         if (gamepad1.left_trigger > 0.2)
             tilerunner.clawMotor.setPower(-gamepad1.left_trigger);
         else if (gamepad1.right_trigger > 0.2)
             tilerunner.clawMotor.setPower(gamepad1.right_trigger);
+        else
+            tilerunner.clawMotor.setPower(0);
 
         // Lift Override (B Button)
         if (gamepad1.b && !liftOverrideButtonDepressed) {
