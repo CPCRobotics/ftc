@@ -87,6 +87,8 @@ public class ImageRotationExtension extends VisionExtension {
             case LANDSCAPE_REVERSE:
                 setActivityOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
                 break;
+
+
             case PORTRAIT_REVERSE:
                 setActivityOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
                 break;
