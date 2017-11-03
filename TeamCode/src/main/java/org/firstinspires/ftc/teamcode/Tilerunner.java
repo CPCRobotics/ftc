@@ -64,9 +64,6 @@ public class Tilerunner
 
     private boolean liftOverride = false;
 
-    private static final int LIFT_LIMIT_LOWER = 0;
-    private static final int LIFT_LIMIT_UPPER = 100;
-
     Servo jewelWhacker;
 
     BNO055IMU imu;
@@ -322,20 +319,11 @@ public class Tilerunner
      * @return true if lift is within limits
      */
     public boolean setLiftPower(double power) {
-        // Stop if trying to go below lower limit
-        if (power < 0 && liftMotor.getCurrentPosition() <= LIFT_LIMIT_LOWER) {
-            liftMotor.setPower(0);
-            return false;
-        }
-
-        // Stop if trying to go above lower limit
-        if (power > 0 && liftMotor.getCurrentPosition() >= LIFT_LIMIT_UPPER) {
-            liftMotor.setPower(0);
-            return false;
-        }
-
+        // There is no soft-coded lift limit; behave as if always successful.
         liftMotor.setPower(power);
         return true;
+
+
     }
 }
 

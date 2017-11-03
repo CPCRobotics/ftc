@@ -49,13 +49,18 @@ public class TankDrive extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private Tilerunner tilerunner = new Tilerunner();
 
+    private double whackerPosition = 0;
+    private static final double WHACKER_CONTROL_SPEED = 0.05;
+
     private double speedLeft = 0;
     private double speedRight = 0;
+
+    private static final double JOYSTICK_THRESHOLD = 0.2;
 
     private boolean liftOverrideButtonDepressed = false;
 
 
-    private double calculateSpeed(double currentSpeed, double joystickPower) {
+    private double calculateWheelSpeed(double currentSpeed, double joystickPower) {
         // Make moving the robot more sensitive when the joystick is closer to 0
         double targetPower = joystickPower * Math.abs(joystickPower);
 
@@ -66,6 +71,10 @@ public class TankDrive extends OpMode {
         return (targetPower - currentSpeed) / SPEED_GAIN + currentSpeed;
     }
 
+    private double calculateLiftSpeed(double joystickPower) {
+        return (joystickPower * joystickPower) * Math.signum(joystickPower);
+    }
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -74,6 +83,7 @@ public class TankDrive extends OpMode {
 
         // Initialize the robot tilerunner object passing it the OpModes hardwareMap.
         tilerunner.init(hardwareMap, telemetry);
+        whackerPosition = tilerunner.jewelWhacker.getPosition();
 
 
         Twigger.getInstance()
@@ -107,37 +117,84 @@ public class TankDrive extends OpMode {
     public void loop() {
         Twigger.getInstance().addData("Status", "Running: " + runtime.toString());
 
-        // Wheels (left, right joysticks)
-        speedLeft = calculateSpeed(speedLeft, -gamepad1.left_stick_y);
-        speedRight = calculateSpeed(speedRight, -gamepad1.right_stick_y);
-
-        tilerunner.leftMotor.setPower(speedLeft);
-        tilerunner.rightMotor.setPower(speedRight);
+        boolean easy_claw = gamepad1.left_bumper || gamepad1.right_bumper;
 
 
-        // Lift (D-Pad)
-        if (gamepad1.dpad_up)
-            tilerunner.setLiftPower(1);
-        else if (gamepad2.dpad_down)
-            tilerunner.setLiftPower(-1);
+        if (!easy_claw) {
+            // Easy Mode OFF
+
+            // Wheels (Gamepad 1 Joystick)
+            speedLeft = calculateWheelSpeed(speedLeft, -gamepad1.left_stick_y);
+            speedRight = calculateWheelSpeed(speedRight, -gamepad1.right_stick_y);
+
+            tilerunner.leftMotor.setPower(speedLeft);
+            tilerunner.rightMotor.setPower(speedRight);
+
+
+            // Claw Motor (Gamepad 1 Triggers)
+            if (gamepad1.left_trigger > JOYSTICK_THRESHOLD)
+                tilerunner.clawMotor.setPower(gamepad1.left_trigger);
+            else if (gamepad1.right_trigger > JOYSTICK_THRESHOLD)
+                tilerunner.clawMotor.setPower(-gamepad1.right_trigger);
+            else
+                tilerunner.clawMotor.setPower(0);
+
+        } else {
+            // Easy Mode ON
+
+            if (gamepad1.left_bumper) {
+                // Easy PUT Glyph
+
+                speedLeft = calculateWheelSpeed(speedLeft, -.75);
+                speedRight = calculateWheelSpeed(speedRight, -.75);
+
+                tilerunner.leftMotor.setPower(speedLeft);
+                tilerunner.rightMotor.setPower(speedRight);
+
+
+                tilerunner.clawMotor.setPower(1);
+            } else {
+                // Easy GRAB glyph
+
+                speedLeft = calculateWheelSpeed(speedLeft, .75);
+                speedRight = calculateWheelSpeed(speedRight, .75);
+
+                tilerunner.leftMotor.setPower(speedLeft);
+                tilerunner.rightMotor.setPower(speedRight);
+
+
+                tilerunner.clawMotor.setPower(-1);
+            }
+
+        }
+
+//        // Lift (Gamepad 1 D-Pad)
+//        if (gamepad1.dpad_up)
+//            tilerunner.setLiftPower(1);
+//        else if (gamepad2.dpad_down)
+//            tilerunner.setLiftPower(-1);
+//        else
+//            tilerunner.setLiftPower(0);
+
+        // Lift (Gamepad 2 Left Joystick)
+        if (Math.abs(gamepad2.left_stick_y) >= JOYSTICK_THRESHOLD)
+            tilerunner.setLiftPower(calculateLiftSpeed(gamepad2.left_stick_y));
         else
             tilerunner.setLiftPower(0);
 
-        // Claw Motor (Triggers)
-        if (gamepad1.left_trigger > 0.2)
-            tilerunner.clawMotor.setPower(-gamepad1.left_trigger);
-        else if (gamepad1.right_trigger > 0.2)
-            tilerunner.clawMotor.setPower(gamepad1.right_trigger);
-        else
-            tilerunner.clawMotor.setPower(0);
+        // Jewel Whacker (Gamepad 2 Right Joystick)
+        if (Math.abs(gamepad2.right_stick_y) >= JOYSTICK_THRESHOLD)
+            whackerPosition += WHACKER_CONTROL_SPEED * gamepad1.right_stick_y;
+        tilerunner.jewelWhacker.setPosition(whackerPosition);
 
-        // Lift Override (B Button)
-        if (gamepad1.b && !liftOverrideButtonDepressed) {
-            liftOverrideButtonDepressed = true;
-            tilerunner.toggleLiftOverride();
-        } else if (!gamepad1.b) {
-            liftOverrideButtonDepressed = false;
-        }
+
+//        // Lift Override (B Button)
+//        if (gamepad1.b && !liftOverrideButtonDepressed) {
+//            liftOverrideButtonDepressed = true;
+//            tilerunner.toggleLiftOverride();
+//        } else if (!gamepad1.b) {
+//            liftOverrideButtonDepressed = false;
+//        }
 
     }
 
