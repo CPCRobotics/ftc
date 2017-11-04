@@ -49,8 +49,8 @@ public class TankDrive extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private Tilerunner tilerunner = new Tilerunner();
 
-    private double whackerPosition = 0;
-    private static final double WHACKER_CONTROL_SPEED = 0.05;
+//    private double whackerPosition = 0;
+//    private static final double WHACKER_CONTROL_SPEED = 0.05;
 
     private double speedLeft = 0;
     private double speedRight = 0;
@@ -83,7 +83,7 @@ public class TankDrive extends OpMode {
 
         // Initialize the robot tilerunner object passing it the OpModes hardwareMap.
         tilerunner.init(hardwareMap, telemetry);
-        whackerPosition = tilerunner.jewelWhacker.getPosition();
+//        whackerPosition = tilerunner.jewelWhacker.getPosition();
 
 
         Twigger.getInstance()
@@ -173,10 +173,12 @@ public class TankDrive extends OpMode {
         else
             tilerunner.setLiftPower(0);
 
+        // FIXME jewel whacker often sticks in the "out" position
         // Jewel Whacker (Gamepad 2 Right Joystick)
-        if (Math.abs(gamepad2.right_stick_y) >= JOYSTICK_THRESHOLD)
-            whackerPosition += WHACKER_CONTROL_SPEED * gamepad1.right_stick_y;
-        tilerunner.jewelWhacker.setPosition(whackerPosition);
+//        if (Math.abs(gamepad2.right_stick_y) >= JOYSTICK_THRESHOLD) {
+//            whackerPosition += WHACKER_CONTROL_SPEED * gamepad1.right_stick_y;
+//            tilerunner.jewelWhacker.setPosition(whackerPosition);
+//        }
 
     }
 
