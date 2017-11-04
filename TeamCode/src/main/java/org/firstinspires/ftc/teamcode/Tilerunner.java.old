@@ -273,24 +273,6 @@ public class Tilerunner
         if (power > 0)
             liftMotor.setTargetPosition(LIFT_MOTOR_MAX);
         else if (power < 0)
-            liftMotor.setTargetPosition(0);
-        else
-            liftMotor.setTargetPosition(liftMotor.getCurrentPosition());
-
-        liftMotor.setPower(power);
-
-        // Wait until either the waitHandler says it's time to stop or the lift motor goes to its
-        //      destination
-        //noinspection StatementWithEmptyBody
-        while (liftMotor.isBusy() && waitHandler.isActive()) {
-        }
-    }
-    void moveClaw(BusyWaitHandler waitHandler, int distanceTicks, double power) {
-        // Stop claw motor and program it to run `distanceTicks` ticks at `power` speed.
-        clawMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        clawMotor.setTargetPosition(distanceTicks);
-        clawMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        clawMotor.setPower(power);
 
         // Wait until either the waitHandler says it's time to stop or the claw motor goes to its
         //      destination
