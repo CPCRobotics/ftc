@@ -8,7 +8,8 @@ public enum TeamPosition {
     RED_A(true, true),
     RED_FAR(true, false),
     BLUE_A(false, true),
-    BLUE_FAR(false, false);
+    BLUE_FAR(false, false),
+    RESET_LIFT(false, false);
 
     private boolean red;
     private boolean nearAudience;

@@ -169,7 +169,7 @@ public class TankDrive extends OpMode {
 
         // Lift (Gamepad 2 Left Joystick)
         if (Math.abs(gamepad2.left_stick_y) >= JOYSTICK_THRESHOLD)
-            tilerunner.setLiftPower(calculateLiftSpeed(gamepad2.left_stick_y));
+            tilerunner.setLiftPower(-calculateLiftSpeed(gamepad2.left_stick_y));
         else
             tilerunner.setLiftPower(0);
 

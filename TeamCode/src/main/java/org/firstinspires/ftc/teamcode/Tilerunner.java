@@ -63,10 +63,12 @@ public class Tilerunner
     public DcMotor  rightMotor;
     public DcMotor motorPair;
     public DcMotor liftMotor;
-    public DigitalChannel liftSensor;
+    public DigitalChannel liftSensorLow;
+    public DigitalChannel liftSensorHigh;
 
     private boolean liftOverride = false;
-    public static final int LIFT_MOTOR_MAX = 3350; // True max: 3376
+    public static final int LIFT_MOTOR_MIN = 10; // True max: 3320
+    public static final int LIFT_MOTOR_MAX = 3300; // True max: 3320
     public static final boolean INVERTED_LIFT_SENSOR = true;
 
     Servo jewelWhacker;
@@ -163,7 +165,7 @@ public class Tilerunner
         }
 
         initWhacker(hardwareMap, telemetry);
-        zeroLift(hardwareMap, telemetry);
+        initLift(hardwareMap, telemetry);
 
         Twigger.getInstance().update();
     }
@@ -178,15 +180,20 @@ public class Tilerunner
         }
     }
 
-    void zeroLift(HardwareMap hardwareMap, Telemetry telemetry) {
-        liftMotor = createDcMotor(hardwareMap,"lift");
-        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    void initLift(HardwareMap hardwareMap, Telemetry telemetry) {
+        liftMotor = createDcMotor(hardwareMap, "lift");
         liftMotor.setDirection(DcMotor.Direction.REVERSE);
-        liftSensor = hardwareMap.digitalChannel.get("lift_sensor");
-        liftSensor.setMode(DigitalChannel.Mode.INPUT);
+        liftSensorLow = hardwareMap.digitalChannel.get("lift_low");
+        liftSensorLow.setMode(DigitalChannel.Mode.INPUT);
+        liftSensorHigh = hardwareMap.digitalChannel.get("lift_high");
+        liftSensorHigh.setMode(DigitalChannel.Mode.INPUT);
+    }
+
+    public void zeroLift() {
+        // only in autonomous init
         try {
-            while (!isLiftAtZeroPoint()) { // Wait until the channel throws a positive
-                liftMotor.setPower(-0.25);
+            while (!(isLiftAtLowPoint())) { // Wait until the channel throws a positive
+                liftMotor.setPower(-0.15);
                 Thread.sleep(1);
             }
         } catch(InterruptedException e) {
@@ -195,8 +202,12 @@ public class Tilerunner
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    private boolean isLiftAtZeroPoint() {
-        return INVERTED_LIFT_SENSOR ? !liftSensor.getState() : liftSensor.getState();
+    private boolean isLiftAtLowPoint() {
+        return INVERTED_LIFT_SENSOR ? !liftSensorLow.getState() : liftSensorLow.getState();
+    }
+
+    private boolean isLiftAtHighPoint() {
+        return INVERTED_LIFT_SENSOR ? !liftSensorHigh.getState() : liftSensorHigh.getState();
     }
 
     double getHeading() {
@@ -324,20 +335,34 @@ public class Tilerunner
     }
 
     public void setLiftPower(double power) {
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        if (power > 0) {
+        if (power > 0 && !isLiftAtHighPoint()) {
             // allow motor to go upwards, but limit at distance above zero
             liftMotor.setTargetPosition(LIFT_MOTOR_MAX);
-        } else if (power < 0) {
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        } else if (power < 0 && !isLiftAtLowPoint()) {
             // allow motor to go downwards, but limit at zero
-            liftMotor.setTargetPosition(0);
+            liftMotor.setTargetPosition(LIFT_MOTOR_MIN);
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        } else if (isLiftAtLowPoint()) {
+            liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            power = 0;
         } else {
             // stop motor by indicating it has reached desired position, making sure not to set
             // position outside of bounds
             int desired = Math.max(0, Math.min(LIFT_MOTOR_MAX, liftMotor.getCurrentPosition()));
             liftMotor.setTargetPosition(desired);
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            power = 0;
         }
         liftMotor.setPower(power);
+
+        Twigger.getInstance().addLine(".lift()")
+                .addData( "position", liftMotor.getCurrentPosition())
+                .addData( "target", liftMotor.getTargetPosition())
+                .addData( "power", power)
+                .addData("liftHigh", isLiftAtHighPoint())
+                .addData("liftLow", isLiftAtLowPoint());
+        Twigger.getInstance().update();
     }
 
     public void longSleep(BusyWaitHandler waitHandler, int millis) throws InterruptedException {
