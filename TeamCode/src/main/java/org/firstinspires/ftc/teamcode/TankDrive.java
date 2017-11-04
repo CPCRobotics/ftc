@@ -40,7 +40,7 @@ import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 
-@TeleOp(name = "Gentle TankDrive", group = "Iterative Opmode")
+@TeleOp(name = "Competition TeleOp", group = "Iterative Opmode")
 public class TankDrive extends OpMode {
 
     private final static double SPEED_GAIN = 3;

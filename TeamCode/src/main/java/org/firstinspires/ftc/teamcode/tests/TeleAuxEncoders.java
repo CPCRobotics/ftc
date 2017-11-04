@@ -56,7 +56,7 @@ public class TeleAuxEncoders extends OpMode {
         // Lift Override (B Button)
         if (gamepad1.b && !liftOverrideButtonDepressed) {
             liftOverrideButtonDepressed = true;
-            tilerunner.toggleLiftOverride();
+            //tilerunner.toggleLiftOverride();
         } else if (!gamepad1.b) {
             liftOverrideButtonDepressed = false;
         }

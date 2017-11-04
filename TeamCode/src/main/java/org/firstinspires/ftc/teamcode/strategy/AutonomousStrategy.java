@@ -19,7 +19,7 @@ public class AutonomousStrategy {
     private final BusyWaitHandler waitHandler;
     private final OpMode opMode;
 
-    public AutonomousStrategy(TeamPosition position, BusyWaitHandler waitHandler, OpMode opMode) {
+    public AutonomousStrategy(TeamPosition position, BusyWaitHandler waitHandler, OpMode opMode) throws InterruptedException {
         this.position = position;
         this.tilerunner = new Tilerunner();
         this.waitHandler = waitHandler;
