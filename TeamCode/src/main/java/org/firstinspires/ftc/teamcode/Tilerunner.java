@@ -269,44 +269,26 @@ public class Tilerunner
                 .remove(".turn()");
     }
 
-    void moveClaw(BusyWaitHandler waitHandler, int distanceTicks, double power) throws InterruptedException {
-        // Stop claw motor and program it to run `distanceTicks` ticks at `power` speed.
-        clawMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        clawMotor.setTargetPosition(distanceTicks);
-        clawMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        clawMotor.setPower(power);
-
-        // Wait until either the waitHandler says it's time to stop or the claw motor goes to its
-        //      destination
-        //noinspection StatementWithEmptyBody
-        while (clawMotor.isBusy() && waitHandler.isActive())
-            Thread.sleep(10);
+    public void ejectGlyph(BusyWaitHandler waitHandler) throws InterruptedException {
+        try {
+            clawMotor.setPower(1);
+            longSleep(waitHandler, 1000);
+        } finally {
+            clawMotor.setPower(0);
+        }
     }
 
-    public void removeGlyph(BusyWaitHandler waitHandler, double power) throws InterruptedException {
-        moveClaw(waitHandler, DISTANCE_REMOVE_GLYPH, power);
-    }
-
-    public void activateJewelWhacker() throws InterruptedException {
-        jewelWhacker.setPosition(.75);
-        Thread.sleep(750); // Let the tape straighten out
-        jewelWhacker.setPosition(0);
+    public void activateJewelWhacker(BusyWaitHandler waitHandler) throws InterruptedException {
+        try {
+            jewelWhacker.setPosition(.75);
+            longSleep(waitHandler, 750); // Let the tape straighten out
+        } finally {
+            jewelWhacker.setPosition(0);
+        }
     }
 
     public void retractJewelWhacker() {
         jewelWhacker.setPosition(1);
-    }
-
-    /**
-     * Toggles whether or not to override the lift
-     *
-     * @return the new lift status
-     */
-    public boolean toggleLiftOverride() {
-        liftOverride = !liftOverride;
-        Twigger.getInstance()
-                .sendOnce("Life Override Toggled: " + liftOverride);
-        return liftOverride;
     }
 
     public boolean getLiftOverride() {
@@ -315,15 +297,20 @@ public class Tilerunner
 
     /**
      * Sets the lift power, preventing it to go above its limit.
-     * @param power
-     * @return true if lift is within limits
      */
-    public boolean setLiftPower(double power) {
+    public void setLiftPower(double power) {
         // There is no soft-coded lift limit; behave as if always successful.
         liftMotor.setPower(power);
-        return true;
+    }
 
-
+    public void longSleep(BusyWaitHandler waitHandler, int millis) throws InterruptedException {
+        ElapsedTime elapsedTime = new ElapsedTime();
+        while (elapsedTime.milliseconds() < millis) {
+            Thread.sleep(10);
+            if (!waitHandler.isActive()) {
+                throw new InterruptedException("OpMode Timed Out");
+            }
+        }
     }
 }
 

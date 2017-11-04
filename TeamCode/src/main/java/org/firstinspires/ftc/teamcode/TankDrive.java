@@ -115,13 +115,12 @@ public class TankDrive extends OpMode {
      */
     @Override
     public void loop() {
-        Twigger.getInstance().addData("Status", "Running: " + runtime.toString());
+        Twigger.getInstance().update();
 
         boolean easy_claw = gamepad1.left_bumper || gamepad1.right_bumper;
 
-
         if (!easy_claw) {
-            // Easy Mode OFF
+            // Normal Mode
 
             // Wheels (Gamepad 1 Joystick)
             speedLeft = calculateWheelSpeed(speedLeft, -gamepad1.left_stick_y);
@@ -140,7 +139,7 @@ public class TankDrive extends OpMode {
                 tilerunner.clawMotor.setPower(0);
 
         } else {
-            // Easy Mode ON
+            // "Easy" glyph manipulation
 
             if (gamepad1.left_bumper) {
                 // Easy PUT Glyph
@@ -156,8 +155,8 @@ public class TankDrive extends OpMode {
             } else {
                 // Easy GRAB glyph
 
-                speedLeft = calculateWheelSpeed(speedLeft, .75);
-                speedRight = calculateWheelSpeed(speedRight, .75);
+                speedLeft = calculateWheelSpeed(speedLeft, .5);
+                speedRight = calculateWheelSpeed(speedRight, .5);
 
                 tilerunner.leftMotor.setPower(speedLeft);
                 tilerunner.rightMotor.setPower(speedRight);
@@ -167,14 +166,6 @@ public class TankDrive extends OpMode {
             }
 
         }
-
-//        // Lift (Gamepad 1 D-Pad)
-//        if (gamepad1.dpad_up)
-//            tilerunner.setLiftPower(1);
-//        else if (gamepad2.dpad_down)
-//            tilerunner.setLiftPower(-1);
-//        else
-//            tilerunner.setLiftPower(0);
 
         // Lift (Gamepad 2 Left Joystick)
         if (Math.abs(gamepad2.left_stick_y) >= JOYSTICK_THRESHOLD)
@@ -186,15 +177,6 @@ public class TankDrive extends OpMode {
         if (Math.abs(gamepad2.right_stick_y) >= JOYSTICK_THRESHOLD)
             whackerPosition += WHACKER_CONTROL_SPEED * gamepad1.right_stick_y;
         tilerunner.jewelWhacker.setPosition(whackerPosition);
-
-
-//        // Lift Override (B Button)
-//        if (gamepad1.b && !liftOverrideButtonDepressed) {
-//            liftOverrideButtonDepressed = true;
-//            tilerunner.toggleLiftOverride();
-//        } else if (!gamepad1.b) {
-//            liftOverrideButtonDepressed = false;
-//        }
 
     }
 

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.strategy;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.BusyWaitHandler;
 import org.firstinspires.ftc.teamcode.Tilerunner;
 
@@ -22,7 +21,8 @@ public class PlaceGlyphStrategy {
 
     public void placeGlyph(CryptoboxColumn column) throws InterruptedException {
         moveToCryptoboxColumn(column);
-        putDownGlyph();
+        tilerunner.ejectGlyph(waitHandler);
+        prepareForTele();
     }
 
     /**
@@ -34,9 +34,9 @@ public class PlaceGlyphStrategy {
     private double cryptoboxOffset(CryptoboxColumn column) {
         switch (column) {
             case LEFT:   return -7.5;
-            case CENTER: return 0;
-            case RIGHT:
-            default:     return 7.5;
+            case RIGHT:  return 7.5;
+            case CENTER:
+            default:     return 0;
         }
     }
 
@@ -71,8 +71,15 @@ public class PlaceGlyphStrategy {
         }
     }
 
-    private void putDownGlyph() throws InterruptedException {
-        tilerunner.removeGlyph(waitHandler, 1);
+    private void prepareForTele() throws InterruptedException {
+        switch (position) {
+            case RED_A:
+            case BLUE_A:
+                tilerunner.move(waitHandler, 1, -6);
+                tilerunner.turn(waitHandler, 1, 180);
+                tilerunner.move(waitHandler, 1, -6);
+                break;
+        }
     }
 
 }

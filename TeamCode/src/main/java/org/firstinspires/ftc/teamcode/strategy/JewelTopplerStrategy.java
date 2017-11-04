@@ -142,7 +142,7 @@ public class JewelTopplerStrategy {
     }
 
     private void takeDownEnemyJewel(JewelDirection jd) throws InterruptedException {
-        tilerunner.activateJewelWhacker();
+        tilerunner.activateJewelWhacker(waitHandler);
 
         double direction;
         switch (jd) {
