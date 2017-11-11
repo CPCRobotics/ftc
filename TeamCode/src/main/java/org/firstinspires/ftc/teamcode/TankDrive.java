@@ -55,9 +55,10 @@ public class TankDrive extends OpMode {
     private double speedLeft = 0;
     private double speedRight = 0;
 
-    private static final double JOYSTICK_THRESHOLD = 0.2;
+    private boolean easyModeTriggered = false;
+    private ElapsedTime timeSinceEasyModeTriggered = new ElapsedTime();
 
-    private boolean liftOverrideButtonDepressed = false;
+    private static final double JOYSTICK_THRESHOLD = 0.2;
 
 
     private double calculateWheelSpeed(double currentSpeed, double joystickPower) {
@@ -117,17 +118,54 @@ public class TankDrive extends OpMode {
     public void loop() {
         Twigger.getInstance().update();
 
-        boolean easy_claw = gamepad1.left_bumper || gamepad1.right_bumper;
 
-        if (!easy_claw) {
-            // Normal Mode
+        if (gamepad1.left_bumper) {
+            // Easy PUT Glyph
+            if (!easyModeTriggered)
+                timeSinceEasyModeTriggered.reset();
 
-            // Wheels (Gamepad 1 Joystick)
-            speedLeft = calculateWheelSpeed(speedLeft, -gamepad1.left_stick_y);
-            speedRight = calculateWheelSpeed(speedRight, -gamepad1.right_stick_y);
+            easyModeTriggered = true;
+
+            speedLeft = calculateWheelSpeed(speedLeft, -.75);
+            speedRight = calculateWheelSpeed(speedRight, -.75);
 
             tilerunner.leftMotor.setPower(speedLeft);
             tilerunner.rightMotor.setPower(speedRight);
+
+
+            tilerunner.clawMotor.setPower(1);
+        } else if (gamepad1.right_bumper) {
+            // Easy GRAB glyph
+            if (!easyModeTriggered)
+                timeSinceEasyModeTriggered.reset();
+            easyModeTriggered = true;
+
+            if (timeSinceEasyModeTriggered.seconds() >= 1) {
+                speedLeft = calculateWheelSpeed(speedLeft, .5);
+                speedRight = calculateWheelSpeed(speedRight, .5);
+
+                tilerunner.leftMotor.setPower(speedLeft);
+                tilerunner.rightMotor.setPower(speedRight);
+            } else {
+                tilerunner.motorPair.setPower(0);
+            }
+
+
+            tilerunner.clawMotor.setPower(-1);
+        } else {
+
+            easyModeTriggered = false;
+
+            // Wheels (Gamepad 1 Joystick)
+            if (timeSinceEasyModeTriggered.seconds() >= 1) {
+                speedLeft = calculateWheelSpeed(speedLeft, -gamepad1.left_stick_y);
+                speedRight = calculateWheelSpeed(speedRight, -gamepad1.right_stick_y);
+
+                tilerunner.leftMotor.setPower(speedLeft);
+                tilerunner.rightMotor.setPower(speedRight);
+            } else {
+                tilerunner.motorPair.setPower(0);
+            }
 
 
             // Claw Motor (Gamepad 1 Triggers)
@@ -137,34 +175,6 @@ public class TankDrive extends OpMode {
                 tilerunner.clawMotor.setPower(-gamepad1.right_trigger);
             else
                 tilerunner.clawMotor.setPower(0);
-
-        } else {
-            // "Easy" glyph manipulation
-
-            if (gamepad1.left_bumper) {
-                // Easy PUT Glyph
-
-                speedLeft = calculateWheelSpeed(speedLeft, -.75);
-                speedRight = calculateWheelSpeed(speedRight, -.75);
-
-                tilerunner.leftMotor.setPower(speedLeft);
-                tilerunner.rightMotor.setPower(speedRight);
-
-
-                tilerunner.clawMotor.setPower(1);
-            } else {
-                // Easy GRAB glyph
-
-                speedLeft = calculateWheelSpeed(speedLeft, .5);
-                speedRight = calculateWheelSpeed(speedRight, .5);
-
-                tilerunner.leftMotor.setPower(speedLeft);
-                tilerunner.rightMotor.setPower(speedRight);
-
-
-                tilerunner.clawMotor.setPower(-1);
-            }
-
         }
 
         // Lift (Gamepad 2 Left Joystick)
@@ -172,6 +182,7 @@ public class TankDrive extends OpMode {
             tilerunner.setLiftPower(-calculateLiftSpeed(gamepad2.left_stick_y));
         else
             tilerunner.setLiftPower(0);
+
 
         // FIXME jewel whacker often sticks in the "out" position
         // Jewel Whacker (Gamepad 2 Right Joystick)
