@@ -77,7 +77,7 @@ public class Tilerunner
 
     private ElapsedTime period  = new ElapsedTime();
 
-    private enum Direction {
+    public enum Direction {
         CLOCKWISE {
             public double distanceDegrees(double start, double end) {
                 double dist = start-end;
@@ -210,7 +210,7 @@ public class Tilerunner
         return INVERTED_LIFT_SENSOR ? !liftSensorHigh.getState() : liftSensorHigh.getState();
     }
 
-    double getHeading() {
+    public double getHeading() {
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
     }
 

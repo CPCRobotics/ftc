@@ -47,6 +47,11 @@ public class EyesightUtil {
         vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
         relicTrackables = vuforia.loadTrackablesFromAsset("RelicVuMark");
+
+        if (relicTrackables == null) {
+            throw new RuntimeException("relicTrackables did not initialize properly!");
+        }
+
         relicTemplate = relicTrackables.get(0);
         relicTemplate.setName("relicVuMarkTemplate"); // can help in debugging; otherwise not necessary
 
