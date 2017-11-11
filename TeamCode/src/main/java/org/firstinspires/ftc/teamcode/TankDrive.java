@@ -49,8 +49,8 @@ public class TankDrive extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private Tilerunner tilerunner = new Tilerunner();
 
-//    private double whackerPosition = 0;
-//    private static final double WHACKER_CONTROL_SPEED = 0.05;
+    private double whackerPosition = 0;
+    private static final double WHACKER_CONTROL_SPEED = 0.05;
 
     private double speedLeft = 0;
     private double speedRight = 0;
@@ -74,6 +74,10 @@ public class TankDrive extends OpMode {
 
     private double calculateLiftSpeed(double joystickPower) {
         return (joystickPower * joystickPower) * Math.signum(joystickPower);
+    }
+
+    private static double withinRange(double min, double max, double x) {
+        return Math.min(max, Math.max(min, x));
     }
 
     /*
@@ -126,11 +130,29 @@ public class TankDrive extends OpMode {
 
             easyModeTriggered = true;
 
-            speedLeft = calculateWheelSpeed(speedLeft, -.75);
-            speedRight = calculateWheelSpeed(speedRight, -.75);
+            // Easy™ Turn™™®™ - Turns the robot full-left or full-right.
+            if (gamepad1.x) {
+                tilerunner.leftMotor.setPower(-1);
+                tilerunner.rightMotor.setPower(1);
+            } else if (gamepad1.b) {
+                tilerunner.leftMotor.setPower(1);
+                tilerunner.rightMotor.setPower(-1);
+            }
 
-            tilerunner.leftMotor.setPower(speedLeft);
-            tilerunner.rightMotor.setPower(speedRight);
+            // Easy™ Turn™™®™ - Turns the robot full-left or full-right.
+            if (gamepad1.x) {
+                tilerunner.leftMotor.setPower(-1);
+                tilerunner.rightMotor.setPower(1);
+            } else if (gamepad1.b) {
+                tilerunner.leftMotor.setPower(1);
+                tilerunner.rightMotor.setPower(-1);
+            } else {
+                speedLeft = calculateWheelSpeed(speedLeft, -.75);
+                speedRight = calculateWheelSpeed(speedRight, -.75);
+
+                tilerunner.leftMotor.setPower(speedLeft);
+                tilerunner.rightMotor.setPower(speedRight);
+            }
 
 
             tilerunner.clawMotor.setPower(1);
@@ -184,12 +206,13 @@ public class TankDrive extends OpMode {
             tilerunner.setLiftPower(0);
 
 
-        // FIXME jewel whacker often sticks in the "out" position
+
         // Jewel Whacker (Gamepad 2 Right Joystick)
-//        if (Math.abs(gamepad2.right_stick_y) >= JOYSTICK_THRESHOLD) {
-//            whackerPosition += WHACKER_CONTROL_SPEED * gamepad1.right_stick_y;
-//            tilerunner.jewelWhacker.setPosition(whackerPosition);
-//        }
+        if (Math.abs(gamepad2.right_stick_y) >= JOYSTICK_THRESHOLD) {
+            whackerPosition += WHACKER_CONTROL_SPEED * gamepad1.right_stick_y;
+            whackerPosition = withinRange(0, 1, whackerPosition);
+            tilerunner.jewelWhacker.setPosition(whackerPosition);
+        }
 
     }
 
