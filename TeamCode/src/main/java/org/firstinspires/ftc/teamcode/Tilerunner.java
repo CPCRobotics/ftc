@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.nulls.NullBNO055IMU;
 import org.firstinspires.ftc.teamcode.nulls.NullDcMotor;
+import org.firstinspires.ftc.teamcode.nulls.NullDigitalChannel;
 import org.firstinspires.ftc.teamcode.nulls.NullServo;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
@@ -70,6 +71,7 @@ public class Tilerunner
     public static final int LIFT_MOTOR_MIN = 10; // True max: 3320
     public static final int LIFT_MOTOR_MAX = 3300; // True max: 3320
     public static final boolean INVERTED_LIFT_SENSOR = true;
+    public static final int LIFT_LOW_POSITION = 200;
 
     Servo jewelWhacker;
 
@@ -165,7 +167,14 @@ public class Tilerunner
         }
 
         initWhacker(hardwareMap, telemetry);
-        initLift(hardwareMap, telemetry);
+
+        try {
+            initLift(hardwareMap, telemetry);
+        } catch (IllegalArgumentException e) {
+            liftMotor = new NullDcMotor();
+            liftSensorLow = new NullDigitalChannel();
+            liftSensorHigh = new NullDigitalChannel();
+        }
 
         Twigger.getInstance().update();
     }
@@ -180,7 +189,7 @@ public class Tilerunner
         }
     }
 
-    void initLift(HardwareMap hardwareMap, Telemetry telemetry) {
+    void initLift(HardwareMap hardwareMap, Telemetry telemetry) throws IllegalArgumentException {
         liftMotor = createDcMotor(hardwareMap, "lift");
         liftMotor.setDirection(DcMotor.Direction.REVERSE);
         liftSensorLow = hardwareMap.digitalChannel.get("lift_low");
@@ -335,6 +344,13 @@ public class Tilerunner
     }
 
     public void setLiftPower(double power) {
+
+        double liftPowerMultipier;
+        if (liftMotor.getCurrentPosition() <= LIFT_LOW_POSITION)
+            liftPowerMultipier = 0.5;
+        else
+            liftPowerMultipier = 1.0;
+
         if (power > 0 && !isLiftAtHighPoint()) {
             // allow motor to go upwards, but limit at distance above zero
             liftMotor.setTargetPosition(LIFT_MOTOR_MAX);
@@ -354,7 +370,7 @@ public class Tilerunner
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             power = 0;
         }
-        liftMotor.setPower(power);
+        liftMotor.setPower(power * liftPowerMultipier);
 
         Twigger.getInstance().addLine(".lift()")
                 .addData( "position", liftMotor.getCurrentPosition())

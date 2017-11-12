@@ -13,6 +13,8 @@ public class PlaceGlyphStrategy {
     private final TeamPosition position;
     private final BusyWaitHandler waitHandler;
 
+    public static final double COLUMNBOX_WIDTH = 7.25;
+
     public PlaceGlyphStrategy(Tilerunner tilerunner, TeamPosition position, BusyWaitHandler waitHandler) {
         this.position = position;
         this.tilerunner = tilerunner;
@@ -33,8 +35,8 @@ public class PlaceGlyphStrategy {
      */
     private double cryptoboxOffset(CryptoboxColumn column) {
         switch (column) {
-            case LEFT:   return -7.5;
-            case RIGHT:  return 7.5;
+            case LEFT:   return -COLUMNBOX_WIDTH;
+            case RIGHT:  return COLUMNBOX_WIDTH;
             case CENTER:
             default:     return 0;
         }
