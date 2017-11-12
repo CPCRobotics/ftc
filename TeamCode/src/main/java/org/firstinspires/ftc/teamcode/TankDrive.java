@@ -129,29 +129,14 @@ public class TankDrive extends OpMode {
                 timeSinceEasyModeTriggered.reset();
 
             easyModeTriggered = true;
-
-            // Easy™ Turn™™®™ - Turns the robot full-left or full-right.
-            if (gamepad1.x) {
-                tilerunner.leftMotor.setPower(-1);
-                tilerunner.rightMotor.setPower(1);
-            } else if (gamepad1.b) {
-                tilerunner.leftMotor.setPower(1);
-                tilerunner.rightMotor.setPower(-1);
-            }
-
-            // Easy™ Turn™™®™ - Turns the robot full-left or full-right.
-            if (gamepad1.x) {
-                tilerunner.leftMotor.setPower(-1);
-                tilerunner.rightMotor.setPower(1);
-            } else if (gamepad1.b) {
-                tilerunner.leftMotor.setPower(1);
-                tilerunner.rightMotor.setPower(-1);
-            } else {
+            if (timeSinceEasyModeTriggered.seconds() >= 1) {
                 speedLeft = calculateWheelSpeed(speedLeft, -.75);
                 speedRight = calculateWheelSpeed(speedRight, -.75);
 
                 tilerunner.leftMotor.setPower(speedLeft);
                 tilerunner.rightMotor.setPower(speedRight);
+            } else {
+                tilerunner.motorPair.setPower(0);
             }
 
 
@@ -179,15 +164,21 @@ public class TankDrive extends OpMode {
             easyModeTriggered = false;
 
             // Wheels (Gamepad 1 Joystick)
-            if (timeSinceEasyModeTriggered.seconds() >= 1) {
+            if (gamepad1.x) {
+                tilerunner.leftMotor.setPower(-1);
+                tilerunner.rightMotor.setPower(1);
+            } else if (gamepad1.b) {
+                tilerunner.leftMotor.setPower(1);
+                tilerunner.rightMotor.setPower(-1);
+            } else {
                 speedLeft = calculateWheelSpeed(speedLeft, -gamepad1.left_stick_y);
                 speedRight = calculateWheelSpeed(speedRight, -gamepad1.right_stick_y);
 
                 tilerunner.leftMotor.setPower(speedLeft);
                 tilerunner.rightMotor.setPower(speedRight);
-            } else {
-                tilerunner.motorPair.setPower(0);
             }
+
+
 
 
             // Claw Motor (Gamepad 1 Triggers)
