@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @I2cSensor(name = "VCLN4010 Range Sensor", description = "an Adafruit VCLN4010 range sensor", xmlTag = "AdafruitVCLN4010RangeSensor")
 public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> implements DistanceSensor, OpticalDistanceSensor, I2cAddrConfig {
 
-    public final static I2cAddr ADDRESS_I2C_DEFAULT = I2cAddr.create8bit(0x26);
+    public final static I2cAddr ADDRESS_I2C_DEFAULT = I2cAddr.create7bit(0x13);
 
     public enum Register {
         FIRST(0x80),
@@ -67,7 +67,8 @@ public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         ProximityRate(int bVal) { this.bVal = (byte)bVal; }
     }
 
-    public volatile int ledCurrent = 200;
+    public volatile int ledCurrent = 100;
+    public volatile double correction = 10; // multiply count by this number prior to calculation
     public volatile boolean ledOn = false;
 
     public AdafruitVCLN4010(I2cDeviceSynch i2cDeviceSynch) {
@@ -92,6 +93,7 @@ public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
             throw new IllegalArgumentException("Current out of range");
         }
         this.ledCurrent = current;
+        this.correction = 200.0/current;
         if (ledOn) {
             enableLed(true); // refresh current
             writeIrLedCurrent((byte) (current / 10));
@@ -107,6 +109,7 @@ public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         writeProximityModulating(ModFreq.FREQ_390K625);
         writeProximityRate(ProximityRate.RATE_125);
         enableLed(true);
+        writeCommand((byte)0x07); // enable free-running proximity and ambient light
         return true;
     }
 
@@ -141,6 +144,7 @@ public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
     //----------------------------------------------------------------------------------------------
 
     // Math based on visual graph for VCNL4010 at 200mA
+    // The visual graph at 20mA is 1/10th of that at 200mA
     // for approximately exponential range (6,1000) to (100,44)
     // Quick checks suggest this will work from ~3mm to ~140mm
     private static final double COUNT_A = 10000; // count=1000 @ distance=6mm
@@ -160,7 +164,7 @@ public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         if (rawProximity <= 0) {
             return DistanceUnit.infinity;
         }
-        double logCount = Math.log((double)rawProximity);
+        double logCount = Math.log((double)rawProximity*correction);
         double logDistance = (LOG_COUNT_A-logCount)*LOG_RAMP+LOG_DISTANCE_A;
         double distance = Math.exp(logDistance);
         return unit.fromMm(distance);
@@ -198,7 +202,7 @@ public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
     //----------------------------------------------------------------------------------------------
 
     public void write8(Register reg, byte value) {
-        this.write8(reg, value, I2cWaitControl.NONE);
+        this.write8(reg, value, I2cWaitControl.ATOMIC);
     }
 
     public void write8(Register reg, byte value, I2cWaitControl waitControl) {
