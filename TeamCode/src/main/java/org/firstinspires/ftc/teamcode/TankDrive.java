@@ -179,8 +179,6 @@ public class TankDrive extends OpMode {
             }
 
 
-
-
             // Claw Motor (Gamepad 1 Triggers)
             if (gamepad1.left_trigger > JOYSTICK_THRESHOLD)
                 tilerunner.clawMotor.setPower(gamepad1.left_trigger);
@@ -195,6 +193,12 @@ public class TankDrive extends OpMode {
             tilerunner.setLiftPower(-calculateLiftSpeed(gamepad2.left_stick_y));
         else
             tilerunner.setLiftPower(0);
+
+        // Easy Lift
+        if (gamepad2.dpad_up)
+            tilerunner.changeLiftPosition(true);
+        else if (gamepad2.dpad_down)
+            tilerunner.changeLiftPosition(false);
 
 
 

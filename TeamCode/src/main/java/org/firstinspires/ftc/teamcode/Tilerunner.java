@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.sun.tools.javac.util.List;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -21,7 +22,9 @@ import org.firstinspires.ftc.teamcode.nulls.NullServo;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * This is NOT an opmode.
@@ -57,7 +60,6 @@ public class Tilerunner
 
     private static final double TURN_CORRECTION_THRESHOLD = 2.5; // degrees
 
-    private static final int DISTANCE_REMOVE_GLYPH = 10; // TODO get needed ticks to remove glyph
 
     public DcMotor  clawMotor;
     public DcMotor  leftMotor;
@@ -72,6 +74,8 @@ public class Tilerunner
     public static final int LIFT_MOTOR_MAX = 3300; // True max: 3320
     public static final boolean INVERTED_LIFT_SENSOR = true;
     public static final int LIFT_LOW_POSITION = 200;
+
+    private boolean usingEasyLift = false;
 
     Servo jewelWhacker;
 
@@ -100,6 +104,54 @@ public class Tilerunner
                 return CLOCKWISE;
             } else {
                 return COUNTERCLOCKWISE;
+            }
+        }
+    }
+
+    public enum CryptoboxRow {
+        LOWEST(LIFT_MOTOR_MIN),
+        LOWER(LIFT_MOTOR_MIN + (LIFT_MOTOR_MAX - LIFT_MOTOR_MIN) / 3),
+        HIGHER(LIFT_MOTOR_MIN + (LIFT_MOTOR_MAX - LIFT_MOTOR_MIN) * 2 / 3),
+        HIGHEST(LIFT_MOTOR_MAX);
+
+        public final int liftPosition;
+        CryptoboxRow(int liftPosition) {
+            this.liftPosition = liftPosition;
+        }
+
+        public CryptoboxRow nextHigherRow() {
+            switch (this) {
+                case LOWEST: return LOWER;
+                case LOWER: return HIGHER;
+                default: return HIGHEST;
+            }
+        }
+
+        public CryptoboxRow nextLowerRow() {
+            switch (this) {
+                case HIGHEST: return HIGHER;
+                case HIGHER: return LOWER;
+                default: return LOWEST;
+            }
+        }
+
+        public static CryptoboxRow selectNextRow(Tilerunner tilerunner, boolean goingUp) {
+            int liftPosition = tilerunner.liftMotor.getCurrentPosition();
+
+            if (goingUp) {
+                for (CryptoboxRow row : values()) {
+                    if (liftPosition > row.liftPosition)
+                        return row.nextHigherRow();
+                }
+                return HIGHEST;
+            } else {
+                List<CryptoboxRow> vals = List.from(values());
+                Collections.reverse(vals);
+                for (CryptoboxRow row : vals) {
+                    if (liftPosition < row.liftPosition)
+                        return row.nextLowerRow();
+                }
+                return LOWEST;
             }
         }
     }
@@ -166,10 +218,10 @@ public class Tilerunner
             Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
         }
 
-        initWhacker(hardwareMap, telemetry);
+        initWhacker(hardwareMap);
 
         try {
-            initLift(hardwareMap, telemetry);
+            initLift(hardwareMap);
         } catch (IllegalArgumentException e) {
             liftMotor = new NullDcMotor();
             liftSensorLow = new NullDigitalChannel();
@@ -179,7 +231,7 @@ public class Tilerunner
         Twigger.getInstance().update();
     }
 
-    void initWhacker(HardwareMap hardwareMap, Telemetry telemetry) {
+    void initWhacker(HardwareMap hardwareMap) {
         try {
             jewelWhacker = hardwareMap.servo.get("whacker");
             jewelWhacker.setPosition(1);
@@ -189,7 +241,7 @@ public class Tilerunner
         }
     }
 
-    void initLift(HardwareMap hardwareMap, Telemetry telemetry) throws IllegalArgumentException {
+    void initLift(HardwareMap hardwareMap) throws IllegalArgumentException {
         liftMotor = createDcMotor(hardwareMap, "lift");
         liftMotor.setDirection(DcMotor.Direction.REVERSE);
         liftSensorLow = hardwareMap.digitalChannel.get("lift_low");
@@ -198,6 +250,9 @@ public class Tilerunner
         liftSensorHigh.setMode(DigitalChannel.Mode.INPUT);
     }
 
+    /**
+     * Sets lift to the lowest point possible
+     */
     public void zeroLift() {
         // only in autonomous init
         try {
@@ -212,13 +267,16 @@ public class Tilerunner
     }
 
     private boolean isLiftAtLowPoint() {
-        return INVERTED_LIFT_SENSOR ? !liftSensorLow.getState() : liftSensorLow.getState();
+        return INVERTED_LIFT_SENSOR != liftSensorLow.getState();
     }
 
     private boolean isLiftAtHighPoint() {
-        return INVERTED_LIFT_SENSOR ? !liftSensorHigh.getState() : liftSensorHigh.getState();
+        return INVERTED_LIFT_SENSOR != liftSensorHigh.getState();
     }
 
+    /**
+     * Get the angle the robot is at range [0-360)
+     */
     public double getHeading() {
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
     }
@@ -226,7 +284,6 @@ public class Tilerunner
     // Utility Commands
 
     /**
-     *
      * @return the speed to run according to the goal distance left
      */
     private double calculateSpeed(double dist, double threshold) {
@@ -235,6 +292,9 @@ public class Tilerunner
         return Math.min(1, Math.max(MOTOR_DEADZONE, dist / threshold) );
     }
 
+    /**
+     * Moves the robot a specified distance.
+     */
     public void move(BusyWaitHandler waitHandler, double power, double inches) {
         int ticks = (int)(Tilerunner.TICKS_PER_REVOLUTION * inches / Tilerunner.WHEEL_CIRCUMFERENCE);
 
@@ -261,6 +321,9 @@ public class Tilerunner
                 .remove(".move()");
     }
 
+    /**
+     * Rotates the robot at a specified angle.
+     */
     public void turn(BusyWaitHandler waitHandler, double power, double destinationDegrees)
             throws InterruptedException {
 
@@ -317,6 +380,9 @@ public class Tilerunner
                 .remove(".turn()");
     }
 
+    /**
+     * Removes the glyph from the robot
+     */
     public void ejectGlyph(BusyWaitHandler waitHandler) throws InterruptedException {
         try {
             clawMotor.setPower(1);
@@ -326,6 +392,9 @@ public class Tilerunner
         }
     }
 
+    /**
+     * Sets the jewel whacker out
+     */
     public void activateJewelWhacker(BusyWaitHandler waitHandler) throws InterruptedException {
         try {
             jewelWhacker.setPosition(.75);
@@ -335,6 +404,9 @@ public class Tilerunner
         }
     }
 
+    /**
+     * Set the jewel whacker back up
+     */
     public void retractJewelWhacker() {
         jewelWhacker.setPosition(1);
     }
@@ -343,7 +415,15 @@ public class Tilerunner
         return liftOverride;
     }
 
+    /**
+     * Set how fast the lift should move
+     */
     public void setLiftPower(double power) {
+
+        if (usingEasyLift && liftMotor.isBusy())
+            return;
+        else if (usingEasyLift)
+            usingEasyLift = false;
 
         double liftPowerMultipier;
         if (liftMotor.getCurrentPosition() <= LIFT_LOW_POSITION)
@@ -381,6 +461,16 @@ public class Tilerunner
         Twigger.getInstance().update();
     }
 
+    public void changeLiftPosition(boolean goingUp) {
+        CryptoboxRow nextRow = CryptoboxRow.selectNextRow(this, goingUp);
+        liftMotor.setTargetPosition(nextRow.liftPosition);
+        liftMotor.setPower(1);
+        usingEasyLift = true;
+    }
+
+    /**
+     * Sleeps until interrupted or op mode no longer active
+     */
     public void longSleep(BusyWaitHandler waitHandler, int millis) throws InterruptedException {
         ElapsedTime elapsedTime = new ElapsedTime();
         while (elapsedTime.milliseconds() < millis) {
