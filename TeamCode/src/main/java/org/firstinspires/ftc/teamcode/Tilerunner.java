@@ -56,7 +56,7 @@ public class Tilerunner
     private static final double THRESHOLD_HEADING = 180;
     public static final double MOTOR_DEADZONE = 0.2;
 
-    private static final double TURN_THRESHOLD = 2.5; // degrees
+    private static final double TURN_THRESHOLD = 5; // degrees
 
     private static final int DISTANCE_REMOVE_GLYPH = 10; // TODO get needed ticks to remove glyph
 
@@ -325,7 +325,7 @@ public class Tilerunner
         double delta = distanceDegrees(getHeading(), destination, direction);
 
         Twigger.getInstance().sendOnce("Calculations: dest " + destination + ", delta " + delta);
-        while (delta > TURN_THRESHOLD && waitHandler.isActive()) {
+        while (delta > TURN_THRESHOLD && delta < (360 - TURN_THRESHOLD) && waitHandler.isActive()) {
 
             double currentPower = power * calculateSpeed(delta, THRESHOLD_HEADING);
             currentPower = Math.max(MOTOR_DEADZONE, currentPower);
@@ -337,7 +337,7 @@ public class Tilerunner
             Twigger.getInstance().addLine(".turn()")
                     .addData("power", currentPower)
                     .addData("delta", delta)
-                    .addData("dest2", destination)
+                    .addData("dest", destination)
                     .addData("curr", getHeading());
 
             Thread.sleep(1);
@@ -354,8 +354,13 @@ public class Tilerunner
         currentPosition = destination;
 
         // Correct turn if too bad after momentum is gone
-        if (delta > TURN_THRESHOLD) {
-            turn(waitHandler, power/2, delta*direction);
+        if (Math.min(delta, 360-delta) > TURN_THRESHOLD) {
+            // Calculate shortest distance to be corrected
+            double correctionSpeed = delta < 360-delta ? delta : delta-360;
+
+            Twigger.getInstance().sendOnce("Delta (" + delta + ") Too big. Correcting by " +
+                    correctionSpeed);
+            turn(waitHandler, power/2, correctionSpeed);
         }
 
         Twigger.getInstance()

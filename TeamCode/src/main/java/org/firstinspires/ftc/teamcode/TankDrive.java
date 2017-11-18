@@ -141,6 +141,7 @@ public class TankDrive extends OpMode {
 
 
             tilerunner.clawMotor.setPower(1);
+            tilerunner.kicker.setPosition(1);
         } else if (gamepad1.right_bumper) {
             // Easy GRAB glyph
             if (!easyModeTriggered)
@@ -159,6 +160,7 @@ public class TankDrive extends OpMode {
 
 
             tilerunner.clawMotor.setPower(-1);
+            tilerunner.kicker.setPosition(0);
         } else {
 
             easyModeTriggered = false;
@@ -182,12 +184,17 @@ public class TankDrive extends OpMode {
 
 
             // Claw Motor (Gamepad 1 Triggers)
-            if (gamepad1.left_trigger > JOYSTICK_THRESHOLD)
+            if (gamepad1.left_trigger > JOYSTICK_THRESHOLD) {
+                // Eject glyph
                 tilerunner.clawMotor.setPower(gamepad1.left_trigger);
-            else if (gamepad1.right_trigger > JOYSTICK_THRESHOLD)
+                tilerunner.kicker.setPosition(1);
+            } else if (gamepad1.right_trigger > JOYSTICK_THRESHOLD) {
                 tilerunner.clawMotor.setPower(-gamepad1.right_trigger);
-            else
+                tilerunner.kicker.setPosition(0);
+            } else {
                 tilerunner.clawMotor.setPower(0);
+                tilerunner.kicker.setPosition(1);
+            }
         }
 
         // Lift (Gamepad 2 Left Joystick)
