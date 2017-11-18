@@ -21,6 +21,8 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This is NOT an opmode.
@@ -74,10 +76,11 @@ public class Tilerunner
 
     private boolean usingEasyLift = false;
 
-    private double currentPosition = 0;
+    private Double currentPosition = null;
 
 
     Servo jewelWhacker;
+    public Servo kicker = new NullServo();
 
     BNO055IMU imu;
 
@@ -118,7 +121,7 @@ public class Tilerunner
                 }
                 return HIGHEST;
             } else {
-                List<CryptoboxRow> vals = List.from(values());
+                List<CryptoboxRow> vals = Arrays.asList(values());
                 Collections.reverse(vals);
                 for (CryptoboxRow row : vals) {
                     if (liftPosition < row.liftPosition)
@@ -157,6 +160,11 @@ public class Tilerunner
 
 
         clawMotor = createDcMotor(hardwareMap, "claw");
+        try {
+            kicker = hardwareMap.servo.get("servo");
+        } catch (IllegalArgumentException e) {
+            Twigger.getInstance().sendOnce("WARN: Kicker doesn't exist");
+        }
 
         // Set up the parameters with which we will use our IMU. Note that integration
         // algorithm here just reports accelerations to the logcat log; it doesn't actually
@@ -202,7 +210,6 @@ public class Tilerunner
         }
 
         Twigger.getInstance().update();
-        currentPosition = getHeading();
     }
 
     void initWhacker(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -238,11 +245,11 @@ public class Tilerunner
     }
 
     private boolean isLiftAtLowPoint() {
-        return INVERTED_LIFT_SENSOR ? !liftSensorLow.getState() : liftSensorLow.getState();
+        return INVERTED_LIFT_SENSOR != liftSensorLow.getState();
     }
 
     private boolean isLiftAtHighPoint() {
-        return INVERTED_LIFT_SENSOR ? !liftSensorHigh.getState() : liftSensorHigh.getState();
+        return INVERTED_LIFT_SENSOR != liftSensorHigh.getState();
     }
 
     public double getHeading() {
@@ -300,16 +307,25 @@ public class Tilerunner
     public void turn(BusyWaitHandler waitHandler, double power, double angle)
             throws InterruptedException {
 
+        if (currentPosition == null)
+            currentPosition = getHeading();
+
+        Twigger.getInstance().sendOnce("Arguments: power " + power + ", angle " + angle);
+
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        double destination = currentPosition + angle;
+        double destination = (currentPosition - angle) % 360;
+        if (destination < 0)
+            destination += 360;
 
         int direction = (int) (Math.signum(power) * Math.signum(angle));
         power = Math.abs(power);
 
         double delta = distanceDegrees(getHeading(), destination, direction);
-        while (delta < TURN_THRESHOLD && waitHandler.isActive()) {
+
+        Twigger.getInstance().sendOnce("Calculations: dest " + destination + ", delta " + delta);
+        while (delta > TURN_THRESHOLD && waitHandler.isActive()) {
 
             double currentPower = power * calculateSpeed(delta, THRESHOLD_HEADING);
             currentPower = Math.max(MOTOR_DEADZONE, currentPower);
@@ -321,8 +337,8 @@ public class Tilerunner
             Twigger.getInstance().addLine(".turn()")
                     .addData("power", currentPower)
                     .addData("delta", delta)
-                    .addData("leftpos", leftMotor.getCurrentPosition())
-                    .addData("rightpos", rightMotor.getCurrentPosition());
+                    .addData("dest2", destination)
+                    .addData("curr", getHeading());
 
             Thread.sleep(1);
             delta = distanceDegrees(getHeading(), destination, direction);
@@ -376,11 +392,11 @@ public class Tilerunner
 
     public void setLiftPower(double power) {
 
-        double liftPowerMultipier;
+        double liftPowerMultiplier;
         if (liftMotor.getCurrentPosition() <= LIFT_LOW_POSITION)
-            liftPowerMultipier = 0.5;
+            liftPowerMultiplier = 0.5;
         else
-            liftPowerMultipier = 1.0;
+            liftPowerMultiplier = 1.0;
 
         if (power > 0 && !isLiftAtHighPoint()) {
             // allow motor to go upwards, but limit at distance above zero
@@ -401,7 +417,7 @@ public class Tilerunner
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             power = 0;
         }
-        liftMotor.setPower(power * liftPowerMultipier);
+        liftMotor.setPower(power * liftPowerMultiplier);
 
         Twigger.getInstance().addLine(".lift()")
                 .addData( "position", liftMotor.getCurrentPosition())
