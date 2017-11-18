@@ -53,31 +53,96 @@ public abstract class AdafruitGraphix {
     public final static short CYAN = BLUE|GREEN;
     public final static short MAGENTA = RED|BLUE;
 
+    /**
+     * Initialize display to given width and height
+     * @param w width
+     * @param h height
+     */
     protected AdafruitGraphix(int w, int h) {
         this.width = w;
         this.height = h;
+        initialize();
+    }
+
+    /**
+     * Re-initialize display
+     */
+    public void initialize() {
         this.cursorX = 0;
         this.cursorY = 0;
         this.colorFG = WHITE;
         this.colorBG = BLACK;
         this.textSize = 1;
         this.wrap = true;
+        this.clearScreen();
     }
 
-    // Minimal implementation required
+    /**
+     * Draw a pixel. Must be implemented
+     * @param x Column left to right
+     * @param y Row top to bottom
+     * @param color Pixel color
+     */
     public abstract void drawPixel(int x, int y, short color);
 
-    // Minimal implementation required
+    /**
+     * Refresh display. Must be implemented
+     */
     public abstract void display();
 
+    public void setFG(short fg) {
+        this.colorFG = fg;
+    }
+
+    public void setBG(short bg) {
+        this.colorBG = bg;
+    }
+
+    public void setTextSize(int size) {
+        this.textSize = size;
+    }
+
+    public void setWrap(boolean wrap) {
+        this.wrap = wrap;
+    }
+
+    public void setCursor(int x, int y) {
+        this.cursorX = x;
+        this.cursorY = y;
+    }
+
+    /**
+     * Override to optimize how a vertical line is drawn
+     *
+     * @param x Starting x position, assumed to be left
+     * @param y Starting y position, assumed to be top
+     * @param h Height of line.
+     * @param color Pixel color.
+     */
     public void drawFastVLine(int x, int y, int h, short color) {
-        drawLine(x, y, x, y+h-1, color);
+        drawLineHelper(x, y, x, y+h-1, color);
     }
 
+    /**
+     * Override to optimize how a horizontal line is drawn.
+     *
+     * @param x Starting x position, assumed to be left
+     * @param y Starting y position, assumed to be top
+     * @param w Width of line
+     * @param color Pixel color
+     */
     public void drawFastHLine(int x, int y, int w, short color) {
-        drawLine(x, y, x+y-1, y, color);
+        drawLineHelper(x, y, x+w-1, y, color);
     }
 
+    /**
+     * Generic draw a line, from (x0,y0) to (x1, y1) of a given color
+     * @param x0 Start
+     * @param y0 Start
+     * @param x1 End
+     * @param y1 End
+     * @param color Pixel color
+     */
     public void drawLine(int x0, int y0, int x1, int y1, short color) {
         if(x0 == x1){
             if(y0 > y1) {
@@ -92,36 +157,80 @@ public abstract class AdafruitGraphix {
                 drawFastHLine(x0, y0, x1 - x0 + 1, color);
             }
         } else {
-            drawLine(x0, y0, x1, y1, color);
+            drawLineHelper(x0, y0, x1, y1, color);
         }
     }
 
+
+    /**
+     * Basic draw a line in a non-optimal way.
+     * @param x0 Start
+     * @param y0 Start
+     * @param x1 End
+     * @param y1 End
+     * @param color Pixel color
+     */
+    protected void drawLineHelper(int x0, int y0, int x1, int y1, short color) {
+        boolean steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
+        if (steep) {
+            int t = x0;
+            x0 = y0;
+            y0 = t;
+            t = x1;
+            x1 = y1;
+            y1 = t;
+        }
+
+        if (x0 > x1) {
+            int t = x0;
+            x0 = x1;
+            x1 = t;
+            t = y0;
+            y0 = y1;
+            y1 = t;
+        }
+
+        int dx, dy;
+        dx = x1 - x0;
+        dy = Math.abs(y1 - y0);
+
+        int err = dx / 2;
+        int ystep;
+
+        if (y0 < y1) {
+            ystep = 1;
+        } else {
+            ystep = -1;
+        }
+
+        for (; x0<=x1; x0++) {
+            if (steep) {
+                drawPixel(y0, x0, color);
+            } else {
+                drawPixel(x0, y0, color);
+            }
+            err -= dy;
+            if (err < 0) {
+                y0 += ystep;
+                err += dx;
+            }
+        }
+
+    }
+
+    /**
+     * Draw a rectangle by drawing lines
+     * @param x top
+     * @param y left
+     * @param w width
+     * @param h height
+     * @param color pixel color
+     */
     public void drawRect(int x, int y, int w, int h, short color) {
         drawFastHLine(x, y, w, color);
         drawFastHLine(x, y+h-1, w, color);
         drawFastVLine(x, y, h, color);
         drawFastVLine(x+w-1, y, h, color);
-    }
-
-    // Draw a rounded rectangle
-    public void drawRoundRect(int x, int y, int w, int h, int r, short color) {
-        drawFastHLine(x+r  , y    , w-2*r, color); // Top
-        drawFastHLine(x+r  , y+h-1, w-2*r, color); // Bottom
-        drawFastVLine(x    , y+r  , h-2*r, color); // Left
-        drawFastVLine(x+w-1, y+r  , h-2*r, color); // Right
-        // draw four corners
-        drawCircleHelper(x+r    , y+r    , r, 1, color);
-        drawCircleHelper(x+w-r-1, y+r    , r, 2, color);
-        drawCircleHelper(x+w-r-1, y+h-r-1, r, 4, color);
-        drawCircleHelper(x+r    , y+h-r-1, r, 8, color);
-    }
-
-    public void fillRoundRect(int x, int y, int w, int h, int r, short color) {
-        fillRect(x+r, y, w-2*r, h, color);
-
-        // draw four corners
-        fillCircleHelper(x+w-r-1, y+r, r, 1, h-2*r-1, color);
-        fillCircleHelper(x+r    , y+r, r, 2, h-2*r-1, color);
     }
 
     public void drawCircle(int x0, int y0, int r, short color) {
@@ -154,41 +263,6 @@ public abstract class AdafruitGraphix {
             drawPixel(x0 - y, y0 + x, color);
             drawPixel(x0 + y, y0 - x, color);
             drawPixel(x0 - y, y0 - x, color);
-        }
-    }
-
-    protected void drawCircleHelper( int x0, int y0, int r, int corner, short color) {
-        int f     = 1 - r;
-        int ddF_x = 1;
-        int ddF_y = -2 * r;
-        int x     = 0;
-        int y     = r;
-
-        while (x<y) {
-            if (f >= 0) {
-                y--;
-                ddF_y += 2;
-                f     += ddF_y;
-            }
-            x++;
-            ddF_x += 2;
-            f     += ddF_x;
-            if ((corner & 0x4) != 0) {
-                drawPixel(x0 + x, y0 + y, color);
-                drawPixel(x0 + y, y0 + x, color);
-            }
-            if ((corner  & 0x2) != 0) {
-                drawPixel(x0 + x, y0 - y, color);
-                drawPixel(x0 + y, y0 - x, color);
-            }
-            if ((corner & 0x8) != 0) {
-                drawPixel(x0 - y, y0 + x, color);
-                drawPixel(x0 - x, y0 + y, color);
-            }
-            if ((corner & 0x1) != 0) {
-                drawPixel(x0 - y, y0 - x, color);
-                drawPixel(x0 - x, y0 - y, color);
-            }
         }
     }
 
@@ -256,6 +330,24 @@ public abstract class AdafruitGraphix {
         }
     }
 
+    public void drawBitmapOverlay(int x, int y, byte [] bitmap, int w, int h, short color) {
+        int byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
+        byte b = 0;
+
+        for(int j=0; j<h; j++, y++) {
+            for(int i=0; i<w; i++) {
+                if ((i & 7) != 0) {
+                    b <<= 1;
+                } else {
+                    b = bitmap[j * byteWidth + i / 8];
+                }
+                if ((b & 0x80) != 0) {
+                    drawPixel(x+i, y, color);
+                }
+            }
+        }
+    }
+
     /**
      * Bitmap is full color (5/6/5)
      */
@@ -285,9 +377,9 @@ public abstract class AdafruitGraphix {
         if ((x >= width) || (y >= height) || (x + 6*textSize <= 0) || (y + 8*textSize <= 0)) {
             return;
         }
-        int cc = ((int)c)&0xff;
+        int cc = 5*((int)c)&0xff;
         for (int i = 0; i < 5; i++) {
-            byte line = font[cc+i];
+            int line = font[cc+i] & 0xff;
             for (int j = 0; j < 8; j++, line >>= 1) {
                 short color = (line & 1) != 0 ? colorFG : colorBG;
                 if (textSize == 1) {
