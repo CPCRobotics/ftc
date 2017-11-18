@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.util.TypeConversion;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @SuppressWarnings("WeakerAccess")
-@I2cSensor(name = "VCLN4010 Range Sensor", description = "an Adafruit VCLN4010 range sensor", xmlTag = "AdafruitVCLN4010RangeSensor")
+@I2cSensor(name = "Adafruit VCLN4010 Range Sensor", description = "an Adafruit VCLN4010 range sensor", xmlTag = "AdafruitVCLN4010RangeSensor")
 public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> implements DistanceSensor, OpticalDistanceSensor, I2cAddrConfig {
 
     public final static I2cAddr ADDRESS_I2C_DEFAULT = I2cAddr.create7bit(0x13);
@@ -67,8 +67,8 @@ public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         ProximityRate(int bVal) { this.bVal = (byte)bVal; }
     }
 
-    public volatile int ledCurrent = 100;
-    public volatile double correction = 10; // multiply count by this number prior to calculation
+    public volatile int ledCurrent = 200;
+    public volatile double correction = 200/ledCurrent; // multiply count by this number prior to calculation
     public volatile boolean ledOn = false;
 
     public AdafruitVCLN4010(I2cDeviceSynch i2cDeviceSynch) {
@@ -136,7 +136,7 @@ public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
 
     @Override
     public String getDeviceName() {
-        return "VCLN4010 Range Sensor";
+        return "Adafruit VCLN4010 Range Sensor";
     }
 
     //----------------------------------------------------------------------------------------------
