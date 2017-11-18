@@ -188,7 +188,7 @@ public class AdafruitMono128x64 extends I2cDeviceSynchDevice<I2cDeviceSynch> imp
 
     @Override
     public String getDeviceName() {
-        return "Monochrome OLED 128x64";
+        return "Adafruit Monochrome OLED 128x64";
     }
 
     //
