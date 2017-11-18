@@ -16,13 +16,14 @@ public class TestAdafruitDisplay extends LinearOpMode {
         telemetry.addData("showing", text);
         telemetry.update();
         display.display();
-        sleep(2000);
+        sleep(500);
 
     }
 
     @Override public void runOpMode() {
 
         display = hardwareMap.get(AdafruitBiColorMatrix.class, "led_matrix");
+        display.setRotation(1);
         AdafruitBiColorMatrix.Graphix graphix = display.getGraphix();
         graphix.drawPixel(4,4,graphix.YELLOW);
         graphix.display();
@@ -55,17 +56,21 @@ public class TestAdafruitDisplay extends LinearOpMode {
             prompt("Clear");
         }
         if (opModeIsActive()) {
-            graphix.drawChar(0,0, 'X');
-            prompt("Yellow A");
+            graphix.drawChar(0,0, '\1');
+            prompt("Yellow \\1");
+        }
+        if (opModeIsActive()) {
+            graphix.drawChar(0,0, 'A');
+            prompt("Red A");
         }
         if (opModeIsActive()) {
             graphix.setFG(graphix.RED);
-            graphix.drawChar(0,0, 'Y');
+            graphix.drawChar(0,0, 'B');
             prompt("Red B");
         }
         if (opModeIsActive()) {
             graphix.setFG(graphix.GREEN);
-            graphix.drawChar(0,0, 'z');
+            graphix.drawChar(0,0, 'C');
             prompt("Green C");
         }
         if (opModeIsActive()) {

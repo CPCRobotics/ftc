@@ -17,10 +17,10 @@ public class TestAdafruitRangeSensor extends LinearOpMode {
 
         // get a reference to our compass
         rangeSensor = hardwareMap.get(AdafruitVCLN4010.class, "sensor_range");
-        display = hardwareMap.get(AdafruitBiColorMatrix.class, "led_matrix");
-        AdafruitBiColorMatrix.Graphix graphix = display.getGraphix();
-        graphix.fillScreen(graphix.YELLOW);
-        graphix.display();
+        //display = hardwareMap.get(AdafruitBiColorMatrix.class, "led_matrix");
+//        AdafruitBiColorMatrix.Graphix graphix = display.getGraphix();
+//        graphix.fillScreen(graphix.YELLOW);
+//        graphix.display();
 
         // wait for the start button to be pressed
         waitForStart();
@@ -29,9 +29,9 @@ public class TestAdafruitRangeSensor extends LinearOpMode {
             telemetry.addData("raw optical", rangeSensor.getRawLightDetected());
             telemetry.addData("mm", "%.2f mm", rangeSensor.getDistance(DistanceUnit.MM));
             telemetry.update();
-            graphix.fillScreen(graphix.GREEN);
-            graphix.fillRect(0,0, 8, (int)rangeSensor.getDistance(DistanceUnit.MM), graphix.RED);
-            graphix.display();
+//            graphix.fillScreen(graphix.GREEN);
+//            graphix.fillRect(0,0, 8, (int)rangeSensor.getDistance(DistanceUnit.MM), graphix.RED);
+//            graphix.display();
 
             sleep(1);
         }

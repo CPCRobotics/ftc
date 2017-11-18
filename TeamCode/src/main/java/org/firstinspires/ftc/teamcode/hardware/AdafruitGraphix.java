@@ -29,12 +29,16 @@ package org.firstinspires.ftc.teamcode.hardware;
 // POSSIBILITY OF SUCH DAMAGE.
 //
 
+import android.util.Log;
+
 /**
  * Based off Adafruit_GFX Arduino library.
  */
 
 public abstract class AdafruitGraphix {
 
+    private final int CHAR_BLOCK_WIDTH = 5;
+    private final int CHAR_BLOCK_HEIGHT = 8;
     public final int width;
     public final int height;
     private int cursorX;
@@ -377,16 +381,23 @@ public abstract class AdafruitGraphix {
         if ((x >= width) || (y >= height) || (x + 6*textSize <= 0) || (y + 8*textSize <= 0)) {
             return;
         }
-        int cc = 5*((int)c)&0xff;
-        for (int i = 0; i < 5; i++) {
-            int line = font[cc+i] & 0xff;
-            for (int j = 0; j < 8; j++, line >>= 1) {
+        int cc = (int)c;
+        if (cc < 0 || cc > 255) {
+            cc = 0;
+        }
+        cc *= CHAR_BLOCK_WIDTH;
+        for (int i = 0; i < CHAR_BLOCK_WIDTH; i++) {
+            // each column - one byte per column
+            // LSB is bottom row, MSB is top row
+            int line = font[cc+i] & 0xff;  // LSB is bottom, MSB is top
+            for (int j = 0; j < CHAR_BLOCK_HEIGHT; j++) {
                 short color = (line & 1) != 0 ? colorFG : colorBG;
                 if (textSize == 1) {
                     drawPixel(x+i, y+j, color);
                 } else {
                     fillRect(x+i*textSize, y+j*textSize, textSize, textSize, color);
                 }
+                line >>= 1;
             }
         }
         if (textSize == 1) {
