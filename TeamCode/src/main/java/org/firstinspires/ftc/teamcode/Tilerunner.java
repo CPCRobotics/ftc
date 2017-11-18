@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -55,7 +54,7 @@ public class Tilerunner
     private static final double THRESHOLD_HEADING = 180;
     public static final double MOTOR_DEADZONE = 0.2;
 
-    private static final double TURN_CORRECTION_THRESHOLD = 2.5; // degrees
+    private static final double TURN_THRESHOLD = 2.5; // degrees
 
     private static final int DISTANCE_REMOVE_GLYPH = 10; // TODO get needed ticks to remove glyph
 
@@ -73,33 +72,59 @@ public class Tilerunner
     public static final boolean INVERTED_LIFT_SENSOR = true;
     public static final int LIFT_LOW_POSITION = 200;
 
+    private boolean usingEasyLift = false;
+
+    private double currentPosition = 0;
+
+
     Servo jewelWhacker;
 
     BNO055IMU imu;
 
-    private ElapsedTime period  = new ElapsedTime();
+    public enum CryptoboxRow {
+        LOWEST(LIFT_MOTOR_MIN),
+        LOWER(LIFT_MOTOR_MIN + (LIFT_MOTOR_MAX - LIFT_MOTOR_MIN) / 3),
+        HIGHER(LIFT_MOTOR_MIN + (LIFT_MOTOR_MAX - LIFT_MOTOR_MIN) * 2 / 3),
+        HIGHEST(LIFT_MOTOR_MAX);
 
-    public enum Direction {
-        CLOCKWISE {
-            public double distanceDegrees(double start, double end) {
-                double dist = start-end;
-                return (dist >= 0) ? dist : dist + 360;
+        public final int liftPosition;
+        CryptoboxRow(int liftPosition) {
+            this.liftPosition = liftPosition;
+        }
+
+        public CryptoboxRow nextHigherRow() {
+            switch (this) {
+                case LOWEST: return LOWER;
+                case LOWER: return HIGHER;
+                default: return HIGHEST;
             }
-        },
-        COUNTERCLOCKWISE {
-            public double distanceDegrees(double start, double end) {
-                double dist = end-start;
-                return (dist >= 0) ? dist : dist + 360;
+        }
+
+        public CryptoboxRow nextLowerRow() {
+            switch (this) {
+                case HIGHEST: return HIGHER;
+                case HIGHER: return LOWER;
+                default: return LOWEST;
             }
-        };
+        }
 
-        public abstract double distanceDegrees(double start, double end);
+        public static CryptoboxRow selectNextRow(Tilerunner tilerunner, boolean goingUp) {
+            int liftPosition = tilerunner.liftMotor.getCurrentPosition();
 
-        public static Direction fromPower(double power) {
-            if (power > 0) {
-                return CLOCKWISE;
+            if (goingUp) {
+                for (CryptoboxRow row : values()) {
+                    if (liftPosition > row.liftPosition)
+                        return row.nextHigherRow();
+                }
+                return HIGHEST;
             } else {
-                return COUNTERCLOCKWISE;
+                List<CryptoboxRow> vals = List.from(values());
+                Collections.reverse(vals);
+                for (CryptoboxRow row : vals) {
+                    if (liftPosition < row.liftPosition)
+                        return row.nextLowerRow();
+                }
+                return LOWEST;
             }
         }
     }
@@ -177,6 +202,7 @@ public class Tilerunner
         }
 
         Twigger.getInstance().update();
+        currentPosition = getHeading();
     }
 
     void initWhacker(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -261,37 +287,36 @@ public class Tilerunner
                 .remove(".move()");
     }
 
-    public void turn(BusyWaitHandler waitHandler, double power, double destinationDegrees)
+    private double distanceDegrees(double start, double end, double direction) {
+        double dist = (direction > 0) ? start - end : end - start;
+        if (dist < 0)
+            dist += 360;
+        return dist;
+    }
+
+    /**
+     * Rotates the robot at a specified angle.
+     */
+    public void turn(BusyWaitHandler waitHandler, double power, double angle)
             throws InterruptedException {
-
-        // Get the sign (-1 or 1) from both directionPower and destinationDegrees
-        final double directionSign = Math.signum(power) * Math.signum(destinationDegrees);
-        Direction direction = Direction.fromPower(directionSign);
-
-        // Make directionPower and destinationDegrees positive
-        power = Math.abs(power);
-        destinationDegrees = Math.abs(destinationDegrees);
-
-        final double startHeading = getHeading();
 
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        leftMotor.setPower(power);
-        rightMotor.setPower(-power);
+        double destination = currentPosition + angle;
 
-        double delta = direction.distanceDegrees(startHeading, getHeading());
-        while ((delta < destinationDegrees || delta > 300) && waitHandler.isActive()) {
+        int direction = (int) (Math.signum(power) * Math.signum(angle));
+        power = Math.abs(power);
 
-            double currentPower = power * calculateSpeed(destinationDegrees - delta, THRESHOLD_HEADING);
+        double delta = distanceDegrees(getHeading(), destination, direction);
+        while (delta < TURN_THRESHOLD && waitHandler.isActive()) {
 
+            double currentPower = power * calculateSpeed(delta, THRESHOLD_HEADING);
             currentPower = Math.max(MOTOR_DEADZONE, currentPower);
-            currentPower *= directionSign;
+            currentPower *= direction;
 
             leftMotor.setPower(currentPower);
             rightMotor.setPower(-currentPower);
-
-            delta = direction.distanceDegrees(startHeading, getHeading());
 
             Twigger.getInstance().addLine(".turn()")
                     .addData("power", currentPower)
@@ -300,21 +325,27 @@ public class Tilerunner
                     .addData("rightpos", rightMotor.getCurrentPosition());
 
             Thread.sleep(1);
+            delta = distanceDegrees(getHeading(), destination, direction);
         }
 
         motorPair.setPower(0);
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        Thread.sleep(100);
+        Thread.sleep(100); // Wait for momentum to finish
 
-        // If we have overshot over 5°, correct it at half the speed.
-        double overshoot = delta - destinationDegrees;
-        if (overshoot > TURN_CORRECTION_THRESHOLD)
-            turn(waitHandler, -power/5, overshoot);
+        delta = distanceDegrees(getHeading(), destination, direction);
+
+        currentPosition = destination;
+
+        // Correct turn if too bad after momentum is gone
+        if (delta > TURN_THRESHOLD) {
+            turn(waitHandler, power/2, delta*direction);
+        }
 
         Twigger.getInstance()
                 .update()
                 .remove(".turn()");
+
     }
 
     public void ejectGlyph(BusyWaitHandler waitHandler) throws InterruptedException {
