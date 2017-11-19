@@ -66,7 +66,7 @@ public class PlaceGlyphStrategy {
             case RED_FAR:
                 tilerunner.move(waitHandler, 1, -28);
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
-                tilerunner.move(waitHandler, 1, 12.5 - cryptoboxOffset(column));
+                tilerunner.move(waitHandler, 1, 13 - cryptoboxOffset(column));
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
                 tilerunner.move(waitHandler, 1, 3);
                 break;

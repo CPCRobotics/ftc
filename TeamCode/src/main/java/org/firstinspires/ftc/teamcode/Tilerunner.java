@@ -160,8 +160,9 @@ public class Tilerunner
 
 
         clawMotor = createDcMotor(hardwareMap, "claw");
+
         try {
-            kicker = hardwareMap.servo.get("servo");
+            kicker = hardwareMap.servo.get("kicker");
         } catch (IllegalArgumentException e) {
             Twigger.getInstance().sendOnce("WARN: Kicker doesn't exist");
         }
@@ -441,6 +442,14 @@ public class Tilerunner
                 throw new InterruptedException("OpMode Timed Out");
             }
         }
+    }
+
+    public void primeKicker() {
+        kicker.setPosition(1);
+    }
+
+    public void launchKicker() {
+        kicker.setPosition(0);
     }
 }
 
