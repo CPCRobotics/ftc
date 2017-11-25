@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cAddrConfig;
@@ -14,6 +16,7 @@ import java.util.Arrays;
 @I2cSensor(name = "Adafruit Mono 128x64", description = "Monochrome OLED 128x64", xmlTag = "AdafruitMono128x64")
 public class AdafruitMono128x64 extends I2cDeviceSynchDevice<I2cDeviceSynch> implements I2cAddrConfig {
 
+    public final static String TAG = "128x64";
     public final static I2cAddr ADDRESS_I2C_DEFAULT = I2cAddr.create7bit(0x3D);
     private final static int WIDTH = 128;
     private final static int HEIGHT = 64;
@@ -157,11 +160,14 @@ public class AdafruitMono128x64 extends I2cDeviceSynchDevice<I2cDeviceSynch> imp
     public AdafruitMono128x64(I2cDeviceSynch i2cDeviceSynch) {
         super(i2cDeviceSynch, true);
         this.deviceClient.setI2cAddress(ADDRESS_I2C_DEFAULT);
+        this.deviceClient.setLoggingTag(TAG);
+        this.deviceClient.setLogging(true);
         this.deviceClient.engage();
     }
 
     @Override
     protected boolean doInitialize() {
+        Log.v(TAG, "128x64 Initialize");
         return true;
     }
 
@@ -214,6 +220,7 @@ public class AdafruitMono128x64 extends I2cDeviceSynchDevice<I2cDeviceSynch> imp
     }
 
     public void reset(DigitalChannel resetChannel) throws InterruptedException {
+        Log.v(TAG, "resetting display");
         if (resetChannel != null) {
             resetChannel.setMode(DigitalChannel.Mode.OUTPUT);
             resetChannel.setState(true);
@@ -250,9 +257,11 @@ public class AdafruitMono128x64 extends I2cDeviceSynchDevice<I2cDeviceSynch> imp
                 ControlOf.DEACTIVATE_SCROLL,
                 ControlOf.DISPLAY_ON // turns on panel
                 );
+        Log.v(TAG, "display is reset");
     }
 
     public void display() {
+        Log.v(TAG, "updating display");
         command(ControlOf.COLUMN_ADDR,
                 Control.of(0),
                 Control.of(WIDTH-1),

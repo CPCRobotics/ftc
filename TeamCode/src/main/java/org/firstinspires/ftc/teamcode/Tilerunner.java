@@ -58,7 +58,6 @@ public class Tilerunner
 
     private static final double TURN_THRESHOLD = 5; // degrees
 
-    private static final int DISTANCE_REMOVE_GLYPH = 10; // TODO get needed ticks to remove glyph
 
     public DcMotor  clawMotor;
     public DcMotor  leftMotor;
@@ -77,8 +76,6 @@ public class Tilerunner
     private boolean usingEasyLift = false;
 
     private Double currentPosition = null;
-
-
     Servo jewelWhacker;
     public Servo kicker = new NullServo();
 
@@ -200,10 +197,10 @@ public class Tilerunner
             Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
         }
 
-        initWhacker(hardwareMap, telemetry);
+        initWhacker(hardwareMap);
 
         try {
-            initLift(hardwareMap, telemetry);
+            initLift(hardwareMap);
         } catch (IllegalArgumentException e) {
             liftMotor = new NullDcMotor();
             liftSensorLow = new NullDigitalChannel();
@@ -213,7 +210,7 @@ public class Tilerunner
         Twigger.getInstance().update();
     }
 
-    void initWhacker(HardwareMap hardwareMap, Telemetry telemetry) {
+    void initWhacker(HardwareMap hardwareMap) {
         try {
             jewelWhacker = hardwareMap.servo.get("whacker");
             jewelWhacker.setPosition(1);
@@ -223,7 +220,7 @@ public class Tilerunner
         }
     }
 
-    void initLift(HardwareMap hardwareMap, Telemetry telemetry) throws IllegalArgumentException {
+    void initLift(HardwareMap hardwareMap) throws IllegalArgumentException {
         liftMotor = createDcMotor(hardwareMap, "lift");
         liftMotor.setDirection(DcMotor.Direction.REVERSE);
         liftSensorLow = hardwareMap.digitalChannel.get("lift_low");
@@ -232,6 +229,9 @@ public class Tilerunner
         liftSensorHigh.setMode(DigitalChannel.Mode.INPUT);
     }
 
+    /**
+     * Sets lift to the lowest point possible
+     */
     public void zeroLift() {
         // only in autonomous init
         try {
@@ -253,6 +253,9 @@ public class Tilerunner
         return INVERTED_LIFT_SENSOR != liftSensorHigh.getState();
     }
 
+    /**
+     * Get the angle the robot is at range [0-360)
+     */
     public double getHeading() {
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
     }
@@ -260,7 +263,6 @@ public class Tilerunner
     // Utility Commands
 
     /**
-     *
      * @return the speed to run according to the goal distance left
      */
     private double calculateSpeed(double dist, double threshold) {
@@ -269,6 +271,9 @@ public class Tilerunner
         return Math.min(1, Math.max(MOTOR_DEADZONE, dist / threshold) );
     }
 
+    /**
+     * Moves the robot a specified distance.
+     */
     public void move(BusyWaitHandler waitHandler, double power, double inches) {
         int ticks = (int)(Tilerunner.TICKS_PER_REVOLUTION * inches / Tilerunner.WHEEL_CIRCUMFERENCE);
 
@@ -370,6 +375,9 @@ public class Tilerunner
 
     }
 
+    /**
+     * Removes the glyph from the robot
+     */
     public void ejectGlyph(BusyWaitHandler waitHandler) throws InterruptedException {
         try {
             clawMotor.setPower(1);
@@ -379,6 +387,9 @@ public class Tilerunner
         }
     }
 
+    /**
+     * Sets the jewel whacker out
+     */
     public void activateJewelWhacker(BusyWaitHandler waitHandler) throws InterruptedException {
         try {
             jewelWhacker.setPosition(.75);
@@ -388,6 +399,9 @@ public class Tilerunner
         }
     }
 
+    /**
+     * Set the jewel whacker back up
+     */
     public void retractJewelWhacker() {
         jewelWhacker.setPosition(1);
     }
@@ -396,13 +410,26 @@ public class Tilerunner
         return liftOverride;
     }
 
+    /**
+     * Set how fast the lift should move
+     */
     public void setLiftPower(double power) {
 
+        // Do nothing if EasyLift is busy
+        if (usingEasyLift && liftMotor.isBusy())
+            return;
+        else if (usingEasyLift)
+            usingEasyLift = false;
+
+
+        // Slow down when near edges
         double liftPowerMultiplier;
         if (liftMotor.getCurrentPosition() <= LIFT_LOW_POSITION)
             liftPowerMultiplier = 0.5;
         else
             liftPowerMultiplier = 1.0;
+
+
 
         if (power > 0 && !isLiftAtHighPoint()) {
             // allow motor to go upwards, but limit at distance above zero
@@ -434,6 +461,16 @@ public class Tilerunner
         Twigger.getInstance().update();
     }
 
+    public void changeLiftPosition(boolean goingUp) {
+        CryptoboxRow nextRow = CryptoboxRow.selectNextRow(this, goingUp);
+        liftMotor.setTargetPosition(nextRow.liftPosition);
+        liftMotor.setPower(1);
+        usingEasyLift = true;
+    }
+
+    /**
+     * Sleeps until interrupted or op mode no longer active
+     */
     public void longSleep(BusyWaitHandler waitHandler, int millis) throws InterruptedException {
         ElapsedTime elapsedTime = new ElapsedTime();
         while (elapsedTime.milliseconds() < millis) {

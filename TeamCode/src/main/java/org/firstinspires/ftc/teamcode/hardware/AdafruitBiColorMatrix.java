@@ -61,6 +61,7 @@ public class AdafruitBiColorMatrix extends I2cDeviceSynchDevice<I2cDeviceSynch> 
     }
 
     public final byte [] buffer = new byte[WIDTH*HEIGHT*2/8];
+    private int rotation = 0;
 
     /**
      * Helper - if any red appears in the selected color, light the RED LED
@@ -94,6 +95,27 @@ public class AdafruitBiColorMatrix extends I2cDeviceSynchDevice<I2cDeviceSynch> 
          */
         @Override
         public void drawPixel(int x, int y, short color) {
+            int t;
+            switch (rotation) {
+                case 1:
+                  t = x;
+                  x = y;
+                  y = t;
+                  x = 8 - x - 1;
+                  break;
+
+                case 2:
+                    x = 8 - x - 1;
+                    y = 8 - y - 1;
+                    break;
+
+                case 3:
+                    t = x;
+                    x = y;
+                    y = t;
+                    y = 8 - y - 1;
+                    break;
+            }
             if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
                 return;
             }
@@ -139,6 +161,9 @@ public class AdafruitBiColorMatrix extends I2cDeviceSynchDevice<I2cDeviceSynch> 
 
     public final Graphix getGraphix() {
         return graphix;
+    }
+    public void setRotation(int rotation) {
+        this.rotation = rotation & 3;
     }
 
     //
