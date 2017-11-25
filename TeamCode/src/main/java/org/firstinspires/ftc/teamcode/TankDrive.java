@@ -127,9 +127,9 @@ public class TankDrive extends OpMode {
             // Easy PUT Glyph
             if (!easyModeTriggered)
                 timeSinceEasyModeTriggered.reset();
-
             easyModeTriggered = true;
-            if (timeSinceEasyModeTriggered.seconds() >= 1) {
+
+            if (timeSinceEasyModeTriggered.seconds() >= 0.5) {
                 speedLeft = calculateWheelSpeed(speedLeft, -.75);
                 speedRight = calculateWheelSpeed(speedRight, -.75);
 
@@ -140,25 +140,20 @@ public class TankDrive extends OpMode {
             }
 
 
-            tilerunner.clawMotor.setPower(1);
+            tilerunner.clawMotor.setPower(-1);
+            tilerunner.launchKicker();
         } else if (gamepad1.right_bumper) {
             // Easy GRAB glyph
-            if (!easyModeTriggered)
-                timeSinceEasyModeTriggered.reset();
-            easyModeTriggered = true;
 
-            if (timeSinceEasyModeTriggered.seconds() >= 1) {
-                speedLeft = calculateWheelSpeed(speedLeft, .5);
-                speedRight = calculateWheelSpeed(speedRight, .5);
+            speedLeft = calculateWheelSpeed(speedLeft, .5);
+            speedRight = calculateWheelSpeed(speedRight, .5);
 
-                tilerunner.leftMotor.setPower(speedLeft);
-                tilerunner.rightMotor.setPower(speedRight);
-            } else {
-                tilerunner.motorPair.setPower(0);
-            }
+            tilerunner.leftMotor.setPower(speedLeft);
+            tilerunner.rightMotor.setPower(speedRight);
 
 
-            tilerunner.clawMotor.setPower(-1);
+            tilerunner.clawMotor.setPower(1);
+            tilerunner.primeKicker();
         } else {
 
             easyModeTriggered = false;
@@ -180,12 +175,17 @@ public class TankDrive extends OpMode {
 
 
             // Claw Motor (Gamepad 1 Triggers)
-            if (gamepad1.left_trigger > JOYSTICK_THRESHOLD)
+            if (gamepad1.left_trigger > JOYSTICK_THRESHOLD) {
+                // Eject glyph
                 tilerunner.clawMotor.setPower(gamepad1.left_trigger);
-            else if (gamepad1.right_trigger > JOYSTICK_THRESHOLD)
+                tilerunner.primeKicker();
+            } else if (gamepad1.right_trigger > JOYSTICK_THRESHOLD) {
                 tilerunner.clawMotor.setPower(-gamepad1.right_trigger);
-            else
+                tilerunner.launchKicker();
+            } else {
                 tilerunner.clawMotor.setPower(0);
+                tilerunner.primeKicker();
+            }
         }
 
         // Lift (Gamepad 2 Left Joystick)

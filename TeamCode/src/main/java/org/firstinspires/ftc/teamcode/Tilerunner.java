@@ -3,12 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.sun.tools.javac.util.List;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -22,9 +20,9 @@ import org.firstinspires.ftc.teamcode.nulls.NullServo;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * This is NOT an opmode.
@@ -58,7 +56,7 @@ public class Tilerunner
     private static final double THRESHOLD_HEADING = 180;
     public static final double MOTOR_DEADZONE = 0.2;
 
-    private static final double TURN_CORRECTION_THRESHOLD = 2.5; // degrees
+    private static final double TURN_THRESHOLD = 5; // degrees
 
 
     public DcMotor  clawMotor;
@@ -77,36 +75,11 @@ public class Tilerunner
 
     private boolean usingEasyLift = false;
 
+    private Double currentPosition = null;
     Servo jewelWhacker;
+    public Servo kicker = new NullServo();
 
     BNO055IMU imu;
-
-    private ElapsedTime period  = new ElapsedTime();
-
-    public enum Direction {
-        CLOCKWISE {
-            public double distanceDegrees(double start, double end) {
-                double dist = start-end;
-                return (dist >= 0) ? dist : dist + 360;
-            }
-        },
-        COUNTERCLOCKWISE {
-            public double distanceDegrees(double start, double end) {
-                double dist = end-start;
-                return (dist >= 0) ? dist : dist + 360;
-            }
-        };
-
-        public abstract double distanceDegrees(double start, double end);
-
-        public static Direction fromPower(double power) {
-            if (power > 0) {
-                return CLOCKWISE;
-            } else {
-                return COUNTERCLOCKWISE;
-            }
-        }
-    }
 
     public enum CryptoboxRow {
         LOWEST(LIFT_MOTOR_MIN),
@@ -145,7 +118,7 @@ public class Tilerunner
                 }
                 return HIGHEST;
             } else {
-                List<CryptoboxRow> vals = List.from(values());
+                List<CryptoboxRow> vals = Arrays.asList(values());
                 Collections.reverse(vals);
                 for (CryptoboxRow row : vals) {
                     if (liftPosition < row.liftPosition)
@@ -184,6 +157,12 @@ public class Tilerunner
 
 
         clawMotor = createDcMotor(hardwareMap, "claw");
+
+        try {
+            kicker = hardwareMap.servo.get("kicker");
+        } catch (IllegalArgumentException e) {
+            Twigger.getInstance().sendOnce("WARN: Kicker doesn't exist");
+        }
 
         // Set up the parameters with which we will use our IMU. Note that integration
         // algorithm here just reports accelerations to the logcat log; it doesn't actually
@@ -321,63 +300,79 @@ public class Tilerunner
                 .remove(".move()");
     }
 
+    private double distanceDegrees(double start, double end, double direction) {
+        double dist = (direction > 0) ? start - end : end - start;
+        if (dist < 0)
+            dist += 360;
+        return dist;
+    }
+
     /**
      * Rotates the robot at a specified angle.
      */
-    public void turn(BusyWaitHandler waitHandler, double power, double destinationDegrees)
+    public void turn(BusyWaitHandler waitHandler, double power, double angle)
             throws InterruptedException {
 
-        // Get the sign (-1 or 1) from both directionPower and destinationDegrees
-        final double directionSign = Math.signum(power) * Math.signum(destinationDegrees);
-        Direction direction = Direction.fromPower(directionSign);
+        if (currentPosition == null)
+            currentPosition = getHeading();
 
-        // Make directionPower and destinationDegrees positive
-        power = Math.abs(power);
-        destinationDegrees = Math.abs(destinationDegrees);
-
-        final double startHeading = getHeading();
+        Twigger.getInstance().sendOnce("Arguments: power " + power + ", angle " + angle);
 
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        leftMotor.setPower(power);
-        rightMotor.setPower(-power);
+        double destination = (currentPosition - angle) % 360;
+        if (destination < 0)
+            destination += 360;
 
-        double delta = direction.distanceDegrees(startHeading, getHeading());
-        while ((delta < destinationDegrees || delta > 300) && waitHandler.isActive()) {
+        int direction = (int) (Math.signum(power) * Math.signum(angle));
+        power = Math.abs(power);
 
-            double currentPower = power * calculateSpeed(destinationDegrees - delta, THRESHOLD_HEADING);
+        double delta = distanceDegrees(getHeading(), destination, direction);
 
+        Twigger.getInstance().sendOnce("Calculations: dest " + destination + ", delta " + delta);
+        while (delta > TURN_THRESHOLD && delta < (360 - TURN_THRESHOLD) && waitHandler.isActive()) {
+
+            double currentPower = power * calculateSpeed(delta, THRESHOLD_HEADING);
             currentPower = Math.max(MOTOR_DEADZONE, currentPower);
-            currentPower *= directionSign;
+            currentPower *= direction;
 
             leftMotor.setPower(currentPower);
             rightMotor.setPower(-currentPower);
 
-            delta = direction.distanceDegrees(startHeading, getHeading());
-
             Twigger.getInstance().addLine(".turn()")
                     .addData("power", currentPower)
                     .addData("delta", delta)
-                    .addData("leftpos", leftMotor.getCurrentPosition())
-                    .addData("rightpos", rightMotor.getCurrentPosition());
+                    .addData("dest", destination)
+                    .addData("curr", getHeading());
 
             Thread.sleep(1);
+            delta = distanceDegrees(getHeading(), destination, direction);
         }
 
         motorPair.setPower(0);
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        Thread.sleep(100);
+        Thread.sleep(100); // Wait for momentum to finish
 
-        // If we have overshot over 5°, correct it at half the speed.
-        double overshoot = delta - destinationDegrees;
-        if (overshoot > TURN_CORRECTION_THRESHOLD)
-            turn(waitHandler, -power/5, overshoot);
+        delta = distanceDegrees(getHeading(), destination, direction);
+
+        currentPosition = destination;
+
+        // Correct turn if too bad after momentum is gone
+        if (Math.min(delta, 360-delta) > TURN_THRESHOLD) {
+            // Calculate shortest distance to be corrected
+            double correctionSpeed = delta < 360-delta ? delta : delta-360;
+
+            Twigger.getInstance().sendOnce("Delta (" + delta + ") Too big. Correcting by " +
+                    correctionSpeed);
+            turn(waitHandler, power/2, correctionSpeed);
+        }
 
         Twigger.getInstance()
                 .update()
                 .remove(".turn()");
+
     }
 
     /**
@@ -420,16 +415,21 @@ public class Tilerunner
      */
     public void setLiftPower(double power) {
 
+        // Do nothing if EasyLift is busy
         if (usingEasyLift && liftMotor.isBusy())
             return;
         else if (usingEasyLift)
             usingEasyLift = false;
 
-        double liftPowerMultipier;
+
+        // Slow down when near edges
+        double liftPowerMultiplier;
         if (liftMotor.getCurrentPosition() <= LIFT_LOW_POSITION)
-            liftPowerMultipier = 0.5;
+            liftPowerMultiplier = 0.5;
         else
-            liftPowerMultipier = 1.0;
+            liftPowerMultiplier = 1.0;
+
+
 
         if (power > 0 && !isLiftAtHighPoint()) {
             // allow motor to go upwards, but limit at distance above zero
@@ -450,7 +450,7 @@ public class Tilerunner
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             power = 0;
         }
-        liftMotor.setPower(power * liftPowerMultipier);
+        liftMotor.setPower(power * liftPowerMultiplier);
 
         Twigger.getInstance().addLine(".lift()")
                 .addData( "position", liftMotor.getCurrentPosition())
@@ -479,6 +479,14 @@ public class Tilerunner
                 throw new InterruptedException("OpMode Timed Out");
             }
         }
+    }
+
+    public void primeKicker() {
+        kicker.setPosition(1);
+    }
+
+    public void launchKicker() {
+        kicker.setPosition(0);
     }
 }
 
