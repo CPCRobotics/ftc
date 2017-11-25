@@ -22,8 +22,8 @@ public class TestAdafruitDisplay extends LinearOpMode {
 
     @Override public void runOpMode() {
 
-        display = hardwareMap.get(AdafruitBiColorMatrix.class, "led_matrix");
-        display.setRotation(1);
+        display = hardwareMap.get(AdafruitBiColorMatrix.class, "display");
+        display.setRotation(3);
         AdafruitBiColorMatrix.Graphix graphix = display.getGraphix();
         graphix.drawPixel(4,4,graphix.YELLOW);
         graphix.display();
