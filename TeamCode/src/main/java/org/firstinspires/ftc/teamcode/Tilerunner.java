@@ -232,10 +232,10 @@ public class Tilerunner
     /**
      * Sets lift to the lowest point possible
      */
-    public void zeroLift() {
+    public void zeroLift(BusyWaitHandler waitHandler) {
         // only in autonomous init
         try {
-            while (!(isLiftAtLowPoint())) { // Wait until the channel throws a positive
+            while (!(isLiftAtLowPoint()) && waitHandler.isActive()) { // Wait until the channel throws a positive
                 liftMotor.setPower(-0.15);
                 Thread.sleep(1);
             }

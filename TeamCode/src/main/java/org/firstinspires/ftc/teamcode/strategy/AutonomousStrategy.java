@@ -9,9 +9,8 @@ import org.firstinspires.ftc.teamcode.EyesightUtil;
 import org.firstinspires.ftc.teamcode.Tilerunner;
 
 /**
- * Created by samuel on 10/20/17.
+ * Stitches together all the code for autonomous mode
  */
-
 public class AutonomousStrategy {
 
     private final TeamPosition position;
@@ -27,7 +26,7 @@ public class AutonomousStrategy {
 
         // Set up stuff
         tilerunner.init(opMode.hardwareMap, opMode.telemetry);
-        tilerunner.zeroLift();
+        tilerunner.zeroLift(waitHandler);
 
         EyesightUtil.init(opMode);
     }

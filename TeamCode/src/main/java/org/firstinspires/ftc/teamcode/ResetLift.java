@@ -8,18 +8,19 @@ import org.firstinspires.ftc.teamcode.strategy.TeamPosition;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
- * Created by samuel on 10/14/17.
+ * Brings the lift down and resets the encoder.
  */
-
 @Autonomous(name="Reset Lift", group="Competition")
 public class ResetLift extends LinearOpMode implements BusyWaitHandler {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        AutonomousStrategy strategy = new AutonomousStrategy(TeamPosition.RESET_LIFT,
-                this, this);
+        Tilerunner tilerunner = new Tilerunner();
+        tilerunner.init(hardwareMap, telemetry);
 
         waitForStart();
+
+        tilerunner.zeroLift(this);
     }
 
     @Override
