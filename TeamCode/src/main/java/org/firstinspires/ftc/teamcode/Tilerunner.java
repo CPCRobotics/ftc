@@ -41,17 +41,11 @@ public class Tilerunner
 {
     /* Public OpMode members. */
 
-    /*
-        wheel-revs-per-robot-rev = robot-base-diameter / wheel-circumference
-        robot-base-diameter = 15"
-        wheel-diameter = 4"
-        15" / 4" = 3.75
-     */
-    public static final double WHEEL_REVS_PER_ROBOT_REV = 3.75;
     // Ticks that make up the circumference of the wheel
     private static final int TICKS_PER_REVOLUTION = 1120;
-    // 4" * pi = 12.5663"
-    private static final double WHEEL_CIRCUMFERENCE = 12.5663;
+
+    private static final double WHEEL_DIAMETER_IN = 4;
+    private static final double WHEEL_CIRCUMFERENCE_IN = WHEEL_DIAMETER_IN * Math.PI;
     private static final double THRESHOLD_TICKS = Tilerunner.TICKS_PER_REVOLUTION;
     private static final double THRESHOLD_HEADING = 180;
     public static final double MOTOR_DEADZONE = 0.2;
@@ -275,7 +269,7 @@ public class Tilerunner
      * Moves the robot a specified distance.
      */
     public void move(BusyWaitHandler waitHandler, double power, double inches) {
-        int ticks = (int)(Tilerunner.TICKS_PER_REVOLUTION * inches / Tilerunner.WHEEL_CIRCUMFERENCE);
+        int ticks = (int)(Tilerunner.TICKS_PER_REVOLUTION * inches / Tilerunner.WHEEL_CIRCUMFERENCE_IN);
 
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setTargetPosition( ticks );

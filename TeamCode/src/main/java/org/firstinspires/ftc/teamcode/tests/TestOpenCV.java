@@ -17,9 +17,13 @@ import cpc.robotics.vision.JewelsExtension;
 import cpc.robotics.vision.VisionExtension;
 import cpc.robotics.vision.VisionHelper;
 
-@Autonomous(name="TestOpenCV" )
+/**
+ * Tests Jewel Detection with the OpenCV library
+ */
+@Autonomous(name="TestOpenCV",group="TestSoftware")
 @Disabled
 public class TestOpenCV extends LinearOpMode {
+
     //Frame counter
     protected final BlurExtension blur = new BlurExtension();
     protected final JewelsExtension jewels = new JewelsExtension();

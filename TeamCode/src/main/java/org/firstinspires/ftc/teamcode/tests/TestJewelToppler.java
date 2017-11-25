@@ -10,9 +10,9 @@ import org.firstinspires.ftc.teamcode.strategy.TeamPosition;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
- * Created by samuel on 10/28/17.
+ * Tests the Jewel Toppler portion of the Autonomous Mode
  */
-@Autonomous(name="Jewel Toppler Test", group="Test")
+@Autonomous(name="Jewel Toppler Test", group="TestConcept")
 public class TestJewelToppler extends LinearOpMode implements BusyWaitHandler {
     @Override
     public void runOpMode() throws InterruptedException {

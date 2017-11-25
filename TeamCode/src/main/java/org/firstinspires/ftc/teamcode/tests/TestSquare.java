@@ -8,9 +8,8 @@ import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
- * Robot runs in a square. Makes sure the robot can turn well.
+ * Robot runs in a square. Verifies that the IMU, drive encoders, and Tilerunner is working well.
  */
-
 @Autonomous(name="Test Square", group="Test")
 public class TestSquare extends LinearOpMode implements BusyWaitHandler {
     @Override
