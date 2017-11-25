@@ -31,6 +31,9 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import android.util.Log;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 /**
  * Based off Adafruit_GFX Arduino library.
  */
@@ -58,6 +61,27 @@ public abstract class AdafruitGraphix {
     public final static short MAGENTA = RED|BLUE;
 
     /**
+     * Helper class, use in try block to display
+     */
+    public class Draw implements Closeable {
+
+        public Draw(boolean clearScreen) {
+            if (clearScreen) {
+                AdafruitGraphix.this.clearScreen();
+            }
+        }
+
+        public Draw() {
+            this(false);
+        }
+
+        @Override
+        public void close() throws IOException {
+            AdafruitGraphix.this.display();
+        }
+    }
+
+    /**
      * Initialize display to given width and height
      * @param w width
      * @param h height
@@ -66,6 +90,19 @@ public abstract class AdafruitGraphix {
         this.width = w;
         this.height = h;
         initialize();
+    }
+
+    /**
+     * Begin a drawing block.
+     * @param clearScreen If true, also clear screen
+     * @return Draw object that updates display when done
+     */
+    public Draw begin(boolean clearScreen) {
+        return new Draw(clearScreen);
+    }
+
+    public Draw begin() {
+        return new Draw();
     }
 
     /**
