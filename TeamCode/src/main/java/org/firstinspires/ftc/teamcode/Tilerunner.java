@@ -58,6 +58,14 @@ public class Tilerunner
 
     private static final double HOLDING_GLYPH_DIST_MM = 10;
 
+    public static final int LIFT_MOTOR_MIN = 10; // True max: 3320
+    public static final int LIFT_MOTOR_MAX = 3300; // True max: 3320
+    public static final boolean INVERTED_LIFT_SENSOR = true;
+    public static final int LIFT_LOW_POSITION = 200;
+
+    private static final int DISPLAY_UPDATE_RATE_MS = 250;
+    private final ElapsedTime timeSinceLastDisplayUpdate = new ElapsedTime();
+
     // Wheels
     public DcMotor leftMotor;
     public DcMotor rightMotor;
@@ -71,10 +79,6 @@ public class Tilerunner
     public AdafruitGraphix graphix;
 
     private boolean liftOverride = false;
-    public static final int LIFT_MOTOR_MIN = 10; // True max: 3320
-    public static final int LIFT_MOTOR_MAX = 3300; // True max: 3320
-    public static final boolean INVERTED_LIFT_SENSOR = true;
-    public static final int LIFT_LOW_POSITION = 200;
 
     private boolean usingEasyLift = false;
 
@@ -532,6 +536,12 @@ public class Tilerunner
     }
 
     public void displayStatus() {
+        // Don't do anything until enough time passed.
+        if (timeSinceLastDisplayUpdate.milliseconds() < DISPLAY_UPDATE_RATE_MS)
+            return;
+
+        timeSinceLastDisplayUpdate.reset();
+
         try (AdafruitGraphix.Draw ignored = graphix.begin(true)) {
             graphix.fillScreen(AdafruitGraphix.GREEN);
             graphix.fillRect(1, 1, 6, 6,
