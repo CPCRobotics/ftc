@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -116,6 +117,21 @@ public class Tilerunner
             }
         }
 
+        public static CryptoboxRow getNearestRow(int liftPosition) {
+            int nearestDistance = 99999;
+            CryptoboxRow nearestRow = null;
+
+            for (CryptoboxRow row : values()) {
+                int dist = Math.abs(row.liftPosition - liftPosition);
+                if (dist < nearestDistance) {
+                    nearestDistance = dist;
+                    nearestRow = row;
+                }
+            }
+
+            return nearestRow;
+        }
+
         public static CryptoboxRow selectNextRow(Tilerunner tilerunner, boolean goingUp) {
             int liftPosition = tilerunner.liftMotor.getCurrentPosition();
 
@@ -177,6 +193,7 @@ public class Tilerunner
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
         clawMotor = createDcMotor(hardwareMap, "claw");
+        clawMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         try {
@@ -422,11 +439,22 @@ public class Tilerunner
      */
     public void ejectGlyph(BusyWaitHandler waitHandler) throws InterruptedException {
         try {
-            clawMotor.setPower(1);
+            ejectGlyph(1);
             longSleep(waitHandler, 1000);
         } finally {
+            primeKicker();
             clawMotor.setPower(0);
         }
+    }
+
+    public void ejectGlyph(double power) {
+        clawMotor.setPower(power);
+        launchKicker();
+    }
+
+    public void grabGlyph(double power) {
+        clawMotor.setPower(-power);
+        primeKicker();
     }
 
     /**
@@ -494,12 +522,7 @@ public class Tilerunner
         }
         liftMotor.setPower(power * liftPowerMultiplier);
 
-        Twigger.getInstance().addLine(".lift()")
-                .addData( "position", liftMotor.getCurrentPosition())
-                .addData( "target", liftMotor.getTargetPosition())
-                .addData( "power", power)
-                .addData("liftHigh", isLiftAtHighPoint())
-                .addData("liftLow", isLiftAtLowPoint());
+
         Twigger.getInstance().update();
     }
 

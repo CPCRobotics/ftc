@@ -88,16 +88,7 @@ public class TankDrive extends OpMode {
 
         // Initialize the robot tilerunner object passing it the OpModes hardwareMap.
         tilerunner.init(hardwareMap, telemetry);
-//        whackerPosition = tilerunner.jewelWhacker.getPosition();
 
-
-        Twigger.getInstance()
-                .addData("Lift Override", new Func<String>() {
-                    @Override
-                    public String value() {
-                        return String.valueOf(tilerunner.getLiftOverride());
-                    }
-                });
     }
 
     /*
@@ -143,8 +134,7 @@ public class TankDrive extends OpMode {
             }
 
 
-            tilerunner.clawMotor.setPower(-1);
-            tilerunner.launchKicker();
+            tilerunner.ejectGlyph(1);
         } else if (gamepad1.right_bumper) {
             // Easy GRAB glyph
 
@@ -155,13 +145,13 @@ public class TankDrive extends OpMode {
             tilerunner.rightMotor.setPower(speedRight);
 
 
-            tilerunner.clawMotor.setPower(1);
-            tilerunner.primeKicker();
+            tilerunner.grabGlyph(1);
         } else {
 
             easyModeTriggered = false;
 
             // Wheels (Gamepad 1 Joystick)
+
             if (gamepad1.x) {
                 tilerunner.leftMotor.setPower(-1);
                 tilerunner.rightMotor.setPower(1);
@@ -179,15 +169,13 @@ public class TankDrive extends OpMode {
 
             // Claw Motor (Gamepad 1 Triggers)
             if (gamepad1.left_trigger > JOYSTICK_THRESHOLD) {
-                // Eject glyph
-                tilerunner.clawMotor.setPower(gamepad1.left_trigger);
-                tilerunner.primeKicker();
+                // put glyph
+                tilerunner.ejectGlyph(gamepad1.left_trigger);
             } else if (gamepad1.right_trigger > JOYSTICK_THRESHOLD) {
-                tilerunner.clawMotor.setPower(-gamepad1.right_trigger);
-                tilerunner.launchKicker();
+                // grab glyph
+                tilerunner.grabGlyph(gamepad1.right_trigger);
             } else {
-                tilerunner.clawMotor.setPower(0);
-                tilerunner.primeKicker();
+                tilerunner.grabGlyph(0);
             }
         }
 
