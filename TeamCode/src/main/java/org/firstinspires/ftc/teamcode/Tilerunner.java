@@ -161,6 +161,7 @@ public class Tilerunner
 
         try {
             kicker = hardwareMap.servo.get("kicker");
+            primeKicker();
         } catch (IllegalArgumentException e) {
             Twigger.getInstance().sendOnce("WARN: Kicker doesn't exist");
         }
@@ -247,7 +248,7 @@ public class Tilerunner
     public void zeroLift(BusyWaitHandler waitHandler) {
         // only in autonomous init
         try {
-            AdafruitBiColorMatrix.Graphix graphix = display.getGraphix();
+            AdafruitGraphix graphix = display.getGraphix();
             graphix.clearScreen();
             graphix.display();
 
@@ -505,10 +506,20 @@ public class Tilerunner
     }
 
     public void primeKicker() {
+        AdafruitGraphix graphix = display.getGraphix();
+        graphix.clearScreen();
+        graphix.fillRect(2, 2, 5, 5, AdafruitGraphix.RED);
+        graphix.display();
+
         kicker.setPosition(1);
     }
 
     public void launchKicker() {
+        AdafruitGraphix graphix = display.getGraphix();
+        graphix.clearScreen();
+        graphix.fillRect(2, 2, 5, 5, AdafruitGraphix.YELLOW);
+        graphix.display();
+
         kicker.setPosition(0);
     }
 }
