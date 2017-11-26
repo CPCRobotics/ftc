@@ -122,6 +122,9 @@ public class TankDrive extends OpMode {
     public void loop() {
         Twigger.getInstance().update();
 
+        // Show at the beginning in case it should be overridden
+        tilerunner.displayStatus();
+
 
         if (gamepad1.left_bumper) {
             // Easy PUT Glyph

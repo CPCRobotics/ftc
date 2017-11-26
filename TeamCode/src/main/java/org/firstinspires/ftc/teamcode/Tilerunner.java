@@ -12,7 +12,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.hardware.AdafruitADPS9960;
 import org.firstinspires.ftc.teamcode.hardware.AdafruitBiColorMatrix;
 import org.firstinspires.ftc.teamcode.hardware.AdafruitGraphix;
 import org.firstinspires.ftc.teamcode.nulls.NullBNO055IMU;
@@ -22,7 +24,6 @@ import org.firstinspires.ftc.teamcode.nulls.NullGraphix;
 import org.firstinspires.ftc.teamcode.nulls.NullServo;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
-import java.io.Closeable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,7 +54,9 @@ public class Tilerunner
     private static final double THRESHOLD_HEADING_DEG = 180;
     public static final double MOTOR_DEADZONE = 0.2; // range [0,1]
 
-    private static final double TURN_THRESHOLD_DEG = 5; // degrees
+    private static final double TURN_THRESHOLD_DEG = 5;
+
+    private static final double HOLDING_GLYPH_DIST_MM = 10;
 
     // Wheels
     public DcMotor leftMotor;
@@ -80,6 +83,7 @@ public class Tilerunner
     public Servo kicker = new NullServo();
 
     BNO055IMU imu;
+    AdafruitADPS9960 proximitySensor;
 
     public enum CryptoboxRow {
         LOWEST(LIFT_MOTOR_MIN),
@@ -146,20 +150,30 @@ public class Tilerunner
     /* Initialize standard Hardware interfaces */
     public void init( HardwareMap hardwareMap, Telemetry telemetry ) {
 
-        //  MOTORS
-
-
         Twigger.getInstance().setTelemetry(telemetry);
 
-        // Define and Initialize Motors
+        //  DISPLAY
+        try {
+            AdafruitBiColorMatrix display = hardwareMap.get(AdafruitBiColorMatrix.class, "display");
+            display.setRotation(3);
+
+            graphix = display.getGraphix();
+        } catch (IllegalArgumentException e) {
+            Twigger.getInstance().sendOnce("WARN: Missing Hardware Piece 'display'");
+            // TODO: add NullDisplay
+            graphix = new NullGraphix();
+        }
+
+        //  MOTORS
         leftMotor   = createDcMotor(hardwareMap, "left_drive");
         rightMotor  = createDcMotor(hardwareMap, "right_drive");
         rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
-        // Create a motor pair when manipulating both leftMotor and rightMotor
+
+        // Create a motor pair when manipulating both wheels at the same time
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
-
         clawMotor = createDcMotor(hardwareMap, "claw");
+
 
         try {
             kicker = hardwareMap.servo.get("kicker");
@@ -176,18 +190,6 @@ public class Tilerunner
             liftMotor = new NullDcMotor();
             liftSensorLow = new NullDigitalChannel();
             liftSensorHigh = new NullDigitalChannel();
-        }
-
-        //  DISPLAY
-        try {
-            AdafruitBiColorMatrix display = hardwareMap.get(AdafruitBiColorMatrix.class, "display");
-            display.setRotation(3);
-
-            graphix = display.getGraphix();
-        } catch (IllegalArgumentException e) {
-            Twigger.getInstance().sendOnce("WARN: Missing Hardware Piece 'display'");
-            // TODO: add NullDisplay
-            graphix = new NullGraphix();
         }
 
         //  IMU
@@ -224,6 +226,15 @@ public class Tilerunner
             imu = new NullBNO055IMU();
             Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
         }
+
+        // PROXIMITY SENSOR
+        try {
+            proximitySensor = hardwareMap.get(AdafruitADPS9960.class, "range");
+        } catch (IllegalArgumentException e) {
+            Twigger.getInstance().sendOnce("WARN: Proximity sensor 'range' doesn't exist");
+            throw e;
+        }
+
 
         Twigger.getInstance().update();
     }
@@ -509,18 +520,23 @@ public class Tilerunner
     }
 
     public void primeKicker() {
-        try(AdafruitGraphix.Draw ignored = graphix.begin(true)) {
-            graphix.fillRect(2, 2, 5, 5, AdafruitGraphix.RED);
-        }
         kicker.setPosition(1);
     }
 
     public void launchKicker() {
-        try(AdafruitGraphix.Draw ignored = graphix.begin(true)) {
-            graphix.fillRect(2, 2, 5, 5, AdafruitGraphix.YELLOW);
-        }
-
         kicker.setPosition(0);
+    }
+
+    public boolean isHoldingGlyph() {
+        return proximitySensor.getDistance(DistanceUnit.MM) <= HOLDING_GLYPH_DIST_MM;
+    }
+
+    public void displayStatus() {
+        try (AdafruitGraphix.Draw ignored = graphix.begin(true)) {
+            graphix.fillScreen(AdafruitGraphix.GREEN);
+            graphix.fillRect(1, 1, 6, 6,
+                    isHoldingGlyph() ? AdafruitGraphix.WHITE : AdafruitGraphix.BLACK);
+        }
     }
 }
 
