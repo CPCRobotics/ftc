@@ -18,9 +18,11 @@ import org.firstinspires.ftc.teamcode.hardware.AdafruitGraphix;
 import org.firstinspires.ftc.teamcode.nulls.NullBNO055IMU;
 import org.firstinspires.ftc.teamcode.nulls.NullDcMotor;
 import org.firstinspires.ftc.teamcode.nulls.NullDigitalChannel;
+import org.firstinspires.ftc.teamcode.nulls.NullGraphix;
 import org.firstinspires.ftc.teamcode.nulls.NullServo;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
+import java.io.Closeable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,7 +65,7 @@ public class Tilerunner
     public DigitalChannel liftSensorLow;
     public DigitalChannel liftSensorHigh;
 
-    public AdafruitBiColorMatrix display;
+    public AdafruitGraphix graphix;
 
     private boolean liftOverride = false;
     public static final int LIFT_MOTOR_MIN = 10; // True max: 3320
@@ -178,11 +180,14 @@ public class Tilerunner
 
         //  DISPLAY
         try {
-            display = hardwareMap.get(AdafruitBiColorMatrix.class, "display");
+            AdafruitBiColorMatrix display = hardwareMap.get(AdafruitBiColorMatrix.class, "display");
             display.setRotation(3);
+
+            graphix = display.getGraphix();
         } catch (IllegalArgumentException e) {
             Twigger.getInstance().sendOnce("WARN: Missing Hardware Piece 'display'");
             // TODO: add NullDisplay
+            graphix = new NullGraphix();
         }
 
         //  IMU
@@ -248,20 +253,18 @@ public class Tilerunner
     public void zeroLift(BusyWaitHandler waitHandler) {
         // only in autonomous init
         try {
-            AdafruitGraphix graphix = display.getGraphix();
-            graphix.clearScreen();
-            graphix.display();
+            try (AdafruitGraphix.Draw ignored = graphix.begin()) {
+                graphix.drawLine(0, 0, 7, 7, AdafruitGraphix.YELLOW);
+            }
 
             while (!(isLiftAtLowPoint()) && waitHandler.isActive()) { // Wait until the channel throws a positive
-                graphix.drawLine(0, 0, 7, 7, AdafruitGraphix.YELLOW);
-                graphix.display();
-
                 liftMotor.setPower(-0.15);
                 Thread.sleep(1);
             }
 
-            graphix.fillScreen(AdafruitGraphix.YELLOW);
-            graphix.display();
+            try (AdafruitGraphix.Draw ignored = graphix.begin()) {
+                graphix.fillScreen(AdafruitGraphix.YELLOW);
+            }
 
         } catch(InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -506,19 +509,16 @@ public class Tilerunner
     }
 
     public void primeKicker() {
-        AdafruitGraphix graphix = display.getGraphix();
-        graphix.clearScreen();
-        graphix.fillRect(2, 2, 5, 5, AdafruitGraphix.RED);
-        graphix.display();
-
+        try(AdafruitGraphix.Draw ignored = graphix.begin(true)) {
+            graphix.fillRect(2, 2, 5, 5, AdafruitGraphix.RED);
+        }
         kicker.setPosition(1);
     }
 
     public void launchKicker() {
-        AdafruitGraphix graphix = display.getGraphix();
-        graphix.clearScreen();
-        graphix.fillRect(2, 2, 5, 5, AdafruitGraphix.YELLOW);
-        graphix.display();
+        try(AdafruitGraphix.Draw ignored = graphix.begin(true)) {
+            graphix.fillRect(2, 2, 5, 5, AdafruitGraphix.YELLOW);
+        }
 
         kicker.setPosition(0);
     }

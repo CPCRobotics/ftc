@@ -76,7 +76,7 @@ public abstract class AdafruitGraphix {
         }
 
         @Override
-        public void close() throws IOException {
+        public void close() {
             AdafruitGraphix.this.display();
         }
     }
