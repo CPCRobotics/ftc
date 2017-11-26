@@ -13,12 +13,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.hardware.AdafruitBiColorMatrix;
+import org.firstinspires.ftc.teamcode.hardware.AdafruitGraphix;
 import org.firstinspires.ftc.teamcode.nulls.NullBNO055IMU;
 import org.firstinspires.ftc.teamcode.nulls.NullDcMotor;
 import org.firstinspires.ftc.teamcode.nulls.NullDigitalChannel;
+import org.firstinspires.ftc.teamcode.nulls.NullGraphix;
 import org.firstinspires.ftc.teamcode.nulls.NullServo;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
+import java.io.Closeable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,33 +43,29 @@ import java.util.List;
 @SuppressWarnings("WeakerAccess")
 public class Tilerunner
 {
-    /* Public OpMode members. */
+    // Hardware
+    private static final int TICKS_PER_WHEEL_REVOLUTION = 1120;
+    private static final double WHEEL_DIAMETER_IN = 4;
+    private static final double WHEEL_CIRCUMFERENCE_IN = WHEEL_DIAMETER_IN * Math.PI;
 
-    /*
-        wheel-revs-per-robot-rev = robot-base-diameter / wheel-circumference
-        robot-base-diameter = 15"
-        wheel-diameter = 4"
-        15" / 4" = 3.75
-     */
-    public static final double WHEEL_REVS_PER_ROBOT_REV = 3.75;
-    // Ticks that make up the circumference of the wheel
-    private static final int TICKS_PER_REVOLUTION = 1120;
-    // 4" * pi = 12.5663"
-    private static final double WHEEL_CIRCUMFERENCE = 12.5663;
-    private static final double THRESHOLD_TICKS = Tilerunner.TICKS_PER_REVOLUTION;
-    private static final double THRESHOLD_HEADING = 180;
-    public static final double MOTOR_DEADZONE = 0.2;
+    // Thresholds
+    private static final double THRESHOLD_TICKS = Tilerunner.TICKS_PER_WHEEL_REVOLUTION;
+    private static final double THRESHOLD_HEADING_DEG = 180;
+    public static final double MOTOR_DEADZONE = 0.2; // range [0,1]
 
-    private static final double TURN_THRESHOLD = 5; // degrees
+    private static final double TURN_THRESHOLD_DEG = 5; // degrees
 
+    // Wheels
+    public DcMotor leftMotor;
+    public DcMotor rightMotor;
+    public DcMotor motorPair;
 
     public DcMotor  clawMotor;
-    public DcMotor  leftMotor;
-    public DcMotor  rightMotor;
-    public DcMotor motorPair;
     public DcMotor liftMotor;
     public DigitalChannel liftSensorLow;
     public DigitalChannel liftSensorHigh;
+
+    public AdafruitGraphix graphix;
 
     private boolean liftOverride = false;
     public static final int LIFT_MOTOR_MIN = 10; // True max: 3320
@@ -146,6 +146,9 @@ public class Tilerunner
     /* Initialize standard Hardware interfaces */
     public void init( HardwareMap hardwareMap, Telemetry telemetry ) {
 
+        //  MOTORS
+
+
         Twigger.getInstance().setTelemetry(telemetry);
 
         // Define and Initialize Motors
@@ -160,9 +163,34 @@ public class Tilerunner
 
         try {
             kicker = hardwareMap.servo.get("kicker");
+            primeKicker();
         } catch (IllegalArgumentException e) {
             Twigger.getInstance().sendOnce("WARN: Kicker doesn't exist");
         }
+
+        initWhacker(hardwareMap);
+
+        try {
+            initLift(hardwareMap);
+        } catch (IllegalArgumentException e) {
+            liftMotor = new NullDcMotor();
+            liftSensorLow = new NullDigitalChannel();
+            liftSensorHigh = new NullDigitalChannel();
+        }
+
+        //  DISPLAY
+        try {
+            AdafruitBiColorMatrix display = hardwareMap.get(AdafruitBiColorMatrix.class, "display");
+            display.setRotation(3);
+
+            graphix = display.getGraphix();
+        } catch (IllegalArgumentException e) {
+            Twigger.getInstance().sendOnce("WARN: Missing Hardware Piece 'display'");
+            // TODO: add NullDisplay
+            graphix = new NullGraphix();
+        }
+
+        //  IMU
 
         // Set up the parameters with which we will use our IMU. Note that integration
         // algorithm here just reports accelerations to the logcat log; it doesn't actually
@@ -197,16 +225,6 @@ public class Tilerunner
             Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
         }
 
-        initWhacker(hardwareMap);
-
-        try {
-            initLift(hardwareMap);
-        } catch (IllegalArgumentException e) {
-            liftMotor = new NullDcMotor();
-            liftSensorLow = new NullDigitalChannel();
-            liftSensorHigh = new NullDigitalChannel();
-        }
-
         Twigger.getInstance().update();
     }
 
@@ -232,13 +250,22 @@ public class Tilerunner
     /**
      * Sets lift to the lowest point possible
      */
-    public void zeroLift() {
+    public void zeroLift(BusyWaitHandler waitHandler) {
         // only in autonomous init
         try {
-            while (!(isLiftAtLowPoint())) { // Wait until the channel throws a positive
+            try (AdafruitGraphix.Draw ignored = graphix.begin()) {
+                graphix.drawLine(0, 0, 7, 7, AdafruitGraphix.YELLOW);
+            }
+
+            while (!(isLiftAtLowPoint()) && waitHandler.isActive()) { // Wait until the channel throws a positive
                 liftMotor.setPower(-0.15);
                 Thread.sleep(1);
             }
+
+            try (AdafruitGraphix.Draw ignored = graphix.begin()) {
+                graphix.fillScreen(AdafruitGraphix.YELLOW);
+            }
+
         } catch(InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -275,7 +302,7 @@ public class Tilerunner
      * Moves the robot a specified distance.
      */
     public void move(BusyWaitHandler waitHandler, double power, double inches) {
-        int ticks = (int)(Tilerunner.TICKS_PER_REVOLUTION * inches / Tilerunner.WHEEL_CIRCUMFERENCE);
+        int ticks = (int)(Tilerunner.TICKS_PER_WHEEL_REVOLUTION * inches / Tilerunner.WHEEL_CIRCUMFERENCE_IN);
 
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setTargetPosition( ticks );
@@ -331,9 +358,9 @@ public class Tilerunner
         double delta = distanceDegrees(getHeading(), destination, direction);
 
         Twigger.getInstance().sendOnce("Calculations: dest " + destination + ", delta " + delta);
-        while (delta > TURN_THRESHOLD && delta < (360 - TURN_THRESHOLD) && waitHandler.isActive()) {
+        while (delta > TURN_THRESHOLD_DEG && delta < (360 - TURN_THRESHOLD_DEG) && waitHandler.isActive()) {
 
-            double currentPower = power * calculateSpeed(delta, THRESHOLD_HEADING);
+            double currentPower = power * calculateSpeed(delta, THRESHOLD_HEADING_DEG);
             currentPower = Math.max(MOTOR_DEADZONE, currentPower);
             currentPower *= direction;
 
@@ -360,7 +387,7 @@ public class Tilerunner
         currentPosition = destination;
 
         // Correct turn if too bad after momentum is gone
-        if (Math.min(delta, 360-delta) > TURN_THRESHOLD) {
+        if (Math.min(delta, 360-delta) > TURN_THRESHOLD_DEG) {
             // Calculate shortest distance to be corrected
             double correctionSpeed = delta < 360-delta ? delta : delta-360;
 
@@ -482,10 +509,17 @@ public class Tilerunner
     }
 
     public void primeKicker() {
+        try(AdafruitGraphix.Draw ignored = graphix.begin(true)) {
+            graphix.fillRect(2, 2, 5, 5, AdafruitGraphix.RED);
+        }
         kicker.setPosition(1);
     }
 
     public void launchKicker() {
+        try(AdafruitGraphix.Draw ignored = graphix.begin(true)) {
+            graphix.fillRect(2, 2, 5, 5, AdafruitGraphix.YELLOW);
+        }
+
         kicker.setPosition(0);
     }
 }

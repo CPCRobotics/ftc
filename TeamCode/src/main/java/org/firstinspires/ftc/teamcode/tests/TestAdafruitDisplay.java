@@ -4,10 +4,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.hardware.AdafruitBiColorMatrix;
-import org.firstinspires.ftc.teamcode.hardware.AdafruitMono128x64;
-import org.firstinspires.ftc.teamcode.hardware.AdafruitVCLN4010;
 
-@Autonomous(name = "Adafruit BiColor Display", group = "Test")
+/**
+ * Displays different symbols on the display to verify it is working
+ */
+@Autonomous(name = "Adafruit BiColor Display", group = "TestHardware")
 public class TestAdafruitDisplay extends LinearOpMode {
 
     AdafruitBiColorMatrix display;
@@ -17,7 +18,6 @@ public class TestAdafruitDisplay extends LinearOpMode {
         telemetry.update();
         display.display();
         sleep(500);
-
     }
 
     @Override public void runOpMode() {

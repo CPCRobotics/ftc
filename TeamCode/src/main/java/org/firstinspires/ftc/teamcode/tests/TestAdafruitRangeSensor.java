@@ -5,13 +5,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.hardware.AdafruitADPS9960;
-import org.firstinspires.ftc.teamcode.hardware.AdafruitBiColorMatrix;
-import org.firstinspires.ftc.teamcode.hardware.AdafruitVCLN4010;
 
-@Autonomous(name = "Adafruit range sensor", group = "Test")
+
+/**
+ * Telemetries data from the range sensor
+ */
+@Autonomous(name = "Adafruit range sensor", group = "TestHardware")
 public class TestAdafruitRangeSensor extends LinearOpMode {
 
-    AdafruitADPS9960 rangeSensor;
+    private AdafruitADPS9960 rangeSensor;
 
     @Override public void runOpMode() {
 

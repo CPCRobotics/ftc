@@ -66,8 +66,7 @@ import org.firstinspires.ftc.teamcode.R;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained in {@link ConceptVuforiaNavigation}.
  */
-
-@Autonomous(name="Concept: VuMark Id", group ="Concept")
+@Autonomous(name="Concept: VuMark Id", group ="TestConcept")
 public class ConceptVuMarkIdentification extends LinearOpMode {
 
     public static final String TAG = "Vuforia VuMark Sample";

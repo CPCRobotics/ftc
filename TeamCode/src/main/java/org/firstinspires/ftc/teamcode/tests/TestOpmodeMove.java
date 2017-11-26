@@ -10,10 +10,11 @@ import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
- * Created by samuel on 10/27/17.
+ * Telemetries encoder data as the robot moves forward
  */
-@Autonomous(name="Test Move", group="Test")
+@Autonomous(name="Test Move", group="TestHardware")
 public class TestOpmodeMove extends LinearOpMode implements BusyWaitHandler {
+
     @Override
     public void runOpMode() throws InterruptedException {
         final Tilerunner tilerunner = new Tilerunner();

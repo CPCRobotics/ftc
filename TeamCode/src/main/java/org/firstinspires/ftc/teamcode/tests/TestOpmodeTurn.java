@@ -8,10 +8,10 @@ import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
- * Created by samuel on 10/27/17.
+ * Makes the robot turn to the right and left 180°. Verifies that the IMU and Tilerunner is working
+ * well.
  */
-
-@Autonomous(name="Test Turn", group="Test")
+@Autonomous(name="Test Turn", group="TestConcept")
 public class TestOpmodeTurn extends LinearOpMode implements BusyWaitHandler {
     @Override
     public void runOpMode() throws InterruptedException {
