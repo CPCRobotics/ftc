@@ -203,7 +203,7 @@ public class TankDrive extends OpMode {
 
         // Jewel Whacker (Gamepad 2 Right Joystick)
         if (Math.abs(gamepad2.right_stick_y) >= JOYSTICK_THRESHOLD) {
-            whackerPosition += WHACKER_CONTROL_SPEED * gamepad1.right_stick_y;
+            whackerPosition += WHACKER_CONTROL_SPEED * gamepad2.right_stick_y;
             whackerPosition = withinRange(0, 1, whackerPosition);
             tilerunner.jewelWhacker.setPosition(whackerPosition);
         }
