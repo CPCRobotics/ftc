@@ -64,6 +64,8 @@ public class Tilerunner
     public static final boolean INVERTED_LIFT_SENSOR = true;
     public static final int LIFT_LOW_POSITION = 200;
 
+    public static final int NEAR_LIFT_POSITION_THRESHOLD = 150;
+
     private static final int DISPLAY_UPDATE_RATE_MS = 250;
     private final ElapsedTime timeSinceLastDisplayUpdate = new ElapsedTime();
 
@@ -117,12 +119,16 @@ public class Tilerunner
             }
         }
 
+        public int distanceFrom(int liftPosition) {
+            return Math.abs(this.liftPosition - liftPosition);
+        }
+
         public static CryptoboxRow getNearestRow(int liftPosition) {
-            int nearestDistance = 99999;
+            int nearestDistance = LIFT_MOTOR_MAX + 100; // Impossible for the dist to be bigger
             CryptoboxRow nearestRow = null;
 
             for (CryptoboxRow row : values()) {
-                int dist = Math.abs(row.liftPosition - liftPosition);
+                int dist = row.distanceFrom(liftPosition);
                 if (dist < nearestDistance) {
                     nearestDistance = dist;
                     nearestRow = row;
@@ -135,20 +141,15 @@ public class Tilerunner
         public static CryptoboxRow selectNextRow(Tilerunner tilerunner, boolean goingUp) {
             int liftPosition = tilerunner.liftMotor.getCurrentPosition();
 
-            if (goingUp) {
-                for (CryptoboxRow row : values()) {
-                    if (liftPosition > row.liftPosition)
-                        return row.nextHigherRow();
-                }
-                return HIGHEST;
+            CryptoboxRow row = getNearestRow(liftPosition);
+
+            // If the closest row is still far away, go to that row.
+            if (((goingUp && liftPosition < row.liftPosition) ||
+                 (!goingUp && liftPosition > row.liftPosition)) &&
+                    row.distanceFrom(liftPosition) > NEAR_LIFT_POSITION_THRESHOLD) {
+                return row;
             } else {
-                List<CryptoboxRow> vals = Arrays.asList(values());
-                Collections.reverse(vals);
-                for (CryptoboxRow row : vals) {
-                    if (liftPosition < row.liftPosition)
-                        return row.nextLowerRow();
-                }
-                return LOWEST;
+                return goingUp ? row.nextHigherRow() : row.nextLowerRow();
             }
         }
     }
@@ -565,10 +566,29 @@ public class Tilerunner
 
         timeSinceLastDisplayUpdate.reset();
 
-        try (AdafruitGraphix.Draw ignored = graphix.begin(true)) {
+        try (AdafruitGraphix.Draw ignored = graphix.begin()) {
             graphix.fillScreen(AdafruitGraphix.GREEN);
-            graphix.fillRect(1, 1, 6, 6,
+
+            // holding glyph
+            graphix.fillRect(0, 2, 3, 4,
                     isHoldingGlyph() ? AdafruitGraphix.WHITE : AdafruitGraphix.BLACK);
+
+            // Lift Position
+            graphix.fillRect(5, 0, 2, 8, AdafruitGraphix.BLACK);
+            switch (CryptoboxRow.getNearestRow(liftMotor.getCurrentPosition())) {
+                case HIGHEST:
+                    graphix.fillRect(5, 0, 2, 2, AdafruitGraphix.RED);
+                    break;
+                case HIGHER:
+                    graphix.fillRect(5, 2, 2, 2, AdafruitGraphix.RED);
+                    break;
+                case LOWER:
+                    graphix.fillRect(5, 4, 2, 2, AdafruitGraphix.RED);
+                    break;
+                case LOWEST:
+                    graphix.fillRect(5, 6, 2, 2, AdafruitGraphix.RED);
+                    break;
+            }
         }
     }
 }
