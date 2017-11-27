@@ -27,8 +27,6 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * This is NOT an opmode.
@@ -59,7 +57,7 @@ public class Tilerunner
 
     private static final double HOLDING_GLYPH_DIST_MM = 10;
 
-    public static final int LIFT_MOTOR_MIN = 10; // True max: 3320
+    public static final int LIFT_MOTOR_MIN = 10;
     public static final int LIFT_MOTOR_MAX = 3300; // True max: 3320
     public static final boolean INVERTED_LIFT_SENSOR = true;
     public static final int LIFT_LOW_POSITION = 200;
@@ -80,8 +78,6 @@ public class Tilerunner
     public DigitalChannel liftSensorHigh;
 
     public AdafruitGraphix graphix;
-
-    private boolean liftOverride = false;
 
     private boolean usingEasyLift = false;
 
@@ -477,10 +473,6 @@ public class Tilerunner
         jewelWhacker.setPosition(1);
     }
 
-    public boolean getLiftOverride() {
-        return liftOverride;
-    }
-
     /**
      * Set how fast the lift should move
      */
@@ -569,27 +561,25 @@ public class Tilerunner
 
         timeSinceLastDisplayUpdate.reset();
 
-        try (AdafruitGraphix.Draw ignored = graphix.begin()) {
-            graphix.fillScreen(AdafruitGraphix.GREEN);
+        try (AdafruitGraphix.Draw ignored = graphix.begin(true)) {
 
             // holding glyph
-            graphix.fillRect(0, 2, 3, 4,
-                    isHoldingGlyph() ? AdafruitGraphix.WHITE : AdafruitGraphix.BLACK);
+            if (isHoldingGlyph()) {
+                graphix.fillRect(0, 0, 6, 8, AdafruitGraphix.YELLOW);
+            }
 
-            // Lift Position
-            graphix.fillRect(5, 0, 2, 8, AdafruitGraphix.BLACK);
             switch (CryptoboxRow.getNearestRow(liftMotor.getCurrentPosition())) {
                 case HIGHEST:
-                    graphix.fillRect(5, 0, 2, 2, AdafruitGraphix.RED);
+                    graphix.fillRect(6, 0, 2, 2, AdafruitGraphix.RED);
                     break;
                 case HIGHER:
-                    graphix.fillRect(5, 2, 2, 2, AdafruitGraphix.RED);
+                    graphix.fillRect(6, 2, 2, 2, AdafruitGraphix.RED);
                     break;
                 case LOWER:
-                    graphix.fillRect(5, 4, 2, 2, AdafruitGraphix.RED);
+                    graphix.fillRect(6, 4, 2, 2, AdafruitGraphix.RED);
                     break;
                 case LOWEST:
-                    graphix.fillRect(5, 6, 2, 2, AdafruitGraphix.RED);
+                    graphix.fillRect(6, 6, 2, 2, AdafruitGraphix.RED);
                     break;
             }
         }
