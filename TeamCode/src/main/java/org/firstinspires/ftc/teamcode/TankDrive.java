@@ -191,6 +191,14 @@ public class TankDrive extends OpMode {
         else if (gamepad2.dpad_down)
             tilerunner.changeLiftPosition(false);
 
+        if (gamepad2.y)
+            tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.HIGHEST);
+        else if (gamepad2.x)
+            tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.HIGHER);
+        else if (gamepad2.b)
+            tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.LOWER);
+        else if (gamepad2.a)
+            tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.LOWEST);
 
 
         // Jewel Whacker (Gamepad 2 Right Joystick)

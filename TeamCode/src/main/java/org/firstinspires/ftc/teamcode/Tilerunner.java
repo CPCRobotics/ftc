@@ -487,11 +487,11 @@ public class Tilerunner
     public void setLiftPower(double power) {
 
         // Do nothing if EasyLift is busy
-        if (usingEasyLift && liftMotor.isBusy())
+        if (usingEasyLift && liftMotor.isBusy() && power == 0)
             return;
-        else if (usingEasyLift)
-            usingEasyLift = false;
 
+
+        usingEasyLift = false;
 
         // Slow down when near edges
         double liftPowerMultiplier;
@@ -528,8 +528,11 @@ public class Tilerunner
     }
 
     public void changeLiftPosition(boolean goingUp) {
-        CryptoboxRow nextRow = CryptoboxRow.selectNextRow(this, goingUp);
-        liftMotor.setTargetPosition(nextRow.liftPosition);
+        changeLiftPosition(CryptoboxRow.selectNextRow(this, goingUp));
+    }
+
+    public void changeLiftPosition(CryptoboxRow row) {
+        liftMotor.setTargetPosition(row.liftPosition);
         liftMotor.setPower(1);
         usingEasyLift = true;
     }
