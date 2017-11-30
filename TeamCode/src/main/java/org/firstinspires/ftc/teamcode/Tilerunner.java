@@ -18,10 +18,12 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.hardware.AdafruitADPS9960;
 import org.firstinspires.ftc.teamcode.hardware.AdafruitBiColorMatrix;
 import org.firstinspires.ftc.teamcode.hardware.AdafruitGraphix;
+import org.firstinspires.ftc.teamcode.hardware.ProximitySensor;
 import org.firstinspires.ftc.teamcode.nulls.NullBNO055IMU;
 import org.firstinspires.ftc.teamcode.nulls.NullDcMotor;
 import org.firstinspires.ftc.teamcode.nulls.NullDigitalChannel;
 import org.firstinspires.ftc.teamcode.nulls.NullGraphix;
+import org.firstinspires.ftc.teamcode.nulls.NullProximitySensor;
 import org.firstinspires.ftc.teamcode.nulls.NullServo;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
@@ -43,6 +45,9 @@ import java.util.Arrays;
 @SuppressWarnings("WeakerAccess")
 public class Tilerunner
 {
+
+    public static final String ROBOT_VERSION = "0.0.1";
+
     // Hardware
     private static final int TICKS_PER_WHEEL_REVOLUTION = 1120;
     private static final double WHEEL_DIAMETER_IN = 4;
@@ -86,7 +91,7 @@ public class Tilerunner
     public Servo kicker = new NullServo();
 
     BNO055IMU imu;
-    AdafruitADPS9960 proximitySensor;
+    ProximitySensor proximitySensor;
 
     public enum CryptoboxRow {
         LOWEST(LIFT_MOTOR_MIN),
@@ -168,6 +173,7 @@ public class Tilerunner
     public void init( HardwareMap hardwareMap, Telemetry telemetry ) {
 
         Twigger.getInstance().setTelemetry(telemetry);
+        Twigger.getInstance().sendOnce("Robot build v" + ROBOT_VERSION);
 
         //  DISPLAY
         try {
@@ -250,7 +256,7 @@ public class Tilerunner
             proximitySensor = hardwareMap.get(AdafruitADPS9960.class, "range");
         } catch (IllegalArgumentException e) {
             Twigger.getInstance().sendOnce("WARN: Proximity sensor 'range' doesn't exist");
-            throw e;
+            proximitySensor = new NullProximitySensor();
         }
 
 

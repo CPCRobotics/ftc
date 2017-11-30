@@ -18,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import java.nio.ByteOrder;
 
 @I2cSensor(name = "Adafruit ADPS9960 Range Sensor", description = "an Adafruit ADPS9960 range sensor", xmlTag = "AdafruitADPS9960")
-public class AdafruitADPS9960 extends I2cDeviceSynchDevice<I2cDeviceSynch> implements DistanceSensor, OpticalDistanceSensor, I2cAddrConfig {
+public class AdafruitADPS9960 extends I2cDeviceSynchDevice<I2cDeviceSynch> implements ProximitySensor, I2cAddrConfig {
 
     public final static String TAG = "ADPS9960";
     public final static I2cAddr ADDRESS_I2C_DEFAULT = I2cAddr.create7bit(0x39);
