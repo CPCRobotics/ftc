@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.teamcode.BusyWaitHandler;
 import org.firstinspires.ftc.teamcode.Tilerunner;
+import org.firstinspires.ftc.teamcode.hardware.AdafruitGraphix;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 import org.lasarobotics.vision.util.ScreenOrientation;
 
@@ -31,12 +32,7 @@ public class JewelTopplerStrategy {
     private final BusyWaitHandler waitHandler;
     private final Tilerunner tilerunner;
 
-    private final BlurExtension blur = new BlurExtension();
-    private final CropExtension crop = new CropExtension();
     private final JewelsExtension jewels = new JewelsExtension();
-    private final ImageRotationExtension imageRot = new ImageRotationExtension();
-    private final CameraControlExtension cameraControl = new CameraControlExtension();
-    private final CameraStatsExtension cameraStats = new CameraStatsExtension();
 
     public JewelTopplerStrategy(TeamPosition position, BusyWaitHandler waitHandler,
                                 Context context, Tilerunner tilerunner) {
@@ -45,6 +41,11 @@ public class JewelTopplerStrategy {
         this.tilerunner = tilerunner;
 
         visionHelper = new VisionHelper(context, Camera.CameraInfo.CAMERA_FACING_BACK, 900, 900);
+        BlurExtension blur = new BlurExtension();
+        CropExtension crop = new CropExtension();
+        ImageRotationExtension imageRot = new ImageRotationExtension();
+        CameraControlExtension cameraControl = new CameraControlExtension();
+        CameraStatsExtension cameraStats = new CameraStatsExtension();
         visionHelper.addExtensions(crop, blur, jewels, imageRot, cameraControl, cameraStats);
 
         crop.setBounds(-10, 0, 50, 50);
@@ -61,16 +62,36 @@ public class JewelTopplerStrategy {
     }
 
     enum JewelDirection {
-        LEFT(-1, "LEFT"), RIGHT(1, "RIGHT"), UNKNOWN(0, "UNKNOWN");
-        int power;
-        String value;
+        LEFT(-1) {
+            @Override
+            public void displayStatus(Tilerunner tilerunner) {
+                try (AdafruitGraphix.Draw ignored = tilerunner.graphix.begin(true)) {
+                    tilerunner.graphix.fillRect(0, 2, 4, 4, AdafruitGraphix.YELLOW);
+                }
+            }
+        },
+        RIGHT(1) {
+            @Override
+            public void displayStatus(Tilerunner tilerunner) {
+                try (AdafruitGraphix.Draw ignored = tilerunner.graphix.begin(true)) {
+                    tilerunner.graphix.fillRect(4, 2, 4, 4, AdafruitGraphix.YELLOW);
+                }
 
-        JewelDirection(int power, String value) {
+            }
+        },
+        UNKNOWN(0) {
+            @Override
+            public void displayStatus(Tilerunner tilerunner) {
+                tilerunner.displayUnknown();
+            }
+        };
+        int power;
+
+        JewelDirection(int power) {
             this.power = power;
-            this.value = value;
         }
 
-        public String getString() { return value; }
+        public abstract void displayStatus(Tilerunner tilerunner);
     }
 
     public void toppleEnemyJewel() throws InterruptedException {
@@ -84,8 +105,12 @@ public class JewelTopplerStrategy {
             visionHelper.disable();
         }
 
+        jd.displayStatus(tilerunner);
+
+
+
         Twigger.getInstance()
-                .sendOnce("Enemy jewel detected: " + jd.toString());
+                .sendOnce("Enemy jewel detected: " + jd.name());
         takeDownEnemyJewel(jd);
 
         // Turn off camera to let Vuphoria work in Pictograph Strategy

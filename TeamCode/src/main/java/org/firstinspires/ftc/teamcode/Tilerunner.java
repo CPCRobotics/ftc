@@ -44,7 +44,6 @@ import java.util.Arrays;
  * Motor channel:  Right drive motor:       "right_drive"
 
  */
-@SuppressWarnings("WeakerAccess")
 public class Tilerunner
 {
 
@@ -74,6 +73,8 @@ public class Tilerunner
     private static final int DISPLAY_UPDATE_RATE_MS = 250;
     private final ElapsedTime timeSinceLastDisplayUpdate = new ElapsedTime();
 
+    private boolean hasWarnings = false;
+
     // Wheels
     public DcMotor leftMotor;
     public DcMotor rightMotor;
@@ -93,7 +94,7 @@ public class Tilerunner
     public Servo kicker = new NullServo();
 
     BNO055IMU imu;
-    ProximitySensor proximitySensor;
+    public ProximitySensor proximitySensor;
 
     public enum CryptoboxRow {
         LOWEST(LIFT_MOTOR_MIN),
@@ -176,6 +177,7 @@ public class Tilerunner
         try {
             return hardwareMap.get(classObj, deviceName);
         } catch (IllegalArgumentException e) {
+            hasWarnings = true;
             Twigger.getInstance().sendOnce("WARN: device '" + deviceName + "' missing.");
             return nullObject;
         }
@@ -195,6 +197,7 @@ public class Tilerunner
             graphix = display.getGraphix();
         } catch (IllegalArgumentException e) {
             Twigger.getInstance().sendOnce("WARN: Missing Hardware Piece 'display'");
+            hasWarnings = true;
             // TODO: add NullDisplay
             graphix = new NullGraphix();
         }
@@ -220,6 +223,7 @@ public class Tilerunner
         try {
             initLift(hardwareMap);
         } catch (IllegalArgumentException e) {
+            hasWarnings = true;
             liftMotor = new NullDcMotor();
             liftSensorLow = new NullDigitalChannel();
             liftSensorHigh = new NullDigitalChannel();
@@ -257,6 +261,7 @@ public class Tilerunner
             Twigger.getInstance().sendOnce("Initialized IMU");
         } catch (IllegalArgumentException e) {
             imu = new NullBNO055IMU();
+            hasWarnings = true;
             Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
         }
 
@@ -265,6 +270,7 @@ public class Tilerunner
 
 
         Twigger.getInstance().update();
+        displayOK();
     }
 
     void initLift(HardwareMap hardwareMap) throws IllegalArgumentException {
@@ -582,6 +588,30 @@ public class Tilerunner
                     graphix.fillRect(6, 6, 2, 2, AdafruitGraphix.RED);
                     break;
             }
+        }
+    }
+
+    /**
+     * Show a checkmark
+     */
+    public void displayOK() {
+        // Yellow means that init is successful with warnings (missing hardware, etc)
+        // Green means everything went smoothly with no warnings
+        short color = hasWarnings ? AdafruitGraphix.YELLOW : AdafruitGraphix.GREEN;
+
+        try (AdafruitGraphix.Draw ignored = graphix.begin(true)) {
+            graphix.drawLine(0, 5, 2, 7, color);
+            graphix.drawLine(3, 6, 7, 2, color);
+        }
+    }
+
+    public void displayUnknown() {
+        byte color = AdafruitGraphix.YELLOW;
+        try (AdafruitGraphix.Draw ignored = graphix.begin(true)) {
+            graphix.drawLine(2, 2, 3, 1, color);
+            graphix.drawLine(4, 1, 5, 2, color);
+            graphix.drawLine(5, 3, 3, 5, color);
+            graphix.drawLine(3, 6, 3, 7, color);
         }
     }
 }

@@ -33,7 +33,10 @@ public class PictographStrategy {
         while (vuMark == RelicRecoveryVuMark.UNKNOWN && waitHandler.isActive() && time.seconds() < 5)
             vuMark = EyesightUtil.getPictograph();
 
-        Twigger.getInstance().sendOnce("Detected Pictogram: " + vuMark.name());
+        CryptoboxColumn column = CryptoboxColumn.fromVuMark(vuMark);
+
+        Twigger.getInstance().sendOnce("Detected Pictogram: " + column.name());
+        column.displayPosition(tilerunner);
 
         EyesightUtil.stop();
 
