@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.support.annotation.NonNull;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -169,6 +171,16 @@ public class Tilerunner
         return motor;
     }
 
+    public<T> T getHardware(Class<? extends T> classObj, HardwareMap hardwareMap, String deviceName,
+                            @NonNull T nullObject) {
+        try {
+            return hardwareMap.get(classObj, deviceName);
+        } catch (IllegalArgumentException e) {
+            Twigger.getInstance().sendOnce("WARN: device '" + deviceName + "' missing.");
+            return nullObject;
+        }
+    }
+
     /* Initialize standard Hardware interfaces */
     public void init( HardwareMap hardwareMap, Telemetry telemetry ) {
 
@@ -199,14 +211,11 @@ public class Tilerunner
         clawMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
-        try {
-            kicker = hardwareMap.servo.get("kicker");
-            primeKicker();
-        } catch (IllegalArgumentException e) {
-            Twigger.getInstance().sendOnce("WARN: Kicker doesn't exist");
-        }
+        kicker = getHardware(Servo.class, hardwareMap, "kicker", new NullServo());
+        primeKicker();
 
-        initWhacker(hardwareMap);
+        jewelWhacker = getHardware(Servo.class, hardwareMap, "whacker", new NullServo());
+        retractJewelWhacker();
 
         try {
             initLift(hardwareMap);
@@ -251,26 +260,11 @@ public class Tilerunner
             Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
         }
 
-        // PROXIMITY SENSOR
-        try {
-            proximitySensor = hardwareMap.get(AdafruitADPS9960.class, "range");
-        } catch (IllegalArgumentException e) {
-            Twigger.getInstance().sendOnce("WARN: Proximity sensor 'range' doesn't exist");
-            proximitySensor = new NullProximitySensor();
-        }
+        proximitySensor = getHardware(AdafruitADPS9960.class, hardwareMap, "range",
+                new NullProximitySensor());
 
 
         Twigger.getInstance().update();
-    }
-
-    void initWhacker(HardwareMap hardwareMap) {
-        try {
-            jewelWhacker = hardwareMap.servo.get("whacker");
-            jewelWhacker.setPosition(1);
-        } catch (IllegalArgumentException e) {
-            jewelWhacker = new NullServo();
-            Twigger.getInstance().sendOnce("WARN: Jewel Whacker Missing");
-        }
     }
 
     void initLift(HardwareMap hardwareMap) throws IllegalArgumentException {
