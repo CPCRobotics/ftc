@@ -42,7 +42,7 @@ import java.util.Arrays;
  *
  * Motor channel:  Left drive motor:        "left_drive"
  * Motor channel:  Right drive motor:       "right_drive"
-
+ *
  */
 public class Tilerunner
 {
@@ -187,7 +187,10 @@ public class Tilerunner
     public void init( HardwareMap hardwareMap, Telemetry telemetry ) {
 
         Twigger.getInstance().setTelemetry(telemetry);
+
+        // Show build version to keep track of logging and verify the code is up-to-date
         Twigger.getInstance().sendOnce("Robot build v" + ROBOT_VERSION);
+
 
         //  DISPLAY
         try {
@@ -198,7 +201,6 @@ public class Tilerunner
         } catch (IllegalArgumentException e) {
             Twigger.getInstance().sendOnce("WARN: Missing Hardware Piece 'display'");
             hasWarnings = true;
-            // TODO: add NullDisplay
             graphix = new NullGraphix();
         }
 
@@ -273,7 +275,7 @@ public class Tilerunner
         displayOK();
     }
 
-    void initLift(HardwareMap hardwareMap) throws IllegalArgumentException {
+    private void initLift(HardwareMap hardwareMap) throws IllegalArgumentException {
         liftMotor = createDcMotor(hardwareMap, "lift");
         liftMotor.setDirection(DcMotor.Direction.REVERSE);
         liftSensorLow = hardwareMap.digitalChannel.get("lift_low");

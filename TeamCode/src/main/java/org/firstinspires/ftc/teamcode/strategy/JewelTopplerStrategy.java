@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.strategy;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.support.annotation.NonNull;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -65,16 +66,16 @@ public class JewelTopplerStrategy {
         LEFT(-1) {
             @Override
             public void displayStatus(Tilerunner tilerunner) {
-                try (AdafruitGraphix.Draw ignored = tilerunner.graphix.begin(true)) {
-                    tilerunner.graphix.fillRect(0, 2, 4, 4, AdafruitGraphix.YELLOW);
+                try (AdafruitGraphix.Draw ignored = tilerunner.graphix.begin(false)) {
+                    tilerunner.graphix.fillRect(0, 2, 4, 4, AdafruitGraphix.GREEN);
                 }
             }
         },
         RIGHT(1) {
             @Override
             public void displayStatus(Tilerunner tilerunner) {
-                try (AdafruitGraphix.Draw ignored = tilerunner.graphix.begin(true)) {
-                    tilerunner.graphix.fillRect(4, 2, 4, 4, AdafruitGraphix.YELLOW);
+                try (AdafruitGraphix.Draw ignored = tilerunner.graphix.begin(false)) {
+                    tilerunner.graphix.fillRect(4, 2, 4, 4, AdafruitGraphix.GREEN);
                 }
 
             }
@@ -166,7 +167,7 @@ public class JewelTopplerStrategy {
         throw new InterruptedException();
     }
 
-    private void takeDownEnemyJewel(JewelDirection jd) throws InterruptedException {
+    private void takeDownEnemyJewel(@NonNull JewelDirection jd) throws InterruptedException {
         tilerunner.activateJewelWhacker(waitHandler);
 
         double direction;
