@@ -76,6 +76,7 @@ public class PlaceGlyphStrategy {
 
     private void prepareForTele() throws InterruptedException {
         final double inches = 10;
+        final double BACK_UP_IN = 3;
         switch (position) {
             case RED_A:
             case BLUE_A:
@@ -83,10 +84,12 @@ public class PlaceGlyphStrategy {
                 tilerunner.grabGlyph(0);
                 tilerunner.turn(waitHandler, 1, 180);
                 tilerunner.move(waitHandler, 1, -inches);
+
+                tilerunner.move(waitHandler, 1, BACK_UP_IN);
                 break;
             case RED_FAR:
             case BLUE_FAR:
-                tilerunner.move(waitHandler, 1, -3);
+                tilerunner.move(waitHandler, 1, -BACK_UP_IN);
         }
     }
 
