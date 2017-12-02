@@ -84,6 +84,9 @@ public class PlaceGlyphStrategy {
                 tilerunner.turn(waitHandler, 1, 180);
                 tilerunner.move(waitHandler, 1, -inches);
                 break;
+            case RED_FAR:
+            case BLUE_FAR:
+                tilerunner.move(waitHandler, 1, -3);
         }
     }
 
