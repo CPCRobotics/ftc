@@ -26,7 +26,7 @@ public class AutonomousStrategy {
 
         // Set up stuff
         tilerunner.init(opMode.hardwareMap, opMode.telemetry);
-        tilerunner.zeroLift(waitHandler);
+        tilerunner.zeroLift(waitHandler, false);
 
         EyesightUtil.init(opMode);
     }

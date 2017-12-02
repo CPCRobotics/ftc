@@ -287,11 +287,13 @@ public class Tilerunner
     /**
      * Sets lift to the lowest point possible
      */
-    public void zeroLift(BusyWaitHandler waitHandler) {
+    public void zeroLift(BusyWaitHandler waitHandler, boolean displayStatus) {
         // only in autonomous init
         try {
-            try (AdafruitGraphix.Draw ignored = graphix.begin()) {
-                graphix.drawLine(0, 0, 7, 7, AdafruitGraphix.YELLOW);
+            if (displayStatus) {
+                try (AdafruitGraphix.Draw ignored = graphix.begin()) {
+                    graphix.drawLine(0, 0, 7, 7, AdafruitGraphix.YELLOW);
+                }
             }
 
             while (!(isLiftAtLowPoint()) && waitHandler.isActive()) { // Wait until the channel throws a positive
@@ -299,14 +301,20 @@ public class Tilerunner
                 Thread.sleep(1);
             }
 
-            try (AdafruitGraphix.Draw ignored = graphix.begin()) {
-                graphix.fillScreen(AdafruitGraphix.YELLOW);
+            if (displayStatus) {
+                try (AdafruitGraphix.Draw ignored = graphix.begin()) {
+                    graphix.fillScreen(AdafruitGraphix.YELLOW);
+                }
             }
 
         } catch(InterruptedException e) {
             Thread.currentThread().interrupt();
         }
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void zeroLift(BusyWaitHandler waitHandler) {
+        zeroLift(waitHandler, true);
     }
 
     private boolean isLiftAtLowPoint() {
