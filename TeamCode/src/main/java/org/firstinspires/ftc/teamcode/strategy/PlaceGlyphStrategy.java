@@ -23,7 +23,7 @@ public class PlaceGlyphStrategy {
 
     public void placeGlyph(CryptoboxColumn column) throws InterruptedException {
         moveToCryptoboxColumn(column);
-        tilerunner.ejectGlyph(waitHandler);
+        tilerunner.ejectGlyph(waitHandler, true);
         prepareForTele();
     }
 
@@ -44,27 +44,28 @@ public class PlaceGlyphStrategy {
 
     private void moveToCryptoboxColumn(CryptoboxColumn column) throws InterruptedException {
         final double TURN_SPEED = 0.75;
+        final double BSTONE_SPEED = 0.75; // go slower when getting off of the balance stone
         // Move to the cryptobox depending on the position
         switch (position) {
             case BLUE_A:
-                tilerunner.move(waitHandler, 1, 33.5 + cryptoboxOffset(column));
-                tilerunner.turn(waitHandler, -TURN_SPEED, 90);
+                tilerunner.move(waitHandler, BSTONE_SPEED, 33.5 + cryptoboxOffset(column));
+                tilerunner.turn(waitHandler, TURN_SPEED, -90);
                 tilerunner.move(waitHandler, 1, 9);
                 break;
             case RED_A:
-                tilerunner.move(waitHandler, 1, -(33.5 - cryptoboxOffset(column)));
+                tilerunner.move(waitHandler, BSTONE_SPEED, -(33.5 - cryptoboxOffset(column)));
                 tilerunner.turn(waitHandler, TURN_SPEED, -90);
                 tilerunner.move(waitHandler, 1, 9);
                 break;
             case BLUE_FAR:
-                tilerunner.move(waitHandler, 1, 26);
+                tilerunner.move(waitHandler, BSTONE_SPEED, 26);
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
                 tilerunner.move(waitHandler, 1, 13 + cryptoboxOffset(column));
                 tilerunner.turn(waitHandler, TURN_SPEED, -90);
                 tilerunner.move(waitHandler, 1, 5);
                 break;
             case RED_FAR:
-                tilerunner.move(waitHandler, 1, -28);
+                tilerunner.move(waitHandler, BSTONE_SPEED, -28);
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
                 tilerunner.move(waitHandler, 1, 13 - cryptoboxOffset(column));
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
@@ -74,12 +75,14 @@ public class PlaceGlyphStrategy {
     }
 
     private void prepareForTele() throws InterruptedException {
+        final double inches = 10;
         switch (position) {
             case RED_A:
             case BLUE_A:
-                tilerunner.move(waitHandler, 1, -6);
+                tilerunner.move(waitHandler, 1, -inches);
+                tilerunner.grabGlyph(0);
                 tilerunner.turn(waitHandler, 1, 180);
-                tilerunner.move(waitHandler, 1, -6);
+                tilerunner.move(waitHandler, 1, -inches);
                 break;
         }
     }

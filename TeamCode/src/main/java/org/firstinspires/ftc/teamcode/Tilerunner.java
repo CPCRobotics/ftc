@@ -47,7 +47,7 @@ import java.util.Arrays;
 public class Tilerunner
 {
 
-    public static final String ROBOT_VERSION = "0.0.1";
+    public static final String ROBOT_VERSION = "0.0.3";
 
     // Hardware
     private static final int TICKS_PER_WHEEL_REVOLUTION = 1120;
@@ -439,16 +439,22 @@ public class Tilerunner
 
     }
 
+    public void ejectGlyph(BusyWaitHandler waitHandler) throws InterruptedException {
+        ejectGlyph(waitHandler, false);
+    }
+
     /**
      * Removes the glyph from the robot
      */
-    public void ejectGlyph(BusyWaitHandler waitHandler) throws InterruptedException {
+    public void ejectGlyph(BusyWaitHandler waitHandler, boolean keepEjecting) throws InterruptedException {
         try {
             ejectGlyph(1);
             longSleep(waitHandler, 1000);
         } finally {
             primeKicker();
-            clawMotor.setPower(0);
+
+            if (!keepEjecting)
+                clawMotor.setPower(0);
         }
     }
 
