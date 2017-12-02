@@ -60,6 +60,9 @@ public class TankDrive extends OpMode {
 
     private static final double JOYSTICK_THRESHOLD = 0.2;
 
+    private long gamepad2Timestamp;
+    private ElapsedTime gamepad2Time = new ElapsedTime();
+
 
     private double calculateWheelSpeed(double currentSpeed, double joystickPower) {
         // Make moving the robot more sensitive when the joystick is closer to 0
@@ -104,6 +107,14 @@ public class TankDrive extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+    }
+
+    private boolean gamepad2Changed() {
+        long timestamp = gamepad2.timestamp;
+        boolean gamepadChanged = timestamp != gamepad2Timestamp;
+        gamepad2Timestamp = timestamp;
+
+        return gamepadChanged;
     }
 
     /*
@@ -179,6 +190,10 @@ public class TankDrive extends OpMode {
             }
         }
 
+        if (gamepad2Changed()) {
+            gamepad2Time.reset();
+        }
+
         // Lift (Gamepad 2 Left Joystick)
         if (Math.abs(gamepad2.left_stick_y) >= JOYSTICK_THRESHOLD)
             tilerunner.setLiftPower(-calculateLiftSpeed(gamepad2.left_stick_y));
@@ -186,19 +201,24 @@ public class TankDrive extends OpMode {
             tilerunner.setLiftPower(0);
 
         // Easy Lift
-        if (gamepad2.dpad_up)
-            tilerunner.changeLiftPosition(true);
-        else if (gamepad2.dpad_down)
-            tilerunner.changeLiftPosition(false);
+        // Wait for gamepad2 to be paired for 2 seconds.
+        // Since pairing the gamepad requires pushing the B button,
+        // it might interfere with the EasyLift functions.
+        if (gamepad2Time.seconds() > 2) {
+            if (gamepad2.dpad_up)
+                tilerunner.changeLiftPosition(true);
+            else if (gamepad2.dpad_down)
+                tilerunner.changeLiftPosition(false);
 
-        if (gamepad2.y)
-            tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.HIGHEST);
-        else if (gamepad2.x)
-            tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.HIGHER);
-        else if (gamepad2.b)
-            tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.LOWER);
-        else if (gamepad2.a)
-            tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.LOWEST);
+            if (gamepad2.y)
+                tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.HIGHEST);
+            else if (gamepad2.x)
+                tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.HIGHER);
+            else if (gamepad2.b)
+                tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.LOWER);
+            else if (gamepad2.a)
+                tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.LOWEST);
+        }
 
 
         // Jewel Whacker (Gamepad 2 Right Joystick)

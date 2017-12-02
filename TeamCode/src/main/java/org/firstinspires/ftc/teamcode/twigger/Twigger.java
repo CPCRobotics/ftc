@@ -71,8 +71,9 @@ public class Twigger {
         }
     }
 
-    public void setTelemetry(Telemetry telemetry) {
+    public void init(Telemetry telemetry) {
         this.telemetry = telemetry;
+        telemetry.setAutoClear(true);
     }
 
     public Line addLine() {

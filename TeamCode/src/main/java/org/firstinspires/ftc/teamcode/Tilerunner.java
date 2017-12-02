@@ -186,7 +186,7 @@ public class Tilerunner
     /* Initialize standard Hardware interfaces */
     public void init( HardwareMap hardwareMap, Telemetry telemetry ) {
 
-        Twigger.getInstance().setTelemetry(telemetry);
+        Twigger.getInstance().init(telemetry);
 
         // Show build version to keep track of logging and verify the code is up-to-date
         Twigger.getInstance().sendOnce("Robot build v" + ROBOT_VERSION);
