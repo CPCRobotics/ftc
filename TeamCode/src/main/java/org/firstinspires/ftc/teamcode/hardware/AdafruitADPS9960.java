@@ -24,9 +24,9 @@ public class AdafruitADPS9960 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
     public final static I2cAddr ADDRESS_I2C_DEFAULT = I2cAddr.create7bit(0x39);
     public final static int DEFAULT_ADC_INTEG_TIME = 100; // ms
     public final static int DEFAULT_WAIT_TIME = 30; // ms - wait between cycles
-    public final static LedPPLen DEFAULT_PPLEN = LedPPLen.PPLEN_8us;
+    public final static LedPPLen DEFAULT_PPLEN = LedPPLen.PPLEN_4us;
     public final static int DEFAULT_PROX_COUNT = 16;
-    public final static ProxGain DEFAULT_PROX_GAIN = ProxGain.GAIN_2x;
+    public final static ProxGain DEFAULT_PROX_GAIN = ProxGain.GAIN_1x;
     public final static AdcGain DEFAULT_ADC_GAIN = AdcGain.GAIN_16x;
     public final static double TIME_MULT = 2.78; // ms
     public final static int DEVICE_ID_1 = 0xAB; // confirms device operation
