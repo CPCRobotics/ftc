@@ -90,7 +90,7 @@ public class TankDrive extends OpMode {
     public void init() {
 
         // Initialize the robot tilerunner object passing it the OpModes hardwareMap.
-        tilerunner.init(hardwareMap, telemetry);
+        tilerunner.init(hardwareMap, telemetry, false);
 
     }
 

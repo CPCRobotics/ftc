@@ -183,8 +183,14 @@ public class Tilerunner
         }
     }
 
+    public void init(HardwareMap hardwareMap, Telemetry telemetry) {
+        init(hardwareMap, telemetry, true);
+    }
+
     /* Initialize standard Hardware interfaces */
-    public void init( HardwareMap hardwareMap, Telemetry telemetry ) {
+    public void init( HardwareMap hardwareMap, Telemetry telemetry, boolean loadAutonomousHardware ) {
+
+        ElapsedTime initTime = new ElapsedTime();
 
         Twigger.getInstance().init(telemetry);
 
@@ -247,31 +253,35 @@ public class Tilerunner
         // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
         // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
         // and named "imu".
-        try {
-            imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu = new NullBNO055IMU();
+        if (loadAutonomousHardware) {
+            try {
+                imu = hardwareMap.get(BNO055IMU.class, "imu");
 
-            // Check if IMU Calibration exists
-            File file = AppUtil.getInstance().getSettingsFile(parameters.calibrationDataFile);
-            if (!file.exists())
-                Twigger.getInstance().sendOnce("WARN: Calibration File Doesn't Exist");
+                // Check if IMU Calibration exists
+                File file = AppUtil.getInstance().getSettingsFile(parameters.calibrationDataFile);
+                if (!file.exists())
+                    Twigger.getInstance().sendOnce("WARN: Calibration File Doesn't Exist");
 
-            Twigger.getInstance().sendOnce("Initializing IMU");
+                Twigger.getInstance().sendOnce("Initializing IMU");
 
-            if (!imu.initialize(parameters))
-                throw new IllegalArgumentException();
+                if (!imu.initialize(parameters))
+                    throw new IllegalArgumentException();
 
-            Twigger.getInstance().sendOnce("Initialized IMU");
-        } catch (IllegalArgumentException e) {
-            imu = new NullBNO055IMU();
-            hasWarnings = true;
-            Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
+                Twigger.getInstance().sendOnce("Initialized IMU");
+            } catch (IllegalArgumentException e) {
+                hasWarnings = true;
+                Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
+            }
         }
 
         proximitySensor = getHardware(AdafruitADPS9960.class, hardwareMap, "range",
                 new NullProximitySensor());
 
 
-        Twigger.getInstance().update();
+        Twigger.getInstance()
+                .sendOnce("Tilerunner initialized in " + initTime.seconds() + " seconds.")
+                .update();
         displayOK();
     }
 
