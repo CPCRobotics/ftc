@@ -70,6 +70,8 @@ public class Tilerunner
 
     public static final int NEAR_LIFT_POSITION_THRESHOLD = 150;
 
+    private static final double ZERO_LIFT_POWER = 0.25;
+
     private static final int DISPLAY_UPDATE_RATE_MS = 250;
     private final ElapsedTime timeSinceLastDisplayUpdate = new ElapsedTime();
 
@@ -204,6 +206,7 @@ public class Tilerunner
             display.setRotation(3);
 
             graphix = display.getGraphix();
+            display.setBrightness((byte) 15);
         } catch (IllegalArgumentException e) {
             Twigger.getInstance().sendOnce("WARN: Missing Hardware Piece 'display'");
             hasWarnings = true;
@@ -219,7 +222,6 @@ public class Tilerunner
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
         clawMotor = createDcMotor(hardwareMap, "claw");
-        clawMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         kicker = getHardware(Servo.class, hardwareMap, "kicker", new NullServo());
@@ -307,7 +309,7 @@ public class Tilerunner
             }
 
             while (!(isLiftAtLowPoint()) && waitHandler.isActive()) { // Wait until the channel throws a positive
-                liftMotor.setPower(-0.15);
+                liftMotor.setPower(-ZERO_LIFT_POWER);
                 Thread.sleep(1);
             }
 
