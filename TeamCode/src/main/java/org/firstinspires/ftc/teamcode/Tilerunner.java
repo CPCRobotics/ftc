@@ -397,6 +397,7 @@ public class Tilerunner
     public void turn(BusyWaitHandler waitHandler, double power, double angle)
             throws InterruptedException {
 
+        // The current position is calibrated on the first .turn() call
         if (currentPosition == null)
             currentPosition = getHeading();
 
@@ -405,10 +406,15 @@ public class Tilerunner
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        // Calculate the distance within a range of 0°-360°
         double destination = (currentPosition - angle) % 360;
+        // The % operator doesn't convert a negative value to a positive value;
+        //   do this manually.
         if (destination < 0)
             destination += 360;
 
+        // Get the product of all signs of both numbers, i.e. positive if
+        //  both numbers are the same sign, and negative otherwise
         int direction = (int) (Math.signum(power) * Math.signum(angle));
         power = Math.abs(power);
 
@@ -417,6 +423,7 @@ public class Tilerunner
         Twigger.getInstance().sendOnce("Calculations: dest " + destination + ", delta " + delta);
         while (delta > TURN_THRESHOLD_DEG && delta < (360 - TURN_THRESHOLD_DEG) && waitHandler.isActive()) {
 
+            // Update the current speed
             double currentPower = power * calculateSpeed(delta, THRESHOLD_HEADING_DEG);
             currentPower = Math.max(MOTOR_DEADZONE, currentPower);
             currentPower *= direction;

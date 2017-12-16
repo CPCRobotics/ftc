@@ -110,9 +110,14 @@ public class JewelTopplerStrategy {
 
 
 
-        Twigger.getInstance()
-                .sendOnce("Enemy jewel detected: " + jd.name());
-        takeDownEnemyJewel(jd);
+        if (jd == JewelDirection.UNKNOWN) {
+            Twigger.getInstance()
+                    .sendOnce("Can't locate enemy jewel");
+        } else {
+            Twigger.getInstance()
+                    .sendOnce("Enemy jewel detected: " + jd.name());
+            takeDownEnemyJewel(jd);
+        }
 
         // Turn off camera to let Vuphoria work in Pictograph Strategy
         visionHelper.disable();
