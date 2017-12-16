@@ -41,7 +41,7 @@ public class CameraTestActivity extends VisionEnabledActivity {
 
         vision = new VisionHelper(this, Camera.CameraInfo.CAMERA_FACING_BACK, 900, 900);
         vision.addExtensions(crop, blur, jewels, rotation, cameraControl, debugOverlay);
-        crop.setBounds(-10.0, 0.0, 50.0, 50.0);
+        crop.setBounds(-10.0, -20.0, 50.0, 25.0);
         blur.setBlurWidth(5);
         rotation.setIsUsingSecondaryCamera(false);
         rotation.disableAutoRotate();

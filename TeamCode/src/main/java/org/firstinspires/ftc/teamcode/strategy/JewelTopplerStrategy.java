@@ -49,7 +49,7 @@ public class JewelTopplerStrategy {
         CameraStatsExtension cameraStats = new CameraStatsExtension();
         visionHelper.addExtensions(crop, blur, jewels, imageRot, cameraControl, cameraStats);
 
-        crop.setBounds(-10, 0, 50, 50);
+        crop.setBounds(-10.0, -20.0, 50.0, 25.0);
         blur.setBlurWidth(5);
         imageRot.disableAutoRotate();
         imageRot.setIsUsingSecondaryCamera(false);
