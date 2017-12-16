@@ -49,7 +49,7 @@ public class JewelTopplerStrategy {
         CameraStatsExtension cameraStats = new CameraStatsExtension();
         visionHelper.addExtensions(crop, blur, jewels, imageRot, cameraControl, cameraStats);
 
-        crop.setBounds(-10.0, -20.0, 50.0, 25.0);
+        crop.setBounds(-10.0, 0.0, 50.0, 50.0);
         blur.setBlurWidth(5);
         imageRot.disableAutoRotate();
         imageRot.setIsUsingSecondaryCamera(false);
@@ -139,8 +139,7 @@ public class JewelTopplerStrategy {
             // Bad Analysis
             if (analysis.getConfidence() < 0.75) {
                 Twigger.getInstance()
-                        .sendOnce("ERROR: Can't Find Jewel In Time");
-                return JewelDirection.UNKNOWN;
+                        .sendOnce("WARN: Confidence unreliable");
             }
 
             Twigger.getInstance()
