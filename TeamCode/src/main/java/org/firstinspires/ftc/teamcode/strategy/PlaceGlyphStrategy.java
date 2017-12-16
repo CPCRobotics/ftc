@@ -44,7 +44,7 @@ public class PlaceGlyphStrategy {
 
     private void moveToCryptoboxColumn(CryptoboxColumn column) throws InterruptedException {
         final double TURN_SPEED = 0.75;
-        final double BSTONE_SPEED = 0.5; // go slower when getting off of the balance stone
+        final double BSTONE_SPEED = 0.70; // go slower when getting off of the balance stone
         // Move to the cryptobox depending on the position
         switch (position) {
             case BLUE_A:

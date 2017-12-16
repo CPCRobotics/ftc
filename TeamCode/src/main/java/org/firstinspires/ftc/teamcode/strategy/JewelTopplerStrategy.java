@@ -188,7 +188,10 @@ public class JewelTopplerStrategy {
 
         tilerunner.longSleep(waitHandler, 250);
         tilerunner.move(waitHandler, 1, 3*direction);
+        Thread.sleep(100);
         tilerunner.move(waitHandler, 1, -3*direction);
+        Thread.sleep(100);
         tilerunner.retractJewelWhacker();
+        Thread.sleep(100);
     }
 }
