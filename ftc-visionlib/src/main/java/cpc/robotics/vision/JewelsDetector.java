@@ -140,16 +140,11 @@ public final class JewelsDetector {
         final double minWidth = scaleFactor * JewelConstants.MIN_DISTANCE;
 
         double whiteToBlue, whiteToRed, center, confidence = 1.0;
-        if (bestWhiteCenter == null) {
-            whiteToBlue = (bestBlueCenter.x - bestRedCenter.x) / 2;
-            whiteToRed = -whiteToBlue;
-            center = bestBlueCenter.x-whiteToBlue;
-            confidence = 0.00;
-        } else {
-            center = bestWhiteCenter.x;
-            whiteToBlue = bestBlueCenter.x - center;
-            whiteToRed = bestRedCenter.x - center;
-        }
+
+        whiteToBlue = (bestBlueCenter.x - bestRedCenter.x) / 2;
+        whiteToRed = -whiteToBlue;
+        center = bestBlueCenter.x-whiteToBlue;
+
         if (Math.abs(whiteToBlue) < minWidth || Math.abs(whiteToRed) < minWidth) {
             confidence = Math.min(confidence, 0.1);
         } else {
