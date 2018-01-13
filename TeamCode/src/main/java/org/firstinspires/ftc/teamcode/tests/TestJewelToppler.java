@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.tests;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.AutonomousOpmode;
 import org.firstinspires.ftc.teamcode.BusyWaitHandler;
 import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.strategy.JewelTopplerStrategy;
@@ -13,16 +14,12 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
  * Tests the Jewel Toppler portion of the Autonomous Mode
  */
 @Autonomous(name="Jewel Toppler Test", group="TestConcept")
-public class TestJewelToppler extends LinearOpMode implements BusyWaitHandler {
+public class TestJewelToppler extends AutonomousOpmode {
+    private JewelTopplerStrategy strategy = new JewelTopplerStrategy(TeamPosition.RED_A, this,
+            hardwareMap.appContext, tilerunner);
+
     @Override
-    public void runOpMode() throws InterruptedException {
-        Tilerunner tilerunner = new Tilerunner();
-        tilerunner.init(hardwareMap, telemetry);
-
-        JewelTopplerStrategy strategy = new JewelTopplerStrategy(TeamPosition.RED_A, this,
-                hardwareMap.appContext, tilerunner);
-
-        waitForStart();
+    protected void startAutonomous() throws InterruptedException {
 
         strategy.toppleEnemyJewel();
     }

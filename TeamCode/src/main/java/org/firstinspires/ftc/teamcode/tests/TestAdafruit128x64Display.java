@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.hardware.AdafruitMono128x64;
  * Displays different symbols on the HD Display to verify it is working
  */
 @Autonomous(name = "Adafruit Mono OLED Display", group = "TestHardware")
-@Disabled
 public class TestAdafruit128x64Display extends LinearOpMode {
 
     AdafruitMono128x64 display;
