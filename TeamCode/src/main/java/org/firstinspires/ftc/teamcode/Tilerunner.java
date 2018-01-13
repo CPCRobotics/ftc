@@ -358,17 +358,17 @@ public class Tilerunner
     /**
      * Moves the robot a specified distance.
      */
-    public void move(BusyWaitHandler waitHandler, double power, double inches) {
+    public void move(BusyWaitHandler waitHandler, double powerMultiplier, double inches) {
         int ticks = (int)(Tilerunner.TICKS_PER_WHEEL_REVOLUTION * inches / Tilerunner.WHEEL_CIRCUMFERENCE_IN);
 
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setTargetPosition( ticks );
         motorPair.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorPair.setPower(power);
+        motorPair.setPower(powerMultiplier);
 
         while (leftMotor.isBusy() && waitHandler.isActive()) {
             double currentPower = calculateSpeed(
-                    motorPair.getTargetPosition() -motorPair.getCurrentPosition(),
+                    Math.abs(motorPair.getTargetPosition() - motorPair.getCurrentPosition()),
                     THRESHOLD_TICKS);
             Twigger.getInstance()
                     .addLine(".move()")
@@ -376,7 +376,7 @@ public class Tilerunner
                     .addData("target", leftMotor.getTargetPosition())
                     .addData("pos", leftMotor.getCurrentPosition());
 
-            motorPair.setPower(currentPower);
+            motorPair.setPower(currentPower * powerMultiplier);
         }
 
         Twigger.getInstance()
