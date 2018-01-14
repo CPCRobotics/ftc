@@ -58,10 +58,10 @@ public class TankDrive extends OpMode {
     private boolean easyModeTriggered = false;
     private ElapsedTime timeSinceEasyModeTriggered = new ElapsedTime();
 
-    private static final double JOYSTICK_THRESHOLD = 0.2;
-
     private long gamepad2Timestamp;
     private ElapsedTime gamepad2Time = new ElapsedTime();
+
+    private final GameControls gameControls = new GameControls(this);
 
 
     private double calculateWheelSpeed(double currentSpeed, double joystickPower) {
@@ -128,7 +128,7 @@ public class TankDrive extends OpMode {
         tilerunner.displayStatus();
 
 
-        if (gamepad1.left_bumper) {
+        if (gameControls.getEasyPutGlyph()) {
             // Easy PUT Glyph
             if (!easyModeTriggered)
                 timeSinceEasyModeTriggered.reset();
@@ -146,7 +146,7 @@ public class TankDrive extends OpMode {
 
 
             tilerunner.ejectGlyph(1);
-        } else if (gamepad1.right_bumper) {
+        } else if (gameControls.getEasyGrabGlyph()) {
             // Easy GRAB glyph
 
             speedLeft = calculateWheelSpeed(speedLeft, .5);
@@ -163,15 +163,15 @@ public class TankDrive extends OpMode {
 
             // Wheels (Gamepad 1 Joystick)
 
-            if (gamepad1.x) {
+            if (gameControls.getTurningLeftButton()) {
                 tilerunner.leftMotor.setPower(-1);
                 tilerunner.rightMotor.setPower(1);
-            } else if (gamepad1.b) {
+            } else if (gameControls.getTurningRightButton()) {
                 tilerunner.leftMotor.setPower(1);
                 tilerunner.rightMotor.setPower(-1);
             } else {
-                speedLeft = calculateWheelSpeed(speedLeft, -gamepad1.left_stick_y);
-                speedRight = calculateWheelSpeed(speedRight, -gamepad1.right_stick_y);
+                speedLeft = calculateWheelSpeed(speedLeft, gameControls.getLeftDrive());
+                speedRight = calculateWheelSpeed(speedRight, gameControls.getRightDrive());
 
                 tilerunner.leftMotor.setPower(speedLeft);
                 tilerunner.rightMotor.setPower(speedRight);
@@ -179,14 +179,10 @@ public class TankDrive extends OpMode {
 
 
             // Claw Motor (Gamepad 1 Triggers)
-            if (gamepad1.left_trigger > JOYSTICK_THRESHOLD) {
-                // put glyph
-                tilerunner.ejectGlyph(gamepad1.left_trigger);
-            } else if (gamepad1.right_trigger > JOYSTICK_THRESHOLD) {
-                // grab glyph
-                tilerunner.grabGlyph(gamepad1.right_trigger);
+            if (gameControls.getGlyphEjectPower() > 0) {
+                tilerunner.ejectGlyph(gameControls.getGlyphEjectPower());
             } else {
-                tilerunner.grabGlyph(0);
+                tilerunner.grabGlyph(gameControls.getGlyphGrabPower());
             }
         }
 
@@ -195,45 +191,29 @@ public class TankDrive extends OpMode {
         }
 
         // Lift (Gamepad 2 Left Joystick)
-        if (Math.abs(gamepad2.left_stick_y) >= JOYSTICK_THRESHOLD)
-            tilerunner.setLiftPower(-calculateLiftSpeed(gamepad2.left_stick_y));
-        else
-            tilerunner.setLiftPower(0);
+        tilerunner.setLiftPower(calculateLiftSpeed(gameControls.getLeftDrive()));
 
         // Easy Lift
         // Wait for gamepad2 to be paired for 2 seconds.
         // Since pairing the gamepad requires pushing the B button,
         // it might interfere with the EasyLift functions.
         if (gamepad2Time.seconds() > 2) {
-            if (gamepad2.dpad_up)
+            if (gameControls.getEasyLiftUp())
                 tilerunner.changeLiftPosition(true);
-            else if (gamepad2.dpad_down)
+            else if (gameControls.getEasyLiftDown())
                 tilerunner.changeLiftPosition(false);
 
-            if (gamepad2.y)
-                tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.HIGHEST);
-            else if (gamepad2.x)
-                tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.HIGHER);
-            else if (gamepad2.b)
-                tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.LOWER);
-            else if (gamepad2.a)
-                tilerunner.changeLiftPosition(Tilerunner.CryptoboxRow.LOWEST);
+            Tilerunner.CryptoboxRow row = gameControls.getEasyLiftPosition();
+            if (row != null)
+                tilerunner.changeLiftPosition(row);
         }
 
 
         // Jewel Whacker (Gamepad 2 Right Joystick)
-        if (Math.abs(gamepad2.right_stick_y) >= JOYSTICK_THRESHOLD) {
-            whackerPosition += WHACKER_CONTROL_SPEED * gamepad2.right_stick_y;
-            whackerPosition = withinRange(0, 1, whackerPosition);
-            tilerunner.jewelWhacker.setPosition(whackerPosition);
-        }
+        whackerPosition += WHACKER_CONTROL_SPEED * gameControls.getJewelWhackerDrive();
+        whackerPosition = withinRange(0, 1, whackerPosition);
+        tilerunner.jewelWhacker.setPosition(whackerPosition);
 
     }
-
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
-    @Override
-    public void stop() {}
 
 }
