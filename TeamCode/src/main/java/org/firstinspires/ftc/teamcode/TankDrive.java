@@ -93,8 +93,9 @@ public class TankDrive extends OpMode {
 
         // Initialize the robot tilerunner object passing it the OpModes hardwareMap.
         tilerunner.init(hardwareMap, telemetry, false);
-
+        whackerPosition = tilerunner.jewelWhacker.getPosition();
     }
+
 
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
@@ -193,7 +194,7 @@ public class TankDrive extends OpMode {
         }
 
         // Lift (Gamepad 2 Left Joystick)
-        tilerunner.setLiftPower(calculateLiftSpeed(gameControls.getLeftDrive()));
+        tilerunner.setLiftPower(calculateLiftSpeed(gameControls.getLiftDrive()));
 
         // Easy Lift
         // Wait for gamepad2 to be paired for 2 seconds.

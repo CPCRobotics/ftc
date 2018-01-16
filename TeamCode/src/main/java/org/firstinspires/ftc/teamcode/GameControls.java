@@ -53,6 +53,8 @@ public class GameControls {
         return -opMode.gamepad1.right_stick_y;
     }
 
+    public double getLiftDrive() { return -opMode.gamepad2.left_stick_y; }
+
     public boolean getEasyLiftUp() {
         return opMode.gamepad2.dpad_up;
     }
