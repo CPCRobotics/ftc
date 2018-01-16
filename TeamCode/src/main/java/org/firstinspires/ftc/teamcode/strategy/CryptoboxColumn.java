@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.hardware.AdafruitGraphix;
  * <p>
  * Enum used for decision making
  */
-enum CryptoboxColumn {
+public enum CryptoboxColumn {
     LEFT {
         @Override
         public void displayPosition(Tilerunner tilerunner) {

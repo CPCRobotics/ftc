@@ -49,7 +49,7 @@ public class JewelTopplerStrategy {
         CameraStatsExtension cameraStats = new CameraStatsExtension();
         visionHelper.addExtensions(crop, blur, jewels, imageRot, cameraControl, cameraStats);
 
-        crop.setBounds(-10, 0, 50, 50);
+        crop.setBounds(-10.0, 0.0, 50.0, 50.0);
         blur.setBlurWidth(5);
         imageRot.disableAutoRotate();
         imageRot.setIsUsingSecondaryCamera(false);
@@ -60,39 +60,6 @@ public class JewelTopplerStrategy {
         cameraControl.setAutoExposureCompensation();
 
         jewels.enableDebug();
-    }
-
-    enum JewelDirection {
-        LEFT(-1) {
-            @Override
-            public void displayStatus(Tilerunner tilerunner) {
-                try (AdafruitGraphix.Draw ignored = tilerunner.graphix.begin(false)) {
-                    tilerunner.graphix.fillRect(0, 2, 4, 4, AdafruitGraphix.GREEN);
-                }
-            }
-        },
-        RIGHT(1) {
-            @Override
-            public void displayStatus(Tilerunner tilerunner) {
-                try (AdafruitGraphix.Draw ignored = tilerunner.graphix.begin(false)) {
-                    tilerunner.graphix.fillRect(4, 2, 4, 4, AdafruitGraphix.GREEN);
-                }
-
-            }
-        },
-        UNKNOWN(0) {
-            @Override
-            public void displayStatus(Tilerunner tilerunner) {
-                tilerunner.displayUnknown();
-            }
-        };
-        int power;
-
-        JewelDirection(int power) {
-            this.power = power;
-        }
-
-        public abstract void displayStatus(Tilerunner tilerunner);
     }
 
     public void toppleEnemyJewel() throws InterruptedException {
@@ -139,8 +106,7 @@ public class JewelTopplerStrategy {
             // Bad Analysis
             if (analysis.getConfidence() < 0.75) {
                 Twigger.getInstance()
-                        .sendOnce("ERROR: Can't Find Jewel In Time");
-                return JewelDirection.UNKNOWN;
+                        .sendOnce("WARN: Confidence unreliable");
             }
 
             Twigger.getInstance()
@@ -188,7 +154,10 @@ public class JewelTopplerStrategy {
 
         tilerunner.longSleep(waitHandler, 250);
         tilerunner.move(waitHandler, 1, 3*direction);
+        Thread.sleep(100);
         tilerunner.move(waitHandler, 1, -3*direction);
+        Thread.sleep(100);
         tilerunner.retractJewelWhacker();
+        Thread.sleep(100);
     }
 }
