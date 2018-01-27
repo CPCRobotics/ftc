@@ -21,8 +21,8 @@ public class PlaceGlyphStrategy {
         this.waitHandler = waitHandler;
     }
 
-    public void placeGlyph(CryptoboxColumn column) throws InterruptedException {
-        moveToCryptoboxColumn(column);
+    public void placeGlyph(CryptoboxColumn column, double offset) throws InterruptedException {
+        moveToCryptoboxColumn(column, offset);
         tilerunner.ejectGlyph(waitHandler, true);
         prepareForTele();
     }
@@ -42,30 +42,30 @@ public class PlaceGlyphStrategy {
         }
     }
 
-    private void moveToCryptoboxColumn(CryptoboxColumn column) throws InterruptedException {
+    private void moveToCryptoboxColumn(CryptoboxColumn column, double offset) throws InterruptedException {
         final double TURN_SPEED = 0.75;
         final double BSTONE_SPEED = 0.70; // go slower when getting off of the balance stone
         // Move to the cryptobox depending on the position
         switch (position) {
             case BLUE_A:
-                tilerunner.move(waitHandler, BSTONE_SPEED, 33.5 + cryptoboxOffset(column));
+                tilerunner.move(waitHandler, BSTONE_SPEED, 33.5 + cryptoboxOffset(column) - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, -90);
                 tilerunner.move(waitHandler, 1, 9);
                 break;
             case RED_A:
-                tilerunner.move(waitHandler, BSTONE_SPEED, -(33.5 - cryptoboxOffset(column)));
+                tilerunner.move(waitHandler, BSTONE_SPEED, -(33.5 - cryptoboxOffset(column)) - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, -90);
                 tilerunner.move(waitHandler, 1, 9);
                 break;
             case BLUE_FAR:
-                tilerunner.move(waitHandler, BSTONE_SPEED, 26);
+                tilerunner.move(waitHandler, BSTONE_SPEED, 26 - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
                 tilerunner.move(waitHandler, 1, 13 + cryptoboxOffset(column));
                 tilerunner.turn(waitHandler, TURN_SPEED, -90);
                 tilerunner.move(waitHandler, 1, 5);
                 break;
             case RED_FAR:
-                tilerunner.move(waitHandler, BSTONE_SPEED, -28);
+                tilerunner.move(waitHandler, BSTONE_SPEED, -28 - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
                 tilerunner.move(waitHandler, 1, 13 - cryptoboxOffset(column));
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);

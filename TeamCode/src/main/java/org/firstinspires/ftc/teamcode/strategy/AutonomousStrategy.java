@@ -33,8 +33,8 @@ public class AutonomousStrategy {
 
     public void start() throws InterruptedException {
         CryptoboxColumn column = new PictographStrategy(waitHandler, tilerunner).readCryptoboxKey();
-        new JewelTopplerStrategy(position, waitHandler, opMode.hardwareMap.appContext, tilerunner).toppleEnemyJewel();
-        new PlaceGlyphStrategy(tilerunner, position, waitHandler).placeGlyph(column);
+        double offset = new JewelTopplerStrategy(position, waitHandler, opMode.hardwareMap.appContext, tilerunner).toppleEnemyJewel();
+        new PlaceGlyphStrategy(tilerunner, position, waitHandler).placeGlyph(column, offset);
     }
 
 }

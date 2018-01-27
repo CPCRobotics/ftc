@@ -58,4 +58,17 @@ public enum CryptoboxColumn {
     }
 
     public abstract void displayPosition(Tilerunner tilerunner);
+
+    public CryptoboxColumn cycleColumn() {
+        switch (this) {
+            case LEFT:
+                return CENTER;
+            case CENTER:
+                return RIGHT;
+            case RIGHT:
+                return UNKNOWN;
+            default:
+                return LEFT;
+        }
+    }
 }

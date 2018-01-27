@@ -62,7 +62,10 @@ public class JewelTopplerStrategy {
         jewels.enableDebug();
     }
 
-    public void toppleEnemyJewel() throws InterruptedException {
+    /**
+     * @return offset
+     */
+    public double toppleEnemyJewel() throws InterruptedException {
 
         JewelDirection jd = JewelDirection.UNKNOWN;
 
@@ -76,18 +79,20 @@ public class JewelTopplerStrategy {
         jd.displayStatus(tilerunner);
 
 
-
+        double offset = 0;
         if (jd == JewelDirection.UNKNOWN) {
             Twigger.getInstance()
                     .sendOnce("Can't locate enemy jewel");
         } else {
             Twigger.getInstance()
                     .sendOnce("Enemy jewel detected: " + jd.name());
-            takeDownEnemyJewel(jd);
+            offset = takeDownEnemyJewel(jd);
         }
 
         // Turn off camera to let Vuphoria work in Pictograph Strategy
         visionHelper.disable();
+
+        return offset;
     }
 
     private JewelDirection locateEnemyJewel() throws InterruptedException {
@@ -138,8 +143,9 @@ public class JewelTopplerStrategy {
         throw new InterruptedException();
     }
 
-    private void takeDownEnemyJewel(@NonNull JewelDirection jd) throws InterruptedException {
+    private double takeDownEnemyJewel(@NonNull JewelDirection jd) throws InterruptedException {
         tilerunner.activateJewelWhacker(waitHandler);
+        final double TOPPLE_DISTANCE = 3;
 
         double direction;
         switch (jd) {
@@ -153,11 +159,12 @@ public class JewelTopplerStrategy {
         }
 
         tilerunner.longSleep(waitHandler, 250);
-        tilerunner.move(waitHandler, 1, 3*direction);
+        tilerunner.move(waitHandler, 1, TOPPLE_DISTANCE*direction);
         Thread.sleep(100);
-        tilerunner.move(waitHandler, 1, -3*direction);
         Thread.sleep(100);
         tilerunner.retractJewelWhacker();
         Thread.sleep(100);
+
+        return direction*TOPPLE_DISTANCE;
     }
 }

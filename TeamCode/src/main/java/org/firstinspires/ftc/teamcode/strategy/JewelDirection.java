@@ -34,4 +34,15 @@ public enum JewelDirection {
     }
 
     public abstract void displayStatus(Tilerunner tilerunner);
+
+    public JewelDirection cycleDirection() {
+        switch (this) {
+            case LEFT:
+                return RIGHT;
+            case RIGHT:
+                return UNKNOWN;
+            default:
+                return LEFT;
+        }
+    }
 }

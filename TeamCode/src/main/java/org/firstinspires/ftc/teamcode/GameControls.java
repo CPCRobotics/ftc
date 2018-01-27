@@ -9,6 +9,11 @@ public class GameControls {
     private final OpMode opMode;
     private static final double TRIGGER_THRESHOLD = 0.2;
 
+    // Judging depress keys
+    private boolean toggleDisplayDepressed = false;
+    private boolean cycleColumnDepressed = false;
+    private boolean cycleJewelDepressed = false;
+
     public GameControls(OpMode opMode) {
         this.opMode = opMode;
     }
@@ -81,6 +86,39 @@ public class GameControls {
             return opMode.gamepad2.right_stick_y;
         } else {
             return 0;
+        }
+    }
+
+    public boolean getToggleDisplay() {
+        if (opMode.gamepad1.dpad_up) {
+            return !toggleDisplayDepressed && (toggleDisplayDepressed = true);
+        } else {
+            if (toggleDisplayDepressed)
+                toggleDisplayDepressed = false;
+
+            return false;
+        }
+    }
+
+    public boolean getCycleColumn() {
+        if (opMode.gamepad1.dpad_left) {
+            return !cycleColumnDepressed && (cycleColumnDepressed = true);
+        } else {
+            if (cycleColumnDepressed)
+                cycleColumnDepressed = false;
+
+            return false;
+        }
+    }
+
+    public boolean getCycleJewel() {
+        if (opMode.gamepad1.dpad_right) {
+            return !cycleJewelDepressed && (cycleJewelDepressed = true);
+        } else {
+            if (cycleJewelDepressed)
+                cycleJewelDepressed = false;
+
+            return false;
         }
     }
 }
