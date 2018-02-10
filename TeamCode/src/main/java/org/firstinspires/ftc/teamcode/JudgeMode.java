@@ -40,17 +40,26 @@ public class JudgeMode extends OpMode {
     public void loop() {
         Twigger.getInstance().update();
 
+        boolean previewChanged = false;
         // 8x8 Display & Previews
-        if (gameControls.getToggleDisplay())
+        if (gameControls.getToggleDisplay()) {
             liveDisplay = !liveDisplay;
-        if (gameControls.getCycleColumn())
+            previewChanged = true;
+        }
+
+        if (gameControls.getCycleColumn()) {
             previewCryptoboxColumn = previewCryptoboxColumn.cycleColumn();
-        if (gameControls.getCycleJewel())
+            previewChanged = true;
+        }
+
+        if (gameControls.getCycleJewel()) {
             previewJewelDirection = previewJewelDirection.cycleDirection();
+            previewChanged = true;
+        }
 
         if (liveDisplay) {
             tilerunner.displayStatus();
-        } else {
+        } else if (previewChanged) {
             previewCryptoboxColumn.displayPosition(tilerunner);
             previewJewelDirection.displayStatus(tilerunner);
         }
