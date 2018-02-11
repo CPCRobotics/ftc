@@ -1,12 +1,19 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 /**
  * Centralize game controls in one class
  */
 public class GameControls {
+    enum GameMode {
+        COMPETITION,
+        JUDGING;
+    }
+
     private final OpMode opMode;
+    private final GameMode gameMode;
     private static final double TRIGGER_THRESHOLD = 0.2;
 
     // Judging depress keys
@@ -14,8 +21,13 @@ public class GameControls {
     private boolean cycleColumnDepressed = false;
     private boolean cycleJewelDepressed = false;
 
-    public GameControls(OpMode opMode) {
+    public GameControls(OpMode opMode, GameMode gameMode) {
+        this.gameMode = gameMode;
         this.opMode = opMode;
+    }
+
+    public GameControls(OpMode opMode) {
+        this(opMode, GameMode.COMPETITION);
     }
 
     public boolean getEasyPutGlyph() {
@@ -58,7 +70,13 @@ public class GameControls {
         return -opMode.gamepad1.right_stick_y;
     }
 
-    public double getLiftDrive() { return -opMode.gamepad2.left_stick_y; }
+    public double getLiftDrive() {
+        if (gameMode == GameMode.COMPETITION) {
+            return -opMode.gamepad2.left_stick_y;
+        } else {
+            return -opMode.gamepad1.left_stick_y;
+        }
+    }
 
     public boolean getEasyLiftUp() {
         return opMode.gamepad2.dpad_up;
@@ -82,8 +100,11 @@ public class GameControls {
     }
 
     public double getJewelWhackerDrive() {
-        if (Math.abs(opMode.gamepad2.right_stick_y) >= TRIGGER_THRESHOLD) {
-            return opMode.gamepad2.right_stick_y;
+        // Gamepad 2 on Competition; Gamepad 1 on Judging
+        Gamepad gamepad = gameMode == GameMode.COMPETITION ? opMode.gamepad2 : opMode.gamepad1;
+
+        if (Math.abs(gamepad.right_stick_y) >= TRIGGER_THRESHOLD) {
+            return gamepad.right_stick_y;
         } else {
             return 0;
         }
@@ -93,10 +114,7 @@ public class GameControls {
         if (opMode.gamepad1.dpad_up) {
             return !toggleDisplayDepressed && (toggleDisplayDepressed = true);
         } else {
-            if (toggleDisplayDepressed)
-                toggleDisplayDepressed = false;
-
-            return false;
+            return (toggleDisplayDepressed = false);
         }
     }
 
@@ -104,10 +122,7 @@ public class GameControls {
         if (opMode.gamepad1.dpad_left) {
             return !cycleColumnDepressed && (cycleColumnDepressed = true);
         } else {
-            if (cycleColumnDepressed)
-                cycleColumnDepressed = false;
-
-            return false;
+            return (cycleColumnDepressed = false);
         }
     }
 
@@ -115,10 +130,8 @@ public class GameControls {
         if (opMode.gamepad1.dpad_right) {
             return !cycleJewelDepressed && (cycleJewelDepressed = true);
         } else {
-            if (cycleJewelDepressed)
-                cycleJewelDepressed = false;
-
-            return false;
+            return (cycleJewelDepressed = false);
         }
     }
+
 }

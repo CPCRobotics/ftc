@@ -13,7 +13,8 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
 @TeleOp(name="Judge Mode", group="Judge")
 public class JudgeMode extends OpMode {
 
-    private final GameControls gameControls = new GameControls(this);
+    private final GameControls gameControls = new GameControls(this,
+            GameControls.GameMode.JUDGING);
 
     private Tilerunner tilerunner = new Tilerunner();
     private double whackerPosition = 0;
@@ -26,6 +27,7 @@ public class JudgeMode extends OpMode {
     @Override
     public void init() {
         tilerunner.init(hardwareMap, telemetry, true);
+        whackerPosition = tilerunner.jewelWhacker.getPosition();
     }
 
     private double calculateLiftSpeed(double joystickPower) {
@@ -48,11 +50,13 @@ public class JudgeMode extends OpMode {
         }
 
         if (gameControls.getCycleColumn()) {
+            liveDisplay = false;
             previewCryptoboxColumn = previewCryptoboxColumn.cycleColumn();
             previewChanged = true;
         }
 
         if (gameControls.getCycleJewel()) {
+            liveDisplay = false;
             previewJewelDirection = previewJewelDirection.cycleDirection();
             previewChanged = true;
         }
@@ -71,23 +75,8 @@ public class JudgeMode extends OpMode {
             tilerunner.grabGlyph(gameControls.getGlyphGrabPower());
         }
 
-
         // Lift (Gamepad 2 Left Joystick)
         tilerunner.setLiftPower(calculateLiftSpeed(gameControls.getLiftDrive()));
-
-        // Easy Lift
-        // Wait for gamepad2 to be paired for 2 seconds.
-        // Since pairing the gamepad requires pushing the B button,
-        // it might interfere with the EasyLift functions.
-            if (gameControls.getEasyLiftUp())
-                tilerunner.changeLiftPosition(true);
-            else if (gameControls.getEasyLiftDown())
-                tilerunner.changeLiftPosition(false);
-
-            Tilerunner.CryptoboxRow row = gameControls.getEasyLiftPosition();
-            if (row != null)
-                tilerunner.changeLiftPosition(row);
-
 
         // Jewel Whacker (Gamepad 2 Right Joystick)
         whackerPosition += WHACKER_CONTROL_SPEED * gameControls.getJewelWhackerDrive();

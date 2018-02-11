@@ -44,10 +44,8 @@ import java.util.Arrays;
  * Motor channel:  Right drive motor:       "right_drive"
  *
  */
-public class Tilerunner
-{
-
-    public static final String ROBOT_VERSION = "0.0.6";
+public class Tilerunner {
+    public static final String ROBOT_VERSION = "0.0.7";
 
     // Hardware
     private static final int TICKS_PER_WHEEL_REVOLUTION = 1120;
