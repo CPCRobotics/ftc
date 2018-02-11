@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.tests;
+package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -8,11 +8,11 @@ import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
- * Makes the robot turn to the right and left 180°. Verifies that the IMU and Tilerunner is working
- * well.
+ * Brings the lift down and resets the encoder.
  */
-@Autonomous(name="Test Turn", group="TestConcept")
-public class TestOpmodeTurn extends LinearOpMode implements BusyWaitHandler {
+@Autonomous(name="Reset Lift", group="Competition")
+public class ResetLift extends LinearOpMode implements BusyWaitHandler {
+
     @Override
     public void runOpMode() throws InterruptedException {
         Tilerunner tilerunner = new Tilerunner();
@@ -20,12 +20,7 @@ public class TestOpmodeTurn extends LinearOpMode implements BusyWaitHandler {
 
         waitForStart();
 
-        while (opModeIsActive()) {
-            tilerunner.turn(this, 1, 180);
-            Thread.sleep(500);
-            tilerunner.turn(this, -1, 180);
-            Thread.sleep(500);
-        }
+        tilerunner.zeroLift(this);
     }
 
     @Override

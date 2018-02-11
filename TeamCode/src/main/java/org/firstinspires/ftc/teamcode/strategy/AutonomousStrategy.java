@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.strategy;
 
-import android.content.Context;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.BusyWaitHandler;
-import org.firstinspires.ftc.teamcode.EyesightUtil;
+import org.firstinspires.ftc.teamcode.util.BusyWaitHandler;
+import org.firstinspires.ftc.teamcode.util.EyesightUtil;
 import org.firstinspires.ftc.teamcode.Tilerunner;
 
 /**

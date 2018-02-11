@@ -1,22 +1,24 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.util.BusyWaitHandler;
 import org.firstinspires.ftc.teamcode.strategy.AutonomousStrategy;
 import org.firstinspires.ftc.teamcode.strategy.TeamPosition;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
- * Created by samuel on 10/27/17.
+ * Created by samuel on 10/14/17.
  */
 
-@Autonomous(name="Auto Red Audience", group="Competition")
-public class AutoRedAudience extends LinearOpMode implements BusyWaitHandler {
+@Autonomous(name="Auto Blue Audience", group="Competition")
+public class AutoBlueAudience extends LinearOpMode implements BusyWaitHandler {
+
     @Override
     public void runOpMode() throws InterruptedException {
-        AutonomousStrategy strategy = new AutonomousStrategy(TeamPosition.RED_A, this,
-                this);
+        AutonomousStrategy strategy = new AutonomousStrategy(TeamPosition.BLUE_A,
+                this, this);
 
         waitForStart();
 

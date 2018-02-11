@@ -1,26 +1,27 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.util.BusyWaitHandler;
 import org.firstinspires.ftc.teamcode.strategy.AutonomousStrategy;
 import org.firstinspires.ftc.teamcode.strategy.TeamPosition;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
- * Brings the lift down and resets the encoder.
+ * Created by samuel on 10/27/17.
  */
-@Autonomous(name="Reset Lift", group="Competition")
-public class ResetLift extends LinearOpMode implements BusyWaitHandler {
 
+@Autonomous(name="Auto Red Far", group="Competition")
+public class AutoRedFar extends LinearOpMode implements BusyWaitHandler {
     @Override
     public void runOpMode() throws InterruptedException {
-        Tilerunner tilerunner = new Tilerunner();
-        tilerunner.init(hardwareMap, telemetry);
+        AutonomousStrategy strategy = new AutonomousStrategy(TeamPosition.RED_FAR, this,
+                this);
 
         waitForStart();
 
-        tilerunner.zeroLift(this);
+        strategy.start();
     }
 
     @Override

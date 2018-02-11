@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.strategy;
 
-import org.firstinspires.ftc.teamcode.BusyWaitHandler;
+import org.firstinspires.ftc.teamcode.util.BusyWaitHandler;
 import org.firstinspires.ftc.teamcode.Tilerunner;
 
 /**

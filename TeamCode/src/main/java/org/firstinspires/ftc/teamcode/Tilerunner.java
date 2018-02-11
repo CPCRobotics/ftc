@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,13 +20,15 @@ import org.firstinspires.ftc.teamcode.hardware.AdafruitADPS9960;
 import org.firstinspires.ftc.teamcode.hardware.AdafruitBiColorMatrix;
 import org.firstinspires.ftc.teamcode.hardware.AdafruitGraphix;
 import org.firstinspires.ftc.teamcode.hardware.ProximitySensor;
-import org.firstinspires.ftc.teamcode.nulls.NullBNO055IMU;
-import org.firstinspires.ftc.teamcode.nulls.NullDcMotor;
-import org.firstinspires.ftc.teamcode.nulls.NullDigitalChannel;
-import org.firstinspires.ftc.teamcode.nulls.NullGraphix;
-import org.firstinspires.ftc.teamcode.nulls.NullProximitySensor;
-import org.firstinspires.ftc.teamcode.nulls.NullServo;
+import org.firstinspires.ftc.teamcode.util.DCMotorGroup;
+import org.firstinspires.ftc.teamcode.util.nulls.NullBNO055IMU;
+import org.firstinspires.ftc.teamcode.util.nulls.NullDcMotor;
+import org.firstinspires.ftc.teamcode.util.nulls.NullDigitalChannel;
+import org.firstinspires.ftc.teamcode.util.nulls.NullGraphix;
+import org.firstinspires.ftc.teamcode.util.nulls.NullProximitySensor;
+import org.firstinspires.ftc.teamcode.util.nulls.NullServo;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
+import org.firstinspires.ftc.teamcode.util.BusyWaitHandler;
 
 import java.io.File;
 import java.util.Arrays;
@@ -90,7 +91,7 @@ public class Tilerunner {
     private boolean usingEasyLift = false;
 
     private Double currentPosition = null;
-    Servo jewelWhacker;
+    public Servo jewelWhacker;
     public Servo kicker = new NullServo();
 
     BNO055IMU imu;

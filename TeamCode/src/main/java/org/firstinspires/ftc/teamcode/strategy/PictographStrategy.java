@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.strategy;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
-import org.firstinspires.ftc.teamcode.BusyWaitHandler;
-import org.firstinspires.ftc.teamcode.EyesightUtil;
+import org.firstinspires.ftc.teamcode.util.BusyWaitHandler;
+import org.firstinspires.ftc.teamcode.util.EyesightUtil;
 import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 

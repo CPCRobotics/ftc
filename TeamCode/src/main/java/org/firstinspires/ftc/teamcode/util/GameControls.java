@@ -1,13 +1,15 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.util;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
+
+import org.firstinspires.ftc.teamcode.Tilerunner;
 
 /**
  * Centralize game controls in one class
  */
 public class GameControls {
-    enum GameMode {
+    public enum GameMode {
         COMPETITION,
         JUDGING;
     }
