@@ -46,7 +46,7 @@ import java.util.Arrays;
  *
  */
 public class Tilerunner {
-    public static final String ROBOT_VERSION = "0.0.8";
+    public static final String ROBOT_VERSION = "0.0.8-1";
 
     // Hardware
     private static final int TICKS_PER_WHEEL_REVOLUTION = 1120;
@@ -224,10 +224,13 @@ public class Tilerunner {
 
 
         kicker = getHardware(Servo.class, hardwareMap, "kicker", new NullServo());
-        primeKicker();
+        if (loadAutonomousHardware)
+            primeKicker();
 
         jewelWhacker = getHardware(Servo.class, hardwareMap, "whacker", new NullServo());
-        retractJewelWhacker();
+
+        if (loadAutonomousHardware)
+            retractJewelWhacker();
 
         try {
             initLift(hardwareMap);
