@@ -8,6 +8,9 @@ import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.strategy.CryptoboxColumn;
 import org.firstinspires.ftc.teamcode.strategy.JewelDirection;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
+import org.firstinspires.ftc.teamcode.util.ListCyclicalIterator;
+
+import java.util.Arrays;
 
 /**
  * Judge mode for evaluating the features of the robot
@@ -23,8 +26,28 @@ public class JudgeMode extends OpMode {
     private static final double WHACKER_CONTROL_SPEED = 0.05;
 
     private boolean liveDisplay = false;
-    private JewelDirection previewJewelDirection = JewelDirection.LEFT;
-    private CryptoboxColumn previewCryptoboxColumn = CryptoboxColumn.LEFT;
+
+    private class DisplayPreview {
+        private final JewelDirection direction;
+        private final CryptoboxColumn column;
+
+        DisplayPreview(JewelDirection direction, CryptoboxColumn column) {
+            this.direction = direction;
+            this.column = column;
+        }
+
+        void preview() {
+            column.displayPosition(tilerunner);
+            direction.displayStatus(tilerunner);
+        }
+    }
+
+    private ListCyclicalIterator<DisplayPreview> previews
+            = new ListCyclicalIterator<>(Arrays.asList(
+            new DisplayPreview(JewelDirection.LEFT, CryptoboxColumn.CENTER),
+            new DisplayPreview(JewelDirection.RIGHT, CryptoboxColumn.RIGHT),
+            new DisplayPreview(JewelDirection.UNKNOWN, CryptoboxColumn.UNKNOWN)
+    ));
 
     @Override
     public void init() {
@@ -44,31 +67,25 @@ public class JudgeMode extends OpMode {
     public void loop() {
         Twigger.getInstance().update();
 
-        boolean previewChanged = false;
         // 8x8 Display & Previews
         if (gameControls.getToggleDisplay()) {
             liveDisplay = !liveDisplay;
-            previewChanged = true;
+            if (!liveDisplay)
+                previews.current().preview();
         }
 
-        if (gameControls.getCycleColumn()) {
+        if (gameControls.getCyclePrev()) {
             liveDisplay = false;
-            previewCryptoboxColumn = previewCryptoboxColumn.cycleColumn();
-            previewChanged = true;
+            previews.prev().preview();
         }
 
-        if (gameControls.getCycleJewel()) {
+        if (gameControls.getCycleNext()) {
             liveDisplay = false;
-            previewJewelDirection = previewJewelDirection.cycleDirection();
-            previewChanged = true;
+            previews.next().preview();
         }
 
-        if (liveDisplay) {
+        if (liveDisplay)
             tilerunner.displayStatus();
-        } else if (previewChanged) {
-            previewCryptoboxColumn.displayPosition(tilerunner);
-            previewJewelDirection.displayStatus(tilerunner);
-        }
 
         // Claw Motor (Gamepad 1 Triggers)
         if (gameControls.getGlyphEjectPower() > 0) {

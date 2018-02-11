@@ -120,7 +120,7 @@ public class GameControls {
         }
     }
 
-    public boolean getCycleColumn() {
+    public boolean getCyclePrev() {
         if (opMode.gamepad1.dpad_left) {
             return !cycleColumnDepressed && (cycleColumnDepressed = true);
         } else {
@@ -128,7 +128,7 @@ public class GameControls {
         }
     }
 
-    public boolean getCycleJewel() {
+    public boolean getCycleNext() {
         if (opMode.gamepad1.dpad_right) {
             return !cycleJewelDepressed && (cycleJewelDepressed = true);
         } else {
