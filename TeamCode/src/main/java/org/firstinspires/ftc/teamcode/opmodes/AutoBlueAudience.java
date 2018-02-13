@@ -9,9 +9,8 @@ import org.firstinspires.ftc.teamcode.strategy.TeamPosition;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
- * Created by samuel on 10/14/17.
+ * Autonomous Op-mode for Blue Alliance, side near audience
  */
-
 @Autonomous(name="Auto Blue Audience", group="Competition")
 public class AutoBlueAudience extends LinearOpMode implements BusyWaitHandler {
 

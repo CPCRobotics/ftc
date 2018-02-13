@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.AutonomousOpmode;
+import org.firstinspires.ftc.teamcode.opmodes.AutonomousOpmode;
 
 /**
  * Checks to see if moving forward and backward behave as expected

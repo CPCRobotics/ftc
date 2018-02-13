@@ -9,9 +9,8 @@ import org.firstinspires.ftc.teamcode.strategy.TeamPosition;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
- * Created by samuel on 10/27/17.
+ * Autonomous op-mode for Red alliance, side near audience
  */
-
 @Autonomous(name="Auto Red Audience", group="Competition")
 public class AutoRedAudience extends LinearOpMode implements BusyWaitHandler {
     @Override

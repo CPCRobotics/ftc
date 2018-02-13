@@ -51,15 +51,13 @@ public class TankDrive extends OpMode {
     private Tilerunner tilerunner = new Tilerunner();
 
     private double whackerPosition = 0;
-    public static final double WHACKER_CONTROL_SPEED = 0.05;
+    private static final double WHACKER_CONTROL_SPEED = 0.05;
 
     private double speedLeft = 0;
     private double speedRight = 0;
 
     private boolean easyModeTriggered = false;
     private ElapsedTime timeSinceEasyModeTriggered = new ElapsedTime();
-
-    public static final double JOYSTICK_THRESHOLD = 0.2;
 
     private long gamepad2Timestamp;
     private ElapsedTime gamepad2Time = new ElapsedTime();
@@ -78,11 +76,11 @@ public class TankDrive extends OpMode {
         return (targetPower - currentSpeed) / SPEED_GAIN + currentSpeed;
     }
 
-    public static double calculateLiftSpeed(double joystickPower) {
+    private static double calculateLiftSpeed(double joystickPower) {
         return (joystickPower * joystickPower) * Math.signum(joystickPower);
     }
 
-    public static double withinRange(double min, double max, double x) {
+    private static double withinRange(double min, double max, double x) {
         return Math.min(max, Math.max(min, x));
     }
 

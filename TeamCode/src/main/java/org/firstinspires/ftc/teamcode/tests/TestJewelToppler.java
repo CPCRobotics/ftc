@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.AutonomousOpmode;
+import org.firstinspires.ftc.teamcode.opmodes.AutonomousOpmode;
 import org.firstinspires.ftc.teamcode.strategy.JewelTopplerStrategy;
 import org.firstinspires.ftc.teamcode.strategy.TeamPosition;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;

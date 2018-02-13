@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.strategy.TeamPosition;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
- * Created by samuel on 10/27/17.
+ * Autonomous op-mode for Blue alliance, side away from audience
  */
 @Autonomous(name="Auto Blue Far", group="Competition")
 public class AutoBlueFar extends LinearOpMode implements BusyWaitHandler {

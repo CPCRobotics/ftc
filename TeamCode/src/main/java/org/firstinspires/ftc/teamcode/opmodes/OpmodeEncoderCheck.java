@@ -9,12 +9,14 @@ import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
- * Created by samuel on 10/21/17.
+ * Ensures the encoders are in working order.
+ *
+ * The encoders are occasionally wired in reverse, which completely breaks the Autonomous period.
  */
 @Autonomous(name="Encoder Checker")
 public class OpmodeEncoderCheck extends LinearOpMode {
-    Tilerunner tilerunner = new Tilerunner();
-    String mode = "STOPPED";
+    private Tilerunner tilerunner = new Tilerunner();
+    private String mode = "STOPPED";
 
     @Override
     public void runOpMode() throws InterruptedException {
