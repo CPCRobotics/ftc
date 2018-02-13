@@ -13,12 +13,10 @@ import org.firstinspires.ftc.teamcode.hardware.AdafruitADPS9960;
 @Autonomous(name = "Adafruit range sensor", group = "TestHardware")
 public class TestAdafruitRangeSensor extends LinearOpMode {
 
-    private AdafruitADPS9960 rangeSensor;
-
     @Override public void runOpMode() {
 
         // get a reference to our compass
-        rangeSensor = hardwareMap.get(AdafruitADPS9960.class, "range");
+        AdafruitADPS9960 rangeSensor = hardwareMap.get(AdafruitADPS9960.class, "range");
 
         // wait for the start button to be pressed
         waitForStart();

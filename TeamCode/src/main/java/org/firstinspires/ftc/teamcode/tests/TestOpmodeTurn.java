@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.util.BusyWaitHandler;
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
  * well.
  */
 @Autonomous(name="Test Turn", group="TestConcept")
+@Disabled
 public class TestOpmodeTurn extends LinearOpMode implements BusyWaitHandler {
     @Override
     public void runOpMode() throws InterruptedException {

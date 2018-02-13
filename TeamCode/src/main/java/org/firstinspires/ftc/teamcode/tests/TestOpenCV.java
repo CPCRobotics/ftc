@@ -25,13 +25,13 @@ import cpc.robotics.vision.VisionHelper;
 public class TestOpenCV extends LinearOpMode {
 
     //Frame counter
-    protected final BlurExtension blur = new BlurExtension();
-    protected final JewelsExtension jewels = new JewelsExtension();
-    protected final ImageRotationExtension rotation = new ImageRotationExtension();
-    protected final CameraControlExtension cameraControl = new CameraControlExtension();
-    protected final CameraStatsExtension cameraStats = new CameraStatsExtension();
+    private final BlurExtension blur = new BlurExtension();
+    private final JewelsExtension jewels = new JewelsExtension();
+    private final ImageRotationExtension rotation = new ImageRotationExtension();
+    private final CameraControlExtension cameraControl = new CameraControlExtension();
+    private final CameraStatsExtension cameraStats = new CameraStatsExtension();
 
-    protected VisionHelper openCvBlock(VisionExtension detection) {
+    private VisionHelper openCvBlock(VisionExtension detection) {
         VisionHelper vision = new VisionHelper(hardwareMap.appContext, Camera.CameraInfo.CAMERA_FACING_BACK, 500, 500);
         vision.addExtensions(blur);
         vision.addExtensions(detection);

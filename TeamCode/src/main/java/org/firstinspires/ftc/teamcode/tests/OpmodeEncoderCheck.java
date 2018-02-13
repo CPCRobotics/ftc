@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
  * The encoders are occasionally wired in reverse, which completely breaks the Autonomous period.
  */
 @Autonomous(name="Encoder Checker")
+@Disabled
 public class OpmodeEncoderCheck extends LinearOpMode {
     private Tilerunner tilerunner = new Tilerunner();
     private String mode = "STOPPED";
