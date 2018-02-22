@@ -12,6 +12,7 @@ public class ListCyclicalIterator<T> implements CyclicalIterator<T> {
 
     @Override
     public T current() {
+        index = index % items.size();
         return items.get(index);
     }
 
