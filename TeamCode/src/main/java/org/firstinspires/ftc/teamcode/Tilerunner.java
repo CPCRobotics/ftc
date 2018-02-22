@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.hardware.AdafruitBiColorMatrix;
 import org.firstinspires.ftc.teamcode.hardware.AdafruitGraphix;
 import org.firstinspires.ftc.teamcode.hardware.ProximitySensor;
 import org.firstinspires.ftc.teamcode.util.DCMotorGroup;
+import org.firstinspires.ftc.teamcode.util.ServoGroup;
 import org.firstinspires.ftc.teamcode.util.nulls.NullBNO055IMU;
 import org.firstinspires.ftc.teamcode.util.nulls.NullDcMotor;
 import org.firstinspires.ftc.teamcode.util.nulls.NullDigitalChannel;
@@ -46,7 +47,7 @@ import java.util.Arrays;
  *
  */
 public class Tilerunner {
-    public static final String ROBOT_VERSION = "0.0.8-1";
+    private static final String ROBOT_VERSION = "0.0.8-1";
 
     // Hardware
     private static final int TICKS_PER_WHEEL_REVOLUTION = 1120;
@@ -62,12 +63,12 @@ public class Tilerunner {
 
     private static final double HOLDING_GLYPH_DIST_MM = 10;
 
-    public static final int LIFT_MOTOR_MIN = 10;
-    public static final int LIFT_MOTOR_MAX = 3300; // True max: 3320
-    public static final boolean INVERTED_LIFT_SENSOR = true;
-    public static final int LIFT_LOW_POSITION = 200;
+    private static final int LIFT_MOTOR_MIN = 10;
+    private static final int LIFT_MOTOR_MAX = 3300; // True max: 3320
+    private static final boolean INVERTED_LIFT_SENSOR = true;
+    private static final int LIFT_LOW_POSITION = 200;
 
-    public static final int NEAR_LIFT_POSITION_THRESHOLD = 150;
+    private static final int NEAR_LIFT_POSITION_THRESHOLD = 150;
 
     private static final double ZERO_LIFT_POWER = 0.25;
 
@@ -81,10 +82,13 @@ public class Tilerunner {
     public DcMotor rightMotor;
     public DcMotor motorPair;
 
-    public DcMotor  clawMotor;
-    public DcMotor liftMotor;
-    public DigitalChannel liftSensorLow;
-    public DigitalChannel liftSensorHigh;
+    private DcMotor clawMotor;
+    private DcMotor liftMotor;
+    private DigitalChannel liftSensorLow;
+    private DigitalChannel liftSensorHigh;
+
+    // Aligns the glyph in the 4th row to prevent it from toppling
+    private Servo glyphAligner;
 
     public AdafruitGraphix graphix;
 
@@ -92,10 +96,10 @@ public class Tilerunner {
 
     private Double currentPosition = null;
     public Servo jewelWhacker;
-    public Servo kicker = new NullServo();
+    private Servo kicker = new NullServo();
 
-    BNO055IMU imu;
-    public ProximitySensor proximitySensor;
+    private BNO055IMU imu;
+    private ProximitySensor proximitySensor;
 
     public enum CryptoboxRow {
         LOWEST(LIFT_MOTOR_MIN),
@@ -173,7 +177,7 @@ public class Tilerunner {
         return motor;
     }
 
-    public<T> T getHardware(Class<? extends T> classObj, HardwareMap hardwareMap, String deviceName,
+    private<T> T getHardware(Class<? extends T> classObj, HardwareMap hardwareMap, String deviceName,
                             @NonNull T nullObject) {
         try {
             return hardwareMap.get(classObj, deviceName);
@@ -281,6 +285,16 @@ public class Tilerunner {
 
         proximitySensor = getHardware(AdafruitADPS9960.class, hardwareMap, "range",
                 new NullProximitySensor());
+
+        // glyphAligner
+        if (!loadAutonomousHardware) {
+            Servo alignerLeft = getHardware(Servo.class, hardwareMap, "alignL",
+                    new NullServo());
+            Servo alignerRight = getHardware(Servo.class, hardwareMap, "alignR",
+                    new NullServo());
+
+            glyphAligner = new ServoGroup(alignerLeft, alignerRight);
+        }
 
 
         Twigger.getInstance()
@@ -395,6 +409,10 @@ public class Tilerunner {
 
     /**
      * Rotates the robot at a specified angle.
+     *
+     * WARNING: Here be dragons! This is the result of over two weeks of debugging
+     * and a tired developer that's too afraid to change it any more, lets it breaks
+     * again.
      */
     public void turn(BusyWaitHandler waitHandler, double power, double angle)
             throws InterruptedException {
@@ -591,6 +609,14 @@ public class Tilerunner {
 
     public void launchKicker() {
         kicker.setPosition(0);
+    }
+
+    public void releaseAligner() {
+        glyphAligner.setPosition(0);
+    }
+
+    public void armAligner() {
+        glyphAligner.setPosition(1);
     }
 
     public boolean isHoldingGlyph() {
