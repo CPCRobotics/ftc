@@ -88,19 +88,6 @@ public class GameControls {
         return opMode.gamepad2.dpad_down;
     }
 
-    public Tilerunner.CryptoboxRow getEasyLiftPosition() {
-        if (opMode.gamepad2.y)
-            return Tilerunner.CryptoboxRow.HIGHEST;
-        else if (opMode.gamepad2.x)
-            return Tilerunner.CryptoboxRow.HIGHER;
-        else if (opMode.gamepad2.b)
-            return Tilerunner.CryptoboxRow.LOWER;
-        else if (opMode.gamepad2.a)
-            return Tilerunner.CryptoboxRow.LOWEST;
-        else
-            return null;
-    }
-
     public double getJewelWhackerDrive() {
         // Gamepad 2 on Competition; Gamepad 1 on Judging
         Gamepad gamepad = gameMode == GameMode.COMPETITION ? opMode.gamepad2 : opMode.gamepad1;
@@ -110,6 +97,14 @@ public class GameControls {
         } else {
             return 0;
         }
+    }
+
+    public boolean getArmAligner() {
+        return opMode.gamepad2.a;
+    }
+
+    public boolean getReleaseAligner() {
+        return opMode.gamepad2.y;
     }
 
     public boolean getToggleDisplay() {

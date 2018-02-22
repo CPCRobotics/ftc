@@ -205,9 +205,10 @@ public class TankDrive extends OpMode {
             else if (gameControls.getEasyLiftDown())
                 tilerunner.changeLiftPosition(false);
 
-            Tilerunner.CryptoboxRow row = gameControls.getEasyLiftPosition();
-            if (row != null)
-                tilerunner.changeLiftPosition(row);
+            if (gameControls.getArmAligner())
+                tilerunner.armAligner();
+            else if (gameControls.getReleaseAligner())
+                tilerunner.releaseAligner();
         }
 
 
