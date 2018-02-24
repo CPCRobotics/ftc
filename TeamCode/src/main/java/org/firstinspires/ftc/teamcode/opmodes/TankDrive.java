@@ -188,9 +188,9 @@ public class TankDrive extends OpMode {
                 tilerunner.changeLiftPosition(false);
 
             if (gameControls.getArmAligner())
-                tilerunner.armAligner();
+                tilerunner.setHolderUp();
             else if (gameControls.getReleaseAligner())
-                tilerunner.releaseAligner();
+                tilerunner.setHolderDown();
         }
 
     }

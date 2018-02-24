@@ -47,7 +47,7 @@ import java.util.Arrays;
  *
  */
 public class Tilerunner {
-    private static final String ROBOT_VERSION = "0.0.8-1";
+    private static final String ROBOT_VERSION = "0.0.9";
 
     // Hardware
     private static final int TICKS_PER_WHEEL_REVOLUTION = 1120;
@@ -88,7 +88,8 @@ public class Tilerunner {
     private DigitalChannel liftSensorHigh;
 
     // Aligns the glyph in the 4th row to prevent it from toppling
-    private Servo glyphAligner;
+    private Servo holderLeft = new NullServo();
+    private Servo holderRight = new NullServo();
 
     public AdafruitGraphix graphix;
 
@@ -163,20 +164,11 @@ public class Tilerunner {
         }
     }
 
-    private DcMotor createDcMotor(HardwareMap hardwareMap, String motorName){
-        DcMotor motor;
-        try{
-            motor=hardwareMap.dcMotor.get(motorName);
-        } catch (IllegalArgumentException e) {
-            Twigger.getInstance().sendOnce("WARN: " + motorName + " motor missing: "+ e.getMessage());
-            return new NullDcMotor();
-        }
-        motor.setDirection(DcMotor.Direction.FORWARD);
-        motor.setPower(0);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        return motor;
-    }
+    /// ----------Init Utility Methods----------
 
+    /**
+     * Generic hardware access method
+     */
     private<T> T getHardware(Class<? extends T> classObj, HardwareMap hardwareMap, String deviceName,
                             @NonNull T nullObject) {
         try {
@@ -186,6 +178,23 @@ public class Tilerunner {
             Twigger.getInstance().sendOnce("WARN: device '" + deviceName + "' missing.");
             return nullObject;
         }
+    }
+
+    /**
+     * Getting DcMotors use a different method than other hardware
+     */
+    private DcMotor createDcMotor(HardwareMap hardwareMap, String motorName){
+        DcMotor motor;
+        try{
+            motor=hardwareMap.dcMotor.get(motorName);
+        } catch (IllegalArgumentException e) {
+            Twigger.getInstance().sendOnce("WARN: " + motorName + " motor missing: "+ e.getMessage());
+            return new NullDcMotor();
+        }
+        motor.setDirection(DcMotor.Direction.FORWARD); // Forward is the default direction
+        motor.setPower(0);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        return motor;
     }
 
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -216,28 +225,43 @@ public class Tilerunner {
             graphix = new NullGraphix();
         }
 
-        //  MOTORS
+
+        //  Drive Motors
         leftMotor   = createDcMotor(hardwareMap, "left_drive");
         rightMotor  = createDcMotor(hardwareMap, "right_drive");
-        rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
-
+        rightMotor.setDirection(DcMotor.Direction.REVERSE);
         // Create a motor pair when manipulating both wheels at the same time
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
+
+        // Claw motor
         clawMotor = createDcMotor(hardwareMap, "claw");
 
 
-        kicker = getHardware(Servo.class, hardwareMap, "kicker", new NullServo());
-        if (loadAutonomousHardware)
-            primeKicker();
+        // Kickers are grouped to behave the same
+        Servo kicker1 = getHardware(Servo.class, hardwareMap, "kicker", new NullServo());
+        Servo kicker2 = getHardware(Servo.class, hardwareMap, "kicker2", new NullServo());
+        kicker = new ServoGroup(kicker1, kicker2);
 
+        if (loadAutonomousHardware)
+            primeKicker(); // Kicker can't be primed in TeleOp
+
+
+        // Jewel Whacker
         jewelWhacker = getHardware(Servo.class, hardwareMap, "whacker", new NullServo());
 
         if (loadAutonomousHardware)
-            retractJewelWhacker();
+            retractJewelWhacker(); // Whacker can't be retracted in TeleOp
 
+
+        // LIFT devices
         try {
-            initLift(hardwareMap);
+            liftMotor = createDcMotor(hardwareMap, "lift");
+            liftMotor.setDirection(DcMotor.Direction.REVERSE);
+            liftSensorLow = hardwareMap.digitalChannel.get("lift_low");
+            liftSensorLow.setMode(DigitalChannel.Mode.INPUT);
+            liftSensorHigh = hardwareMap.digitalChannel.get("lift_high");
+            liftSensorHigh.setMode(DigitalChannel.Mode.INPUT);
         } catch (IllegalArgumentException e) {
             hasWarnings = true;
             liftMotor = new NullDcMotor();
@@ -245,25 +269,22 @@ public class Tilerunner {
             liftSensorHigh = new NullDigitalChannel();
         }
 
+
         //  IMU
-
-        // Set up the parameters with which we will use our IMU. Note that integration
-        // algorithm here just reports accelerations to the logcat log; it doesn't actually
-        // provide positional information.
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled      = true;
-        parameters.loggingTag          = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
         imu = new NullBNO055IMU();
         if (loadAutonomousHardware) {
             try {
+                // Set up the parameters with which we will use our IMU. Note that integration
+                // algorithm here just reports accelerations to the logcat log; it doesn't actually
+                // provide positional information.
+                BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+                parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+                parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+                parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+                parameters.loggingEnabled      = true;
+                parameters.loggingTag          = "IMU";
+                parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
                 imu = hardwareMap.get(BNO055IMU.class, "imu");
 
                 // Check if IMU Calibration exists
@@ -271,10 +292,10 @@ public class Tilerunner {
                 if (!file.exists())
                     Twigger.getInstance().sendOnce("WARN: Calibration File Doesn't Exist");
 
-                Twigger.getInstance().sendOnce("Initializing IMU");
 
+                Twigger.getInstance().sendOnce("Initializing IMU");
                 if (!imu.initialize(parameters))
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException(); // IMU can't be initialized; Bad News!
 
                 Twigger.getInstance().sendOnce("Initialized IMU");
             } catch (IllegalArgumentException e) {
@@ -283,17 +304,18 @@ public class Tilerunner {
             }
         }
 
+
+        // Proximity Sensor
         proximitySensor = getHardware(AdafruitADPS9960.class, hardwareMap, "range",
                 new NullProximitySensor());
 
-        // glyphAligner
-        if (!loadAutonomousHardware) {
-            Servo alignerLeft = getHardware(Servo.class, hardwareMap, "alignL",
-                    new NullServo());
-            Servo alignerRight = getHardware(Servo.class, hardwareMap, "alignR",
-                    new NullServo());
 
-            glyphAligner = new ServoGroup(alignerLeft, alignerRight);
+        // Glyph Holder is only used in TeleOp
+        if (!loadAutonomousHardware) {
+            holderLeft = getHardware(Servo.class, hardwareMap, "holderL",
+                    holderLeft);
+            holderRight = getHardware(Servo.class, hardwareMap, "holderR",
+                    holderRight);
         }
 
 
@@ -303,20 +325,10 @@ public class Tilerunner {
         displayOK();
     }
 
-    private void initLift(HardwareMap hardwareMap) throws IllegalArgumentException {
-        liftMotor = createDcMotor(hardwareMap, "lift");
-        liftMotor.setDirection(DcMotor.Direction.REVERSE);
-        liftSensorLow = hardwareMap.digitalChannel.get("lift_low");
-        liftSensorLow.setMode(DigitalChannel.Mode.INPUT);
-        liftSensorHigh = hardwareMap.digitalChannel.get("lift_high");
-        liftSensorHigh.setMode(DigitalChannel.Mode.INPUT);
-    }
-
     /**
-     * Sets lift to the lowest point possible
+     * Sets lift to the lowest point possible and resets the encoder
      */
     public void zeroLift(BusyWaitHandler waitHandler, boolean displayStatus) {
-        // only in autonomous init
         try {
             if (displayStatus) {
                 try (AdafruitGraphix.Draw ignored = graphix.begin()) {
@@ -356,7 +368,7 @@ public class Tilerunner {
     /**
      * Get the angle the robot is at range [0-360)
      */
-    public double getHeading() {
+    private double getHeading() {
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
     }
 
@@ -486,10 +498,6 @@ public class Tilerunner {
 
     }
 
-    public void ejectGlyph(BusyWaitHandler waitHandler) throws InterruptedException {
-        ejectGlyph(waitHandler, false);
-    }
-
     /**
      * Removes the glyph from the robot
      */
@@ -603,20 +611,30 @@ public class Tilerunner {
         }
     }
 
-    public void primeKicker() {
+    private void primeKicker() {
         kicker.setPosition(1);
     }
 
-    public void launchKicker() {
+    private void launchKicker() {
         kicker.setPosition(0);
     }
 
-    public void releaseAligner() {
-        glyphAligner.setPosition(0);
+    /**
+     * Sets position of glyph holder
+     *
+     * @param val 0 is down; 1 is up
+     */
+    private void setGlyphHolder(double val) {
+        holderLeft.setPosition(1 - val); // This servo needs to be inverted
+        holderRight.setPosition(val);
     }
 
-    public void armAligner() {
-        glyphAligner.setPosition(1);
+    public void setHolderUp() {
+        setGlyphHolder(1);
+    }
+
+    public void setHolderDown() {
+        setGlyphHolder(0);
     }
 
     public boolean isHoldingGlyph() {
