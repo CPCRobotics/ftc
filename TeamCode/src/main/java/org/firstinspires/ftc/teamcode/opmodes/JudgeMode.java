@@ -3,12 +3,15 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.util.GameControls;
+import org.firstinspires.ftc.teamcode.opmodes.feature.Feature;
+import org.firstinspires.ftc.teamcode.opmodes.feature.ServoFeature;
+import org.firstinspires.ftc.teamcode.util.DepressedButton;
 import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.strategy.CryptoboxColumn;
 import org.firstinspires.ftc.teamcode.strategy.JewelDirection;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 import org.firstinspires.ftc.teamcode.util.ListCyclicalIterator;
+import org.firstinspires.ftc.teamcode.util.ThresholdTrigger;
 
 import java.util.Arrays;
 
@@ -18,12 +21,14 @@ import java.util.Arrays;
 @TeleOp(name="Judge Mode", group="Judge")
 public class JudgeMode extends OpMode {
 
-    private final GameControls gameControls = new GameControls(this,
-            GameControls.GameMode.JUDGING);
-
     private Tilerunner tilerunner = new Tilerunner();
-    private double whackerPosition = 0;
-    private static final double WHACKER_CONTROL_SPEED = 0.05;
+    private Feature whacker;
+
+    private final DepressedButton previewToggle = new DepressedButton();
+    private final DepressedButton previewLeft   = new DepressedButton();
+    private final DepressedButton previewRight  = new DepressedButton();
+    private final ThresholdTrigger glyphPut  = new ThresholdTrigger();
+    private final ThresholdTrigger glyphGrab = new ThresholdTrigger();
 
     private boolean liveDisplay = false;
 
@@ -52,35 +57,31 @@ public class JudgeMode extends OpMode {
     @Override
     public void init() {
         tilerunner.init(hardwareMap, telemetry, Tilerunner.OpmodeType.TELEOP);
-        whackerPosition = tilerunner.jewelWhacker.getPosition();
+        whacker = new ServoFeature(tilerunner.jewelWhacker, 0.05);
     }
 
     private double calculateLiftSpeed(double joystickPower) {
         return (joystickPower * joystickPower) * Math.signum(joystickPower);
     }
 
-    private static double withinRange(double min, double max, double x) {
-        return Math.min(max, Math.max(min, x));
-    }
-
     @Override
     public void loop() {
         Twigger.getInstance().update();
 
-        // 8x8 Display & Previews
-        if (gameControls.getToggleDisplay()) {
+        // 8x8 display and previews
+        if (previewToggle.get(gamepad1.dpad_up)) {
             liveDisplay = !liveDisplay;
             if (!liveDisplay)
                 previews.current().preview();
         }
 
-        if (gameControls.getCyclePrev()) {
+        if (previewLeft.get(gamepad1.dpad_left)) {
             liveDisplay = false;
             previews.prev().preview();
         }
 
-        if (gameControls.getCycleNext()) {
-            liveDisplay = false;
+        if (previewRight.get(gamepad1.dpad_right)) {
+            liveDisplay = true;
             previews.next().preview();
         }
 
@@ -88,19 +89,17 @@ public class JudgeMode extends OpMode {
             tilerunner.displayStatus();
 
         // Claw Motor (Gamepad 1 Triggers)
-        if (gameControls.getGlyphEjectPower() > 0) {
-            tilerunner.ejectGlyph(gameControls.getGlyphEjectPower());
+        double putVal = glyphPut.get(gamepad1.left_trigger);
+        if (putVal > 0) {
+            tilerunner.ejectGlyph(putVal);
         } else {
-            tilerunner.grabGlyph(gameControls.getGlyphGrabPower());
+            tilerunner.grabGlyph(glyphGrab.get(gamepad1.right_trigger));
         }
 
         // Lift (Gamepad 2 Left Joystick)
-        tilerunner.setLiftPower(calculateLiftSpeed(gameControls.getLiftDrive()));
+        tilerunner.setLiftPower(calculateLiftSpeed(-gamepad1.left_stick_y));
 
         // Jewel Whacker (Gamepad 2 Right Joystick)
-        whackerPosition += WHACKER_CONTROL_SPEED * gameControls.getJewelWhackerDrive();
-        whackerPosition = withinRange(0, 1, whackerPosition);
-        tilerunner.jewelWhacker.setPosition(whackerPosition);
-
+        whacker.call(-gamepad1.right_stick_y);
     }
 }

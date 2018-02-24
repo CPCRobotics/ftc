@@ -40,9 +40,9 @@ import org.firstinspires.ftc.teamcode.opmodes.feature.EasyGrabFeature;
 import org.firstinspires.ftc.teamcode.opmodes.feature.EasyPutFeature;
 import org.firstinspires.ftc.teamcode.opmodes.feature.Feature;
 import org.firstinspires.ftc.teamcode.opmodes.feature.TurnFeature;
-import org.firstinspires.ftc.teamcode.util.GameControls;
 import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
+import org.firstinspires.ftc.teamcode.util.ThresholdTrigger;
 
 
 @TeleOp(name = "Competition TeleOp", group = "Iterative Opmode")
@@ -54,11 +54,12 @@ public class TankDrive extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private Tilerunner tilerunner = new Tilerunner();
 
-    private final GameControls gameControls = new GameControls(this);
-
     private final Feature easyGrab = new EasyGrabFeature(tilerunner);
     private final Feature easyPut = new EasyPutFeature(tilerunner);
     private final Feature easyTurn = new TurnFeature(tilerunner);
+
+    private final ThresholdTrigger glyphEject = new ThresholdTrigger();
+    private final ThresholdTrigger glyphGrab = new ThresholdTrigger();
 
     private static double calculateLiftSpeed(double joystickPower) {
         return (joystickPower * joystickPower) * Math.signum(joystickPower);
@@ -92,41 +93,42 @@ public class TankDrive extends OpMode {
 
 
         // "Special" function features
-        if (easyPut.call(gameControls.getEasyPutGlyph())) return;
-        if (easyGrab.call(gameControls.getEasyGrabGlyph())) return;
+        if (easyPut.call(gamepad1.left_bumper)) return;
+        if (easyGrab.call(gamepad1.right_bumper)) return;
 
-        if (gameControls.getTurningLeftButton()) {
+        if (gamepad1.x) {
             easyTurn.call(-1);
             return;
-        } else if (gameControls.getTurningRightButton()) {
+        } else if (gamepad1.b) {
             easyTurn.call(1);
             return;
         }
 
-        tilerunner.setMotors(gameControls.getLeftDrive(), gameControls.getRightDrive());
+        tilerunner.setMotors(-gamepad1.left_stick_y, -gamepad1.right_stick_y);
 
 
 
         // Claw Motor (Gamepad 1 Triggers)
-        if (gameControls.getGlyphEjectPower() > 0) {
-            tilerunner.ejectGlyph(gameControls.getGlyphEjectPower());
+        double putVal = glyphEject.get(gamepad1.left_trigger);
+        if (putVal > 0) {
+            tilerunner.ejectGlyph(putVal);
         } else {
-            tilerunner.grabGlyph(gameControls.getGlyphGrabPower());
+            tilerunner.grabGlyph(glyphGrab.get(gamepad1.right_trigger));
         }
 
 
         // Lift (Gamepad 2 Left Joystick)
-        tilerunner.setLiftPower(calculateLiftSpeed(gameControls.getLiftDrive()));
+        tilerunner.setLiftPower(calculateLiftSpeed(-gamepad2.left_stick_y));
 
-        if (gameControls.getEasyLiftUp())
+        if (gamepad2.dpad_up)
             tilerunner.changeLiftPosition(true);
-        else if (gameControls.getEasyLiftDown())
+        else if (gamepad2.dpad_down)
             tilerunner.changeLiftPosition(false);
 
         // Glyph Holder
-        if (gameControls.getRaiseHolder())
+        if (gamepad2.y)
             tilerunner.setHolderUp();
-        else if (gameControls.getLowerHolder())
+        else if (gamepad2.a)
             tilerunner.setHolderDown();
 
     }
