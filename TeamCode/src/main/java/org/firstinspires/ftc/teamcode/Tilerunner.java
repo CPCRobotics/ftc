@@ -36,19 +36,11 @@ import java.io.File;
 import java.util.Arrays;
 
 /**
- * This is NOT an opmode.
- *
- * This class can be used to define all the specific hardware for a single robot.
- *
- * This hardware class assumes the following device names have been configured on the robot:
- * Note:  All names are lower case and some have single spaces between words.
- *
- * Motor channel:  Left drive motor:        "left_drive"
- * Motor channel:  Right drive motor:       "right_drive"
+ * All the hardware and its utility methods
  *
  */
 public class Tilerunner {
-    private static final String ROBOT_VERSION = "0.0.10";
+    private static final String ROBOT_VERSION = "0.0.10.1";
 
     // Hardware
     private static final int TICKS_PER_WHEEL_REVOLUTION = 1120;
@@ -373,13 +365,6 @@ public class Tilerunner {
         return INVERTED_LIFT_SENSOR != liftSensorHigh.getState();
     }
 
-    /**
-     * Get the angle the robot is at range [0-360)
-     */
-    private double getHeading() {
-        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
-    }
-
     // Utility Commands
 
     /**
@@ -425,6 +410,13 @@ public class Tilerunner {
         if (dist < 0)
             dist += 360;
         return dist;
+    }
+
+    /**
+     * Get the angle the robot is at range [0-360)
+     */
+    private double getHeading() {
+        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
     }
 
     /**
@@ -509,21 +501,23 @@ public class Tilerunner {
     /**
      * Removes the glyph from the robot
      */
-    public void ejectGlyph(BusyWaitHandler waitHandler, boolean keepEjecting) throws InterruptedException {
+    public void ejectGlyph(BusyWaitHandler waitHandler) throws InterruptedException {
         try {
             ejectGlyph(1);
             longSleep(waitHandler, 1000);
         } finally {
             primeKicker();
-
-            if (!keepEjecting)
-                clawMotor.setPower(0);
         }
     }
 
-    public void ejectGlyph(double power) {
+    public void ejectGlyph(double power, boolean launchKicker) {
         clawMotor.setPower(power);
-        launchKicker();
+        if (launchKicker)
+            launchKicker();
+    }
+
+    public void ejectGlyph(double power) {
+        ejectGlyph(power, true);
     }
 
     public void grabGlyph(double power) {
@@ -559,17 +553,12 @@ public class Tilerunner {
         if (usingEasyLift && liftMotor.isBusy() && power == 0)
             return;
 
-
         usingEasyLift = false;
 
+
         // Slow down when near edges
-        double liftPowerMultiplier;
         if (liftMotor.getCurrentPosition() <= LIFT_LOW_POSITION)
-            liftPowerMultiplier = 0.5;
-        else
-            liftPowerMultiplier = 1.0;
-
-
+            power *= .5;
 
         if (power > 0 && !isLiftAtHighPoint()) {
             // allow motor to go upwards, but limit at distance above zero
@@ -583,16 +572,13 @@ public class Tilerunner {
             liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             power = 0;
         } else {
-            // stop motor by indicating it has reached desired position, making sure not to set
-            // position outside of bounds
             int desired = Math.max(0, Math.min(LIFT_MOTOR_MAX, liftMotor.getCurrentPosition()));
             liftMotor.setTargetPosition(desired);
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             power = 0;
         }
-        liftMotor.setPower(power * liftPowerMultiplier);
 
-
+        liftMotor.setPower(power);
         Twigger.getInstance().update();
     }
 
@@ -662,7 +648,7 @@ public class Tilerunner {
         setGlyphHolder(0);
     }
 
-    public boolean isHoldingGlyph() {
+    private boolean isHoldingGlyph() {
         return proximitySensor.getDistance(DistanceUnit.MM) <= HOLDING_GLYPH_DIST_MM;
     }
 
@@ -700,7 +686,7 @@ public class Tilerunner {
     /**
      * Show a checkmark
      */
-    public void displayOK() {
+    private void displayOK() {
         // Yellow means that init is successful with warnings (missing hardware, etc)
         // Green means everything went smoothly with no warnings
         short color = hasWarnings ? AdafruitGraphix.YELLOW : AdafruitGraphix.GREEN;

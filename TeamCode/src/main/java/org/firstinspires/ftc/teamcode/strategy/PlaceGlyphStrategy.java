@@ -23,7 +23,7 @@ public class PlaceGlyphStrategy {
 
     public void placeGlyph(CryptoboxColumn column, double offset) throws InterruptedException {
         moveToCryptoboxColumn(column, offset);
-        tilerunner.ejectGlyph(waitHandler, true);
+        tilerunner.ejectGlyph(waitHandler);
         prepareForTele();
     }
 

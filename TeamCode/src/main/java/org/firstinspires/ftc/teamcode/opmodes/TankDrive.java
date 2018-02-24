@@ -36,8 +36,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.opmodes.feature.EasyGrabFeature;
 import org.firstinspires.ftc.teamcode.opmodes.feature.EasyPutFeature;
+import org.firstinspires.ftc.teamcode.opmodes.feature.EasyStackFeature;
 import org.firstinspires.ftc.teamcode.opmodes.feature.Feature;
 import org.firstinspires.ftc.teamcode.opmodes.feature.TurnFeature;
 import org.firstinspires.ftc.teamcode.Tilerunner;
@@ -48,13 +48,11 @@ import org.firstinspires.ftc.teamcode.util.ThresholdTrigger;
 @TeleOp(name = "Competition TeleOp", group = "Iterative Opmode")
 public class TankDrive extends OpMode {
 
-
-
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
     private Tilerunner tilerunner = new Tilerunner();
 
-    private final Feature easyGrab = new EasyGrabFeature(tilerunner);
+    private final Feature easyStack = new EasyStackFeature(tilerunner);
     private final Feature easyPut = new EasyPutFeature(tilerunner);
     private final Feature easyTurn = new TurnFeature(tilerunner);
 
@@ -94,7 +92,7 @@ public class TankDrive extends OpMode {
 
         // "Special" function features
         if (easyPut.call(gamepad1.left_bumper)) return;
-        if (easyGrab.call(gamepad1.right_bumper)) return;
+        if (easyStack.call(gamepad1.right_bumper)) return;
 
         if (gamepad1.x) {
             easyTurn.call(-1);
