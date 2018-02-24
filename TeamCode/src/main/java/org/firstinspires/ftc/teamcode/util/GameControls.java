@@ -3,15 +3,13 @@ package org.firstinspires.ftc.teamcode.util;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.teamcode.Tilerunner;
-
 /**
  * Centralize game controls in one class
  */
 public class GameControls {
     public enum GameMode {
         COMPETITION,
-        JUDGING;
+        JUDGING
     }
 
     private final OpMode opMode;
@@ -99,12 +97,12 @@ public class GameControls {
         }
     }
 
-    public boolean getArmAligner() {
-        return opMode.gamepad2.a;
+    public boolean getRaiseHolder() {
+        return opMode.gamepad2.y;
     }
 
-    public boolean getReleaseAligner() {
-        return opMode.gamepad2.y;
+    public boolean getLowerHolder() {
+        return opMode.gamepad2.a;
     }
 
     public boolean getToggleDisplay() {

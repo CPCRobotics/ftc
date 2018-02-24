@@ -56,9 +56,6 @@ public class TankDrive extends OpMode {
     private boolean easyModeTriggered = false;
     private ElapsedTime timeSinceEasyModeTriggered = new ElapsedTime();
 
-    private long gamepad2Timestamp;
-    private ElapsedTime gamepad2Time = new ElapsedTime();
-
     private final GameControls gameControls = new GameControls(this);
 
 
@@ -82,7 +79,7 @@ public class TankDrive extends OpMode {
     @Override
     public void init() {
         // Initialize the robot tilerunner object passing it the OpModes hardwareMap.
-        tilerunner.init(hardwareMap, telemetry, false);
+        tilerunner.init(hardwareMap, telemetry, Tilerunner.OpmodeType.TELEOP);
     }
 
     /*
@@ -91,14 +88,6 @@ public class TankDrive extends OpMode {
     @Override
     public void start() {
         runtime.reset();
-    }
-
-    private boolean gamepad2Changed() {
-        long timestamp = gamepad2.timestamp;
-        boolean gamepadChanged = timestamp != gamepad2Timestamp;
-        gamepad2Timestamp = timestamp;
-
-        return gamepadChanged;
     }
 
     /*
@@ -157,8 +146,7 @@ public class TankDrive extends OpMode {
                 speedLeft = calculateWheelSpeed(speedLeft, gameControls.getLeftDrive());
                 speedRight = calculateWheelSpeed(speedRight, gameControls.getRightDrive());
 
-                tilerunner.leftMotor.setPower(speedLeft);
-                tilerunner.rightMotor.setPower(speedRight);
+                tilerunner.setMotors(speedLeft, speedRight);
             }
 
 
@@ -170,28 +158,19 @@ public class TankDrive extends OpMode {
             }
         }
 
-        if (gamepad2Changed()) {
-            gamepad2Time.reset();
-        }
-
         // Lift (Gamepad 2 Left Joystick)
         tilerunner.setLiftPower(calculateLiftSpeed(gameControls.getLiftDrive()));
 
-        // Easy Lift
-        // Wait for gamepad2 to be paired for 2 seconds.
-        // Since pairing the gamepad requires pushing the B button,
-        // it might interfere with the EasyLift functions.
-        if (gamepad2Time.seconds() > 2) {
-            if (gameControls.getEasyLiftUp())
-                tilerunner.changeLiftPosition(true);
-            else if (gameControls.getEasyLiftDown())
-                tilerunner.changeLiftPosition(false);
+        if (gameControls.getEasyLiftUp())
+            tilerunner.changeLiftPosition(true);
+        else if (gameControls.getEasyLiftDown())
+            tilerunner.changeLiftPosition(false);
 
-            if (gameControls.getArmAligner())
-                tilerunner.setHolderUp();
-            else if (gameControls.getReleaseAligner())
-                tilerunner.setHolderDown();
-        }
+        // Glyph Holder
+        if (gameControls.getRaiseHolder())
+            tilerunner.setHolderUp();
+        else if (gameControls.getLowerHolder())
+            tilerunner.setHolderDown();
 
     }
 

@@ -15,7 +15,7 @@ public class TestSquare extends LinearOpMode implements BusyWaitHandler {
     @Override
     public void runOpMode() throws InterruptedException {
         Tilerunner tilerunner = new Tilerunner();
-        tilerunner.init(hardwareMap, telemetry);
+        tilerunner.init(hardwareMap, telemetry, Tilerunner.OpmodeType.AUTONOMOUS);
 
         waitForStart();
 

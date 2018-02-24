@@ -23,7 +23,7 @@ public class AutonomousStrategy {
         this.opMode = opMode;
 
         // Set up stuff
-        tilerunner.init(opMode.hardwareMap, opMode.telemetry);
+        tilerunner.init(opMode.hardwareMap, opMode.telemetry, Tilerunner.OpmodeType.AUTONOMOUS);
         tilerunner.zeroLift(waitHandler, false);
 
         EyesightUtil.init(opMode);

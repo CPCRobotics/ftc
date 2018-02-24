@@ -102,6 +102,12 @@ public class Tilerunner {
     private BNO055IMU imu;
     private ProximitySensor proximitySensor;
 
+    private OpmodeType selectedOpmode;
+
+    public enum OpmodeType {
+        TELEOP, AUTONOMOUS
+    }
+
     public enum CryptoboxRow {
         LOWEST(LIFT_MOTOR_MIN),
         LOWER(LIFT_MOTOR_MIN + (LIFT_MOTOR_MAX - LIFT_MOTOR_MIN) / 3),
@@ -197,12 +203,10 @@ public class Tilerunner {
         return motor;
     }
 
-    public void init(HardwareMap hardwareMap, Telemetry telemetry) {
-        init(hardwareMap, telemetry, true);
-    }
-
     /* Initialize standard Hardware interfaces */
-    public void init( HardwareMap hardwareMap, Telemetry telemetry, boolean loadAutonomousHardware ) {
+    public void init( HardwareMap hardwareMap, Telemetry telemetry, OpmodeType opMode) {
+
+        selectedOpmode = opMode;
 
         ElapsedTime initTime = new ElapsedTime();
 
@@ -243,14 +247,14 @@ public class Tilerunner {
         Servo kicker2 = getHardware(Servo.class, hardwareMap, "kicker2", new NullServo());
         kicker = new ServoGroup(kicker1, kicker2);
 
-        if (loadAutonomousHardware)
+        if (opMode == OpmodeType.AUTONOMOUS)
             primeKicker(); // Kicker can't be primed in TeleOp
 
 
         // Jewel Whacker
         jewelWhacker = getHardware(Servo.class, hardwareMap, "whacker", new NullServo());
 
-        if (loadAutonomousHardware)
+        if (opMode == OpmodeType.AUTONOMOUS)
             retractJewelWhacker(); // Whacker can't be retracted in TeleOp
 
 
@@ -272,7 +276,7 @@ public class Tilerunner {
 
         //  IMU
         imu = new NullBNO055IMU();
-        if (loadAutonomousHardware) {
+        if (opMode == OpmodeType.AUTONOMOUS) {
             try {
                 // Set up the parameters with which we will use our IMU. Note that integration
                 // algorithm here just reports accelerations to the logcat log; it doesn't actually
@@ -311,7 +315,7 @@ public class Tilerunner {
 
 
         // Glyph Holder is only used in TeleOp
-        if (!loadAutonomousHardware) {
+        if (opMode == OpmodeType.TELEOP) {
             holderLeft = getHardware(Servo.class, hardwareMap, "holderL",
                     holderLeft);
             holderRight = getHardware(Servo.class, hardwareMap, "holderR",
@@ -586,6 +590,19 @@ public class Tilerunner {
 
 
         Twigger.getInstance().update();
+    }
+
+    // Motors
+    private boolean firstTimeMoving = true;
+    public void setMotors(double speedLeft, double speedRight) {
+        leftMotor.setPower(speedLeft);
+        rightMotor.setPower(speedRight);
+
+        // Put holders up if we're moving for the first time
+        if (selectedOpmode == OpmodeType.TELEOP && firstTimeMoving && (speedLeft != 0 || speedRight != 0)) {
+            setHolderUp();
+            firstTimeMoving = false;
+        }
     }
 
     public void changeLiftPosition(boolean goingUp) {

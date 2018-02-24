@@ -22,7 +22,7 @@ public class OpmodeEncoderCheck extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        tilerunner.init(hardwareMap, telemetry);
+        tilerunner.init(hardwareMap, telemetry, Tilerunner.OpmodeType.AUTONOMOUS);
         composeLogging();
 
         waitForStart();

@@ -51,7 +51,7 @@ public class JudgeMode extends OpMode {
 
     @Override
     public void init() {
-        tilerunner.init(hardwareMap, telemetry, true);
+        tilerunner.init(hardwareMap, telemetry, Tilerunner.OpmodeType.TELEOP);
         whackerPosition = tilerunner.jewelWhacker.getPosition();
     }
 

@@ -16,7 +16,7 @@ public abstract class AutonomousOpmode extends LinearOpMode implements BusyWaitH
     public void runOpMode() throws InterruptedException {
         Twigger.getInstance().init(telemetry);
         tilerunner = new Tilerunner();
-        tilerunner.init(hardwareMap, telemetry, true);
+        tilerunner.init(hardwareMap, telemetry, Tilerunner.OpmodeType.AUTONOMOUS);
 
         initAutonomous();
 
