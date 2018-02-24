@@ -36,6 +36,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.opmodes.feature.EasyGrabFeature;
+import org.firstinspires.ftc.teamcode.opmodes.feature.EasyPutFeature;
+import org.firstinspires.ftc.teamcode.opmodes.feature.Feature;
+import org.firstinspires.ftc.teamcode.opmodes.feature.TurnFeature;
 import org.firstinspires.ftc.teamcode.util.GameControls;
 import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
@@ -44,31 +48,17 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
 @TeleOp(name = "Competition TeleOp", group = "Iterative Opmode")
 public class TankDrive extends OpMode {
 
-    private final static double SPEED_GAIN = 3;
+
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
     private Tilerunner tilerunner = new Tilerunner();
 
-    private double speedLeft = 0;
-    private double speedRight = 0;
-
-    private boolean easyModeTriggered = false;
-    private ElapsedTime timeSinceEasyModeTriggered = new ElapsedTime();
-
     private final GameControls gameControls = new GameControls(this);
 
-
-    private double calculateWheelSpeed(double currentSpeed, double joystickPower) {
-        // Make moving the robot more sensitive when the joystick is closer to 0
-        double targetPower = joystickPower * Math.abs(joystickPower);
-
-        // Avoid "deadzone" where the motor doesn't have enough power to move the robot
-        targetPower = targetPower * (1 - Tilerunner.MOTOR_DEADZONE) + Tilerunner.MOTOR_DEADZONE * Math.signum(targetPower);
-
-        // Slowly ramp up speed to full speed
-        return (targetPower - currentSpeed) / SPEED_GAIN + currentSpeed;
-    }
+    private final Feature easyGrab = new EasyGrabFeature(tilerunner);
+    private final Feature easyPut = new EasyPutFeature(tilerunner);
+    private final Feature easyTurn = new TurnFeature(tilerunner);
 
     private static double calculateLiftSpeed(double joystickPower) {
         return (joystickPower * joystickPower) * Math.signum(joystickPower);
@@ -101,62 +91,29 @@ public class TankDrive extends OpMode {
         tilerunner.displayStatus();
 
 
-        if (gameControls.getEasyPutGlyph()) {
-            // Easy PUT Glyph
-            if (!easyModeTriggered)
-                timeSinceEasyModeTriggered.reset();
-            easyModeTriggered = true;
+        // "Special" function features
+        if (easyPut.call(gameControls.getEasyPutGlyph())) return;
+        if (easyGrab.call(gameControls.getEasyGrabGlyph())) return;
 
-            if (timeSinceEasyModeTriggered.seconds() >= 0.5) {
-                speedLeft = calculateWheelSpeed(speedLeft, -.75);
-                speedRight = calculateWheelSpeed(speedRight, -.75);
-
-                tilerunner.leftMotor.setPower(speedLeft);
-                tilerunner.rightMotor.setPower(speedRight);
-            } else {
-                tilerunner.motorPair.setPower(0);
-            }
-
-
-            tilerunner.ejectGlyph(1);
-        } else if (gameControls.getEasyGrabGlyph()) {
-            // Easy GRAB glyph
-
-            speedLeft = calculateWheelSpeed(speedLeft, .5);
-            speedRight = calculateWheelSpeed(speedRight, .5);
-
-            tilerunner.leftMotor.setPower(speedLeft);
-            tilerunner.rightMotor.setPower(speedRight);
-
-
-            tilerunner.grabGlyph(1);
-        } else {
-
-            easyModeTriggered = false;
-
-            // Wheels (Gamepad 1 Joystick)
-
-            if (gameControls.getTurningLeftButton()) {
-                tilerunner.leftMotor.setPower(-1);
-                tilerunner.rightMotor.setPower(1);
-            } else if (gameControls.getTurningRightButton()) {
-                tilerunner.leftMotor.setPower(1);
-                tilerunner.rightMotor.setPower(-1);
-            } else {
-                speedLeft = calculateWheelSpeed(speedLeft, gameControls.getLeftDrive());
-                speedRight = calculateWheelSpeed(speedRight, gameControls.getRightDrive());
-
-                tilerunner.setMotors(speedLeft, speedRight);
-            }
-
-
-            // Claw Motor (Gamepad 1 Triggers)
-            if (gameControls.getGlyphEjectPower() > 0) {
-                tilerunner.ejectGlyph(gameControls.getGlyphEjectPower());
-            } else {
-                tilerunner.grabGlyph(gameControls.getGlyphGrabPower());
-            }
+        if (gameControls.getTurningLeftButton()) {
+            easyTurn.call(-1);
+            return;
+        } else if (gameControls.getTurningRightButton()) {
+            easyTurn.call(1);
+            return;
         }
+
+        tilerunner.setMotors(gameControls.getLeftDrive(), gameControls.getRightDrive());
+
+
+
+        // Claw Motor (Gamepad 1 Triggers)
+        if (gameControls.getGlyphEjectPower() > 0) {
+            tilerunner.ejectGlyph(gameControls.getGlyphEjectPower());
+        } else {
+            tilerunner.grabGlyph(gameControls.getGlyphGrabPower());
+        }
+
 
         // Lift (Gamepad 2 Left Joystick)
         tilerunner.setLiftPower(calculateLiftSpeed(gameControls.getLiftDrive()));

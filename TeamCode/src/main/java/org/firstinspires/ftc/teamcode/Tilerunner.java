@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.hardware.AdafruitGraphix;
 import org.firstinspires.ftc.teamcode.hardware.ProximitySensor;
 import org.firstinspires.ftc.teamcode.util.DCMotorGroup;
 import org.firstinspires.ftc.teamcode.util.ServoGroup;
+import org.firstinspires.ftc.teamcode.util.SpeedController;
 import org.firstinspires.ftc.teamcode.util.nulls.NullBNO055IMU;
 import org.firstinspires.ftc.teamcode.util.nulls.NullDcMotor;
 import org.firstinspires.ftc.teamcode.util.nulls.NullDigitalChannel;
@@ -47,7 +48,7 @@ import java.util.Arrays;
  *
  */
 public class Tilerunner {
-    private static final String ROBOT_VERSION = "0.0.9";
+    private static final String ROBOT_VERSION = "0.0.10";
 
     // Hardware
     private static final int TICKS_PER_WHEEL_REVOLUTION = 1120;
@@ -101,6 +102,9 @@ public class Tilerunner {
 
     private BNO055IMU imu;
     private ProximitySensor proximitySensor;
+
+    private SpeedController leftController = new SpeedController();
+    private SpeedController rightController = new SpeedController();
 
     private OpmodeType selectedOpmode;
 
@@ -595,14 +599,18 @@ public class Tilerunner {
     // Motors
     private boolean firstTimeMoving = true;
     public void setMotors(double speedLeft, double speedRight) {
-        leftMotor.setPower(speedLeft);
-        rightMotor.setPower(speedRight);
+        leftMotor.setPower(leftController.get(speedLeft));
+        rightMotor.setPower(rightController.get(speedRight));
 
         // Put holders up if we're moving for the first time
         if (selectedOpmode == OpmodeType.TELEOP && firstTimeMoving && (speedLeft != 0 || speedRight != 0)) {
             setHolderUp();
             firstTimeMoving = false;
         }
+    }
+
+    public void setMotors(double speed) {
+        setMotors(speed, speed);
     }
 
     public void changeLiftPosition(boolean goingUp) {
