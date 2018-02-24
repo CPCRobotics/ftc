@@ -50,9 +50,6 @@ public class TankDrive extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private Tilerunner tilerunner = new Tilerunner();
 
-    private double whackerPosition = 0;
-    private static final double WHACKER_CONTROL_SPEED = 0.05;
-
     private double speedLeft = 0;
     private double speedRight = 0;
 
@@ -79,28 +76,13 @@ public class TankDrive extends OpMode {
     private static double calculateLiftSpeed(double joystickPower) {
         return (joystickPower * joystickPower) * Math.signum(joystickPower);
     }
-
-    private static double withinRange(double min, double max, double x) {
-        return Math.min(max, Math.max(min, x));
-    }
-
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-
         // Initialize the robot tilerunner object passing it the OpModes hardwareMap.
         tilerunner.init(hardwareMap, telemetry, false);
-        whackerPosition = tilerunner.jewelWhacker.getPosition();
-    }
-
-
-    /*
-     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
-     */
-    @Override
-    public void init_loop() {
     }
 
     /*
@@ -210,12 +192,6 @@ public class TankDrive extends OpMode {
             else if (gameControls.getReleaseAligner())
                 tilerunner.releaseAligner();
         }
-
-
-        // Jewel Whacker (Gamepad 2 Right Joystick)
-        whackerPosition += WHACKER_CONTROL_SPEED * gameControls.getJewelWhackerDrive();
-        whackerPosition = withinRange(0, 1, whackerPosition);
-        tilerunner.jewelWhacker.setPosition(whackerPosition);
 
     }
 
