@@ -520,9 +520,16 @@ public class Tilerunner {
         ejectGlyph(power, true);
     }
 
+    private boolean autoDeployWaiting = true;
     public void grabGlyph(double power) {
         clawMotor.setPower(-power);
         primeKicker();
+
+        // Put holders up if we're moving for the first time
+        if (autoDeployWaiting && selectedOpmode == OpmodeType.TELEOP && power != 0) {
+            setHolderUp();
+            autoDeployWaiting = false;
+        }
     }
 
     /**
@@ -550,7 +557,7 @@ public class Tilerunner {
     public void setLiftPower(double power) {
 
         // Do nothing if EasyLift is busy
-        if (usingEasyLift && liftMotor.isBusy() && power == 0)
+        if (usingEasyLift && power == 0)
             return;
 
         usingEasyLift = false;
@@ -583,16 +590,9 @@ public class Tilerunner {
     }
 
     // Motors
-    private boolean firstTimeMoving = true;
     public void setMotors(double speedLeft, double speedRight) {
         leftMotor.setPower(leftController.get(speedLeft));
         rightMotor.setPower(rightController.get(speedRight));
-
-        // Put holders up if we're moving for the first time
-        if (selectedOpmode == OpmodeType.TELEOP && firstTimeMoving && (speedLeft != 0 || speedRight != 0)) {
-            setHolderUp();
-            firstTimeMoving = false;
-        }
     }
 
     public void setMotors(double speed) {
