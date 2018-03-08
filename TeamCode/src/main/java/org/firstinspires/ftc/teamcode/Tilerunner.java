@@ -56,8 +56,10 @@ public class Tilerunner {
 
     private static final double HOLDING_GLYPH_DIST_MM = 10;
 
+    private boolean ignoreSoftwareLimits = false;
+
     private static final int LIFT_MOTOR_MIN = 10;
-    private static final int LIFT_MOTOR_MAX = 3300; // True max: 3320
+    private static final int LIFT_MOTOR_MAX = 11890; // True max: 11897
     private static final boolean INVERTED_LIFT_SENSOR = true;
     private static final int LIFT_LOW_POSITION = 200;
 
@@ -361,8 +363,16 @@ public class Tilerunner {
         return INVERTED_LIFT_SENSOR != liftSensorLow.getState();
     }
 
-    private boolean isLiftAtHighPoint() {
+    public boolean isLiftAtHighPoint() {
         return INVERTED_LIFT_SENSOR != liftSensorHigh.getState();
+    }
+
+    public void setIgnoreSoftwareLimits(boolean ignoreSoftwareLimits) {
+        this.ignoreSoftwareLimits = ignoreSoftwareLimits;
+    }
+
+    public int getElevatorPos() {
+        return liftMotor.getCurrentPosition();
     }
 
     // Utility Commands
@@ -569,7 +579,10 @@ public class Tilerunner {
 
         if (power > 0 && !isLiftAtHighPoint()) {
             // allow motor to go upwards, but limit at distance above zero
-            liftMotor.setTargetPosition(LIFT_MOTOR_MAX);
+            if (ignoreSoftwareLimits)
+                liftMotor.setTargetPosition(99999999);
+            else
+                liftMotor.setTargetPosition(LIFT_MOTOR_MAX);
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         } else if (power < 0 && !isLiftAtLowPoint()) {
             // allow motor to go downwards, but limit at zero
@@ -580,6 +593,9 @@ public class Tilerunner {
             power = 0;
         } else {
             int desired = Math.max(0, Math.min(LIFT_MOTOR_MAX, liftMotor.getCurrentPosition()));
+            if (ignoreSoftwareLimits)
+                desired = Math.max(0, liftMotor.getCurrentPosition());
+
             liftMotor.setTargetPosition(desired);
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             power = 0;
