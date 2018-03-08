@@ -4,10 +4,6 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 
-/**
- * Created by samuel on 11/11/17.
- */
-
 public class NullDigitalChannel implements DigitalChannel {
     @Override
     public Mode getMode() {
@@ -41,12 +37,12 @@ public class NullDigitalChannel implements DigitalChannel {
 
     @Override
     public String getDeviceName() {
-        return null;
+        return "";
     }
 
     @Override
     public String getConnectionInfo() {
-        return null;
+        return "";
     }
 
     @Override
