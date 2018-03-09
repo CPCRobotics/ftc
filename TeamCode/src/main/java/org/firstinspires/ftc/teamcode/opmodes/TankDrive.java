@@ -59,8 +59,15 @@ public class TankDrive extends OpMode {
     private final ThresholdTrigger glyphEject = new ThresholdTrigger();
     private final ThresholdTrigger glyphGrab = new ThresholdTrigger();
 
+    private static double clamp(double val, double min, double max) {
+        if (val < min) return min;
+        if (val > max) return max;
+        return val;
+    }
+
     private static double calculateLiftSpeed(double joystickPower) {
-        return (joystickPower * joystickPower) * Math.signum(joystickPower);
+        double result = (joystickPower * joystickPower) * Math.signum(joystickPower);
+        return clamp(result * 5, -1, 1);
     }
     /*
      * Code to run ONCE when the driver hits INIT
