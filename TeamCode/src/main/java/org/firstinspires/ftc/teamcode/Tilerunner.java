@@ -59,8 +59,7 @@ public class Tilerunner {
     private boolean ignoreSoftwareLimits = false;
 
     private static final int LIFT_MOTOR_MIN = 10;
-    private static final int LIFT_MOTOR_MAX = 11890; // True max: 11897
-    private static final boolean INVERTED_LIFT_SENSOR = true;
+    private static final int LIFT_MOTOR_MAX = 5000; // True max: 5017
     private static final int LIFT_LOW_POSITION = 200;
 
     private static final int NEAR_LIFT_POSITION_THRESHOLD = 150;
@@ -359,12 +358,12 @@ public class Tilerunner {
         zeroLift(waitHandler, true);
     }
 
-    private boolean isLiftAtLowPoint() {
-        return INVERTED_LIFT_SENSOR != liftSensorLow.getState();
+    public boolean isLiftAtLowPoint() {
+        return !liftSensorLow.getState();
     }
 
     public boolean isLiftAtHighPoint() {
-        return INVERTED_LIFT_SENSOR != liftSensorHigh.getState();
+        return !liftSensorHigh.getState();
     }
 
     public void setIgnoreSoftwareLimits(boolean ignoreSoftwareLimits) {
@@ -431,7 +430,7 @@ public class Tilerunner {
 
     /**
      * Rotates the robot at a specified angle.
-     *
+     *1
      * WARNING: Here be dragons! This is the result of over two weeks of debugging
      * and a tired developer that's too afraid to change it any more, lets it breaks
      * again.
