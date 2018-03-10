@@ -40,7 +40,7 @@ import java.util.Arrays;
  *
  */
 public class Tilerunner {
-    private static final String ROBOT_VERSION = "0.0.10.2";
+    private static final String ROBOT_VERSION = "0.0.10.2-1";
 
     // Hardware
     private static final int TICKS_PER_WHEEL_REVOLUTION = 1120;

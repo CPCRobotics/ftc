@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
  * well.
  */
 @Autonomous(name="Test Turn", group="TestConcept")
-@Disabled
 public class TestOpmodeTurn extends LinearOpMode implements BusyWaitHandler {
     @Override
     public void runOpMode() throws InterruptedException {

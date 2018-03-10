@@ -96,7 +96,7 @@ public class TankDrive extends OpMode {
         // Show at the beginning in case it should be overridden
         tilerunner.displayStatus();
 
-
+        tilerunner.retractJewelWhacker();
         // "Special" function features
         if (easyPut.call(gamepad1.left_bumper)) return;
         if (easyStack.call(gamepad1.right_bumper)) return;
