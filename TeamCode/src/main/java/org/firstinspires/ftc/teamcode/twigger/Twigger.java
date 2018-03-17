@@ -118,6 +118,7 @@ public class Twigger {
     public Twigger sendOnce(Object data) {
         telemetry.addData("", data);
         RobotLog.d("%s", data);
+        update();
 
         return this;
     }

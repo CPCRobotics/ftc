@@ -37,7 +37,6 @@ import java.util.Arrays;
 
 /**
  * All the hardware and its utility methods
- *
  */
 public class Tilerunner {
     private static final String ROBOT_VERSION = "0.0.10.2-1";

@@ -64,12 +64,13 @@ public class JewelTopplerStrategy {
      * @return offset
      */
     public double toppleEnemyJewel() throws InterruptedException {
-
-        JewelDirection jd = JewelDirection.UNKNOWN;
+        JewelDirection jd;
 
         try {
             visionHelper.enable();
             jd = locateEnemyJewel();
+        } catch (Exception e) {
+            jd = JewelDirection.UNKNOWN;
         } finally {
             visionHelper.disable();
         }
@@ -90,6 +91,8 @@ public class JewelTopplerStrategy {
         // Turn off camera to let Vuphoria work in Pictograph Strategy
         visionHelper.disable();
 
+        Twigger.getInstance()
+                .sendOnce("Finished Jewel Toppling");
         return offset;
     }
 
@@ -98,13 +101,19 @@ public class JewelTopplerStrategy {
 
         while (waitHandler.isActive()) {
 
-            // Wait 3 seconds for the JewelsExtension to analyze the jewels
-            if (time.seconds() < 3) {
+            JewelsDetector.JewelAnalysis analysis;
+
+            // Waits for a full half second or until confidence is high enough
+            if ((analysis = jewels.getBestAnalysis()).getConfidence() < 0.75 && time.seconds() < 0.5) {
+                Twigger.getInstance()
+                        .sendOnce("Confidence not high enough: " + analysis.getConfidence());
+
                 Thread.sleep(20);
                 continue;
             }
 
-            final JewelsDetector.JewelAnalysis analysis = jewels.getBestAnalysis();
+            Twigger.getInstance()
+                    .sendOnce("Analysis stopped at confidence level " + analysis.getConfidence());
 
             // Bad Analysis
             if (analysis.getConfidence() < 0.75) {
