@@ -39,7 +39,7 @@ public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         _AMBIENT_IR_LIGHT_(0x90), // considered internal
         LAST(PROXIMITY_MODULATING_TIMING.bVal), // for read window
         ;
-        public byte bVal;
+        public final byte bVal;
         Register(int bVal) { this.bVal = (byte)bVal; }
     }
 
@@ -49,7 +49,7 @@ public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         FREQ_1M5625(2),
         FREQ_3M125(3)
         ;
-        public byte bVal;
+        public final byte bVal;
         ModFreq(int bVal) { this.bVal = (byte)bVal; }
     }
 
@@ -63,7 +63,7 @@ public class AdafruitVCLN4010 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         RATE_125(6),
         RATE_250(7)
         ;
-        public byte bVal;
+        public final byte bVal;
         ProximityRate(int bVal) { this.bVal = (byte)bVal; }
     }
 

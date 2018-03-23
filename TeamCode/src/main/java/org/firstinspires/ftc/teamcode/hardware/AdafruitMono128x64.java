@@ -21,14 +21,14 @@ public class AdafruitMono128x64 extends I2cDeviceSynchDevice<I2cDeviceSynch> imp
     private final static int WIDTH = 128;
     private final static int HEIGHT = 64;
 
-    public static interface ControlPair {
+    public interface ControlPair {
         byte getControl();
         byte getData();
     }
 
     public static class Control implements ControlPair {
-        byte ctrl;
-        byte bVal;
+        final byte ctrl;
+        final byte bVal;
 
         public static Control of(int b) {
             return new Control((byte)b);
@@ -90,7 +90,7 @@ public class AdafruitMono128x64 extends I2cDeviceSynchDevice<I2cDeviceSynch> imp
         SET_COMPINS(0xDA),
         SET_VCOM_DETECT(0xDB),
         ;
-        public byte bVal;
+        public final byte bVal;
         ControlOf(int bVal) { this.bVal = (byte)bVal; }
 
         @Override
@@ -138,18 +138,7 @@ public class AdafruitMono128x64 extends I2cDeviceSynchDevice<I2cDeviceSynch> imp
             Arrays.fill(buffer, isWhite(color) ? (byte)0xff : 0);
         }
 
-        @Override
-        public void drawFastVLine(int x, int y, int h, short color) {
-            // TODO: optimize
-            super.drawFastVLine(x,y,h,color);
-        }
-
-        @Override
-        public void drawFastHLine(int x, int y, int w, short color) {
-            // TODO: optimize
-            super.drawFastHLine(x,y,w,color);
-        }
-    };
+    }
 
     private final Graphix graphix = new Graphix();
 

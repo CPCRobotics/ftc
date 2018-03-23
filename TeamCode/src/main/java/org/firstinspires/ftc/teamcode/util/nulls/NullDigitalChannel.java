@@ -24,6 +24,7 @@ public class NullDigitalChannel implements DigitalChannel {
 
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setMode(DigitalChannelController.Mode mode) {
 

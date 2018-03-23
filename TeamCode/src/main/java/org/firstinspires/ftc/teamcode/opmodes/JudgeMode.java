@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.util.ThresholdTrigger;
 @TeleOp(name="Judge Mode", group="Judge")
 public class JudgeMode extends OpMode {
 
-    private Tilerunner tilerunner = new Tilerunner();
+    private final Tilerunner tilerunner = new Tilerunner();
     private Feature whacker;
 
     private final ThresholdTrigger glyphPut  = new ThresholdTrigger();

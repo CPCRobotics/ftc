@@ -31,7 +31,7 @@ public class AdafruitBiColorMatrix extends I2cDeviceSynchDevice<I2cDeviceSynch> 
         DISP_SETUP(0x80),
         DIMMING(0xE0),
         ;
-        public byte bVal;
+        public final byte bVal;
         Register(int bVal) { this.bVal = (byte)bVal; }
     }
 
@@ -42,7 +42,7 @@ public class AdafruitBiColorMatrix extends I2cDeviceSynchDevice<I2cDeviceSynch> 
         BLINK_1HZ(0x05),
         BLINK_SLOW(0x07),
         ;
-        public byte bVal;
+        public final byte bVal;
         DisplayMode(int bVal) { this.bVal = (byte)bVal; }
     }
 
@@ -50,7 +50,7 @@ public class AdafruitBiColorMatrix extends I2cDeviceSynchDevice<I2cDeviceSynch> 
         OFF(0x00),
         ON(0x01),
         ;
-        public byte bVal;
+        public final byte bVal;
         Oscillator(int bVal) { this.bVal = (byte)bVal; }
     }
 
@@ -149,7 +149,7 @@ public class AdafruitBiColorMatrix extends I2cDeviceSynchDevice<I2cDeviceSynch> 
                 buffer[i+1] = setRed;
             }
         }
-    };
+    }
 
     private final Graphix graphix = new Graphix();
 
@@ -197,11 +197,6 @@ public class AdafruitBiColorMatrix extends I2cDeviceSynchDevice<I2cDeviceSynch> 
         setDisplayMode(DisplayMode.SOLID);
         setBrightness((byte)2);
         return true;
-    }
-
-    @Override
-    public void resetDeviceConfigurationForOpMode() {
-        super.resetDeviceConfigurationForOpMode();
     }
 
     //----------------------------------------------------------------------------------------------

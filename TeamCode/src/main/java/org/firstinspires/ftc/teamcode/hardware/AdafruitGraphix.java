@@ -37,8 +37,6 @@ import java.io.Closeable;
 
 public abstract class AdafruitGraphix {
 
-    private final int CHAR_BLOCK_WIDTH = 5;
-    private final int CHAR_BLOCK_HEIGHT = 8;
     public final int width;
     public final int height;
     private int cursorX;
@@ -412,6 +410,9 @@ public abstract class AdafruitGraphix {
     }
 
     public void drawChar(int x, int y, char c) {
+        final int CHAR_BLOCK_WIDTH = 5;
+        final int CHAR_BLOCK_HEIGHT = 8;
+
         if ((x >= width) || (y >= height) || (x + 6*textSize <= 0) || (y + 8*textSize <= 0)) {
             return;
         }
@@ -419,6 +420,7 @@ public abstract class AdafruitGraphix {
         if (cc < 0 || cc > 255) {
             cc = 0;
         }
+
         cc *= CHAR_BLOCK_WIDTH;
         for (int i = 0; i < CHAR_BLOCK_WIDTH; i++) {
             // each column - one byte per column

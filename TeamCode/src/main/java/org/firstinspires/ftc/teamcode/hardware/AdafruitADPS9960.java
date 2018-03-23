@@ -91,7 +91,7 @@ public class AdafruitADPS9960 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         GFIFO_L(0xFE),
         GFIFO_R(0xFF),
         ;
-        public byte bVal;
+        public final byte bVal;
         Register(int bVal) { this.bVal = (byte)bVal; }
     }
 
@@ -104,7 +104,7 @@ public class AdafruitADPS9960 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         PROXIMITY_INT(0x20),
         GESTURES(0x40),
         ;
-        public byte bVal;
+        public final byte bVal;
         EnableFlags(int bVal) { this.bVal = (byte)bVal; }
     }
 
@@ -115,7 +115,7 @@ public class AdafruitADPS9960 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         PPLEN_16us(2),
         PPLEN_32us(3)
         ;
-        public byte bVal;
+        public final byte bVal;
         LedPPLen(int bVal) { this.bVal = (byte)bVal; }
     }
 
@@ -126,7 +126,7 @@ public class AdafruitADPS9960 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         LDRIVE_25mA(2),
         LDRIVE_12mA(3)
         ;
-        public byte bVal;
+        public final byte bVal;
         LedLDrive(int bVal) { this.bVal = (byte)bVal; }
     }
 
@@ -137,7 +137,7 @@ public class AdafruitADPS9960 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         BOOST_200pc(2),
         BOOST_300pc(3)
         ;
-        public byte bVal;
+        public final byte bVal;
         LedBoost(int bVal) { this.bVal = (byte)bVal; }
     }
 
@@ -148,7 +148,7 @@ public class AdafruitADPS9960 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         GAIN_16x(2),
         GAIN_64x(3)
         ;
-        public byte bVal;
+        public final byte bVal;
         AdcGain(int bVal) { this.bVal = (byte)bVal; }
     }
 
@@ -159,7 +159,7 @@ public class AdafruitADPS9960 extends I2cDeviceSynchDevice<I2cDeviceSynch> imple
         GAIN_4x(2),
         GAIN_8x(3)
         ;
-        public byte bVal;
+        public final byte bVal;
         ProxGain(int bVal) { this.bVal = (byte)bVal; }
     }
 

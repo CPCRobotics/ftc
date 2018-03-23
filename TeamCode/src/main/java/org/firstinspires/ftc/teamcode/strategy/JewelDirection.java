@@ -4,7 +4,7 @@ public enum JewelDirection {
     LEFT(-1),
     RIGHT(1),
     UNKNOWN(0);
-    int power;
+    final int power;
 
     JewelDirection(int power) {
         this.power = power;

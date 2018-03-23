@@ -37,7 +37,7 @@ public class Twigger {
         // Line should only be created by Twigger.
         private Line() {}
 
-        Telemetry.Line line = telemetry.addLine();
+        final Telemetry.Line line = telemetry.addLine();
         private final HashMap<String, Func<String>> dataFuncs = new HashMap<>();
 
         @Override

@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
 @TeleOp(name="Test Gamepad Timestamp", group="TestSoftware")
 public class TestGamepadTimestamp extends OpMode {
 
-    private ElapsedTime updateTime = new ElapsedTime();
+    private final ElapsedTime updateTime = new ElapsedTime();
     @Override
     public void init() {
         Twigger.getInstance().init(telemetry);

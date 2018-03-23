@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
 @Autonomous(name="Encoder Checker")
 @Disabled
 public class OpmodeEncoderCheck extends LinearOpMode {
-    private Tilerunner tilerunner = new Tilerunner();
+    private final Tilerunner tilerunner = new Tilerunner();
     private String mode = "STOPPED";
 
     @Override

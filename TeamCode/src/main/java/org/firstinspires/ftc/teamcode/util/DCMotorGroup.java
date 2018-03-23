@@ -12,7 +12,7 @@ import java.util.Collection;
  */
 
 public class DCMotorGroup implements DcMotor {
-    private Collection<DcMotor> dcMotors;
+    private final Collection<DcMotor> dcMotors;
 
     public DCMotorGroup(Collection<DcMotor> dcMotors) {
         this.dcMotors = dcMotors;
@@ -57,6 +57,7 @@ public class DCMotorGroup implements DcMotor {
     @Override
     public void setPowerFloat() {
         for (DcMotor dcMotor : dcMotors)
+            //noinspection deprecation
             dcMotor.setPowerFloat();
     }
 

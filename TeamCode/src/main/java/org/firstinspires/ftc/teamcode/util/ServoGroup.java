@@ -22,15 +22,15 @@ public class ServoGroup implements Servo {
 
     @Override
     public ServoController getController() {
-        for (Servo s : servos)
-            return s.getController();
+        if (servos.size() > 0)
+            return servos.iterator().next().getController();
         return null;
     }
 
     @Override
     public int getPortNumber() {
-        for (Servo s : servos)
-            return s.getPortNumber();
+        if (servos.size() > 0)
+            return servos.iterator().next().getPortNumber();
         return 0;
     }
 
@@ -42,8 +42,8 @@ public class ServoGroup implements Servo {
 
     @Override
     public Direction getDirection() {
-        for (Servo s : servos)
-            return s.getDirection();
+        if (servos.size() > 0)
+            return servos.iterator().next().getDirection();
         return Direction.FORWARD;
     }
 
@@ -55,8 +55,8 @@ public class ServoGroup implements Servo {
 
     @Override
     public double getPosition() {
-        for (Servo s : servos)
-            return s.getPosition();
+        if (servos.size() > 0)
+            return servos.iterator().next().getPosition();
         return 0;
     }
 
@@ -68,29 +68,29 @@ public class ServoGroup implements Servo {
 
     @Override
     public Manufacturer getManufacturer() {
-        for (Servo s : servos)
-            return s.getManufacturer();
+        if (servos.size() > 0)
+            return servos.iterator().next().getManufacturer();
         return null;
     }
 
     @Override
     public String getDeviceName() {
-        for (Servo s : servos)
-            return s.getDeviceName();
+        if (servos.size() > 0)
+            return servos.iterator().next().getDeviceName();
         return "EMPTY ServoGroup";
     }
 
     @Override
     public String getConnectionInfo() {
-        for (Servo s : servos)
-            return s.getConnectionInfo();
+        if (servos.size() > 0)
+            return servos.iterator().next().getConnectionInfo();
         return "EMPTY ServoGroup";
     }
 
     @Override
     public int getVersion() {
-        for (Servo s : servos)
-            return s.getVersion();
+        if (servos.size() > 0)
+            return servos.iterator().next().getVersion();
         return 0;
     }
 

@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
  */
 @Autonomous(name="Jewel Toppler Test", group="TestConcept")
 public class TestJewelToppler extends AutonomousOpmode {
-    private JewelTopplerStrategy strategy = new JewelTopplerStrategy(TeamPosition.RED_A, this,
+    private final JewelTopplerStrategy strategy = new JewelTopplerStrategy(TeamPosition.RED_A, this,
             hardwareMap.appContext, tilerunner);
 
     @Override

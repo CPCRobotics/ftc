@@ -49,8 +49,8 @@ import org.firstinspires.ftc.teamcode.util.ThresholdTrigger;
 public class TankDrive extends OpMode {
 
     /* Declare OpMode members. */
-    private ElapsedTime runtime = new ElapsedTime();
-    private Tilerunner tilerunner = new Tilerunner();
+    private final ElapsedTime runtime = new ElapsedTime();
+    private final Tilerunner tilerunner = new Tilerunner();
 
     private final Feature easyStack = new EasyStackFeature(tilerunner);
     private final Feature easyPut = new EasyPutFeature(tilerunner);

@@ -9,7 +9,7 @@ public enum TeamPosition {
     BLUE_A(false),
     BLUE_FAR(false);
 
-    private boolean red;
+    private final boolean red;
     TeamPosition(boolean red) {
         this.red = red;
     }

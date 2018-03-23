@@ -85,8 +85,8 @@ public class Tilerunner {
     private BNO055IMU imu;
     private ProximitySensor proximitySensor;
 
-    private SpeedController leftController = new SpeedController();
-    private SpeedController rightController = new SpeedController();
+    private final SpeedController leftController = new SpeedController();
+    private final SpeedController rightController = new SpeedController();
 
     private OpmodeType selectedOpmode;
 
