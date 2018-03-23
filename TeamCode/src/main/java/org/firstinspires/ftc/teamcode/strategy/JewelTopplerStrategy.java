@@ -75,8 +75,6 @@ public class JewelTopplerStrategy {
             visionHelper.disable();
         }
 
-        jd.displayStatus(tilerunner);
-
 
         double offset = 0;
         if (jd == JewelDirection.UNKNOWN) {

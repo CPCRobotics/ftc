@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.util.nulls;
 
-import com.qualcomm.robotcore.hardware.HardwareDevice;
-
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.hardware.ProximitySensor;
 

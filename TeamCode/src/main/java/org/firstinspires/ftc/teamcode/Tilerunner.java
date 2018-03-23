@@ -17,8 +17,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.hardware.AdafruitADPS9960;
-import org.firstinspires.ftc.teamcode.hardware.AdafruitBiColorMatrix;
-import org.firstinspires.ftc.teamcode.hardware.AdafruitGraphix;
 import org.firstinspires.ftc.teamcode.hardware.ProximitySensor;
 import org.firstinspires.ftc.teamcode.util.DCMotorGroup;
 import org.firstinspires.ftc.teamcode.util.ServoGroup;
@@ -26,7 +24,6 @@ import org.firstinspires.ftc.teamcode.util.SpeedController;
 import org.firstinspires.ftc.teamcode.util.nulls.NullBNO055IMU;
 import org.firstinspires.ftc.teamcode.util.nulls.NullDcMotor;
 import org.firstinspires.ftc.teamcode.util.nulls.NullDigitalChannel;
-import org.firstinspires.ftc.teamcode.util.nulls.NullGraphix;
 import org.firstinspires.ftc.teamcode.util.nulls.NullProximitySensor;
 import org.firstinspires.ftc.teamcode.util.nulls.NullServo;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
@@ -65,11 +62,6 @@ public class Tilerunner {
 
     private static final double ZERO_LIFT_POWER = 0.25;
 
-    private static final int DISPLAY_UPDATE_RATE_MS = 250;
-    private final ElapsedTime timeSinceLastDisplayUpdate = new ElapsedTime();
-
-    private boolean hasWarnings = false;
-
     // Wheels
     public DcMotor leftMotor;
     public DcMotor rightMotor;
@@ -83,8 +75,6 @@ public class Tilerunner {
     // Aligns the glyph in the 4th row to prevent it from toppling
     private Servo holderLeft = new NullServo();
     private Servo holderRight = new NullServo();
-
-    public AdafruitGraphix graphix;
 
     private boolean usingEasyLift = false;
 
@@ -176,7 +166,6 @@ public class Tilerunner {
         try {
             return hardwareMap.get(classObj, deviceName);
         } catch (IllegalArgumentException e) {
-            hasWarnings = true;
             Twigger.getInstance().sendOnce("WARN: device '" + deviceName + "' missing.");
             return nullObject;
         }
@@ -210,21 +199,6 @@ public class Tilerunner {
 
         // Show build version to keep track of logging and verify the code is up-to-date
         Twigger.getInstance().sendOnce("Robot build v" + ROBOT_VERSION);
-
-
-        //  DISPLAY
-        try {
-            AdafruitBiColorMatrix display = hardwareMap.get(AdafruitBiColorMatrix.class, "display");
-            display.setRotation(3);
-
-            graphix = display.getGraphix();
-            display.setBrightness((byte) 15);
-        } catch (IllegalArgumentException e) {
-            Twigger.getInstance().sendOnce("WARN: Missing Hardware Piece 'display'");
-            hasWarnings = true;
-            graphix = new NullGraphix();
-        }
-
 
         //  Drive Motors
         leftMotor   = createDcMotor(hardwareMap, "left_drive");
@@ -263,7 +237,6 @@ public class Tilerunner {
             liftSensorHigh = hardwareMap.digitalChannel.get("lift_high");
             liftSensorHigh.setMode(DigitalChannel.Mode.INPUT);
         } catch (IllegalArgumentException e) {
-            hasWarnings = true;
             liftMotor = new NullDcMotor();
             liftSensorLow = new NullDigitalChannel();
             liftSensorHigh = new NullDigitalChannel();
@@ -299,7 +272,6 @@ public class Tilerunner {
 
                 Twigger.getInstance().sendOnce("Initialized IMU");
             } catch (IllegalArgumentException e) {
-                hasWarnings = true;
                 Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
             }
         }
@@ -322,39 +294,22 @@ public class Tilerunner {
         Twigger.getInstance()
                 .sendOnce("Tilerunner initialized in " + initTime.seconds() + " seconds.")
                 .update();
-        displayOK();
     }
 
     /**
      * Sets lift to the lowest point possible and resets the encoder
      */
-    public void zeroLift(BusyWaitHandler waitHandler, boolean displayStatus) {
+    public void zeroLift(BusyWaitHandler waitHandler) {
         try {
-            if (displayStatus) {
-                try (AdafruitGraphix.Draw ignored = graphix.begin()) {
-                    graphix.drawLine(0, 0, 7, 7, AdafruitGraphix.YELLOW);
-                }
-            }
-
             while (!(isLiftAtLowPoint()) && waitHandler.isActive()) { // Wait until the channel throws a positive
                 liftMotor.setPower(-ZERO_LIFT_POWER);
                 Thread.sleep(1);
-            }
-
-            if (displayStatus) {
-                try (AdafruitGraphix.Draw ignored = graphix.begin()) {
-                    graphix.fillScreen(AdafruitGraphix.YELLOW);
-                }
             }
 
         } catch(InterruptedException e) {
             Thread.currentThread().interrupt();
         }
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    public void zeroLift(BusyWaitHandler waitHandler) {
-        zeroLift(waitHandler, true);
     }
 
     public boolean isLiftAtLowPoint() {
@@ -664,61 +619,6 @@ public class Tilerunner {
 
     private boolean isHoldingGlyph() {
         return proximitySensor.getDistance(DistanceUnit.MM) <= HOLDING_GLYPH_DIST_MM;
-    }
-
-    public void displayStatus() {
-        // Don't do anything until enough time passed.
-        if (timeSinceLastDisplayUpdate.milliseconds() < DISPLAY_UPDATE_RATE_MS)
-            return;
-
-        timeSinceLastDisplayUpdate.reset();
-
-        try (AdafruitGraphix.Draw ignored = graphix.begin(true)) {
-
-            // holding glyph
-            if (isHoldingGlyph()) {
-                graphix.fillRect(0, 0, 6, 8, AdafruitGraphix.YELLOW);
-            }
-
-            switch (CryptoboxRow.getNearestRow(liftMotor.getCurrentPosition())) {
-                case HIGHEST:
-                    graphix.fillRect(6, 0, 2, 2, AdafruitGraphix.RED);
-                    break;
-                case HIGHER:
-                    graphix.fillRect(6, 2, 2, 2, AdafruitGraphix.RED);
-                    break;
-                case LOWER:
-                    graphix.fillRect(6, 4, 2, 2, AdafruitGraphix.RED);
-                    break;
-                case LOWEST:
-                    graphix.fillRect(6, 6, 2, 2, AdafruitGraphix.RED);
-                    break;
-            }
-        }
-    }
-
-    /**
-     * Show a checkmark
-     */
-    private void displayOK() {
-        // Yellow means that init is successful with warnings (missing hardware, etc)
-        // Green means everything went smoothly with no warnings
-        short color = hasWarnings ? AdafruitGraphix.YELLOW : AdafruitGraphix.GREEN;
-
-        try (AdafruitGraphix.Draw ignored = graphix.begin(true)) {
-            graphix.drawLine(0, 5, 2, 7, color);
-            graphix.drawLine(3, 6, 7, 2, color);
-        }
-    }
-
-    public void displayUnknown() {
-        byte color = AdafruitGraphix.YELLOW;
-        try (AdafruitGraphix.Draw ignored = graphix.begin(true)) {
-            graphix.drawLine(2, 2, 3, 1, color);
-            graphix.drawLine(4, 1, 5, 2, color);
-            graphix.drawLine(5, 3, 3, 5, color);
-            graphix.drawLine(3, 6, 3, 7, color);
-        }
     }
 }
 

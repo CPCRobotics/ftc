@@ -29,10 +29,7 @@ package org.firstinspires.ftc.teamcode.hardware;
 // POSSIBILITY OF SUCH DAMAGE.
 //
 
-import android.util.Log;
-
 import java.io.Closeable;
-import java.io.IOException;
 
 /**
  * Based off Adafruit_GFX Arduino library.

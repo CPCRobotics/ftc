@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.configuration.MotorConfigurationType;
 
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Enables mass changing a group of DcMotors.

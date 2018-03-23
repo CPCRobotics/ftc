@@ -24,13 +24,13 @@ public class AutonomousStrategy {
 
         // Set up stuff
         tilerunner.init(opMode.hardwareMap, opMode.telemetry, Tilerunner.OpmodeType.AUTONOMOUS);
-        tilerunner.zeroLift(waitHandler, false);
+        tilerunner.zeroLift(waitHandler);
 
         EyesightUtil.init(opMode);
     }
 
     public void start() throws InterruptedException {
-        CryptoboxColumn column = new PictographStrategy(waitHandler, tilerunner).readCryptoboxKey();
+        CryptoboxColumn column = new PictographStrategy(waitHandler).readCryptoboxKey();
         double offset = new JewelTopplerStrategy(position, waitHandler, opMode.hardwareMap.appContext, tilerunner).toppleEnemyJewel();
         new PlaceGlyphStrategy(tilerunner, position, waitHandler).placeGlyph(column, offset);
     }

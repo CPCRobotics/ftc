@@ -16,9 +16,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Temperature;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 /**
- * Created by samuel on 10/14/17.
+ * Fake IMU Sensor
  */
-
 public class NullBNO055IMU implements BNO055IMU {
     @Override
     public boolean initialize(@NonNull Parameters parameters) {

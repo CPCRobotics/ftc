@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.feature;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.Tilerunner;
 
 /**

@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.teamcode.util.BusyWaitHandler;
 import org.firstinspires.ftc.teamcode.util.EyesightUtil;
-import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
@@ -15,13 +14,9 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
 public class PictographStrategy {
 
     private final BusyWaitHandler waitHandler;
-    private final Tilerunner tilerunner;
 
-    private static final double INTERVAL_ADJUST_DEGREES = 10;
-
-    public PictographStrategy(BusyWaitHandler waitHandler, Tilerunner tilerunner) {
+    public PictographStrategy(BusyWaitHandler waitHandler) {
         this.waitHandler = waitHandler;
-        this.tilerunner = tilerunner;
     }
 
     public CryptoboxColumn readCryptoboxKey() throws InterruptedException {
@@ -36,7 +31,6 @@ public class PictographStrategy {
         CryptoboxColumn column = CryptoboxColumn.fromVuMark(vuMark);
 
         Twigger.getInstance().sendOnce("Detected Pictogram: " + column.name());
-        column.displayPosition(tilerunner);
 
         EyesightUtil.stop();
 

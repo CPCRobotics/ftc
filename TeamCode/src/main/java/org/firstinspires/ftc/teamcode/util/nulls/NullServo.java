@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.util.nulls;
 
-import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 
 /**
- * Created by samuel on 10/27/17.
+ * Fake servo; does nothing
  */
-
 public class NullServo implements Servo {
     @Override
     public ServoController getController() {

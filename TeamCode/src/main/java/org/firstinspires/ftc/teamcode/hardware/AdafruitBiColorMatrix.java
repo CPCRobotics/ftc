@@ -1,17 +1,11 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
-import android.util.Log;
-
-import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cAddrConfig;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
 import com.qualcomm.robotcore.hardware.I2cWaitControl;
 import com.qualcomm.robotcore.hardware.configuration.I2cSensor;
-import com.qualcomm.robotcore.util.TypeConversion;
-
-import java.util.Arrays;
 
 /**
  * This is the AdaFruit 8x8 bi-color matrix able to display three colors - reg, green and orange.
@@ -151,7 +145,7 @@ public class AdafruitBiColorMatrix extends I2cDeviceSynchDevice<I2cDeviceSynch> 
             byte setRed = hasRed(color) ? (byte)0xff : 0;
             byte setGreen = hasGreen(color) ? (byte)0xff : 0;
             for(int i = 0; i < buffer.length; i+=2) {
-                buffer[i+0] = setGreen;
+                buffer[i]   = setGreen;
                 buffer[i+1] = setRed;
             }
         }

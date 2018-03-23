@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.util.nulls;
 
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
-import com.qualcomm.robotcore.hardware.HardwareDevice;
 
 public class NullDigitalChannel implements DigitalChannel {
     @Override

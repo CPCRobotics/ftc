@@ -5,9 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.configuration.MotorConfigurationType;
 
 /**
- * Created by samuel on 9/30/17.
+ * Fake DC Motor; does nothing
  */
-
 public class NullDcMotor implements DcMotor {
     @Override
     public MotorConfigurationType getMotorType() {

@@ -93,9 +93,6 @@ public class TankDrive extends OpMode {
     public void loop() {
         Twigger.getInstance().update();
 
-        // Show at the beginning in case it should be overridden
-        tilerunner.displayStatus();
-
         tilerunner.retractJewelWhacker();
         // "Special" function features
         if (easyPut.call(gamepad1.left_bumper)) return;

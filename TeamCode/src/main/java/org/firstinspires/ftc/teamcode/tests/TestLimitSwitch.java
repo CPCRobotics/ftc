@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
 public class TestLimitSwitch extends AutonomousOpmode {
     @Override
     protected void startAutonomous() throws InterruptedException {
-        while (true) {
+        while (isActive()) {
             Twigger.getInstance()
                     .addData("top", tilerunner.isLiftAtHighPoint())
                     .addData("bottom", tilerunner.isLiftAtLowPoint())
