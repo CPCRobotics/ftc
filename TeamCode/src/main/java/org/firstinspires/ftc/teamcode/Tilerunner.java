@@ -39,11 +39,8 @@ public class Tilerunner {
     private static final String ROBOT_VERSION = "0.0.10.2-1";
 
     // Hardware
-
-    private static final double PRAC_TICKS_PER_IN = 1120 / (4 * Math.PI); // NeverRest 40 AM-2964
-    private static final double COMP_TICKS_PER_IN = 537.6 / (4 * Math.PI); // NeverRest 20 AM-3637
-
-    private double ticksPerInch = COMP_TICKS_PER_IN;
+    private static final double WHEEL_CIRCUMFERENCE = 4 * Math.PI;
+    private double ticksPerInch = 0;
 
     // Thresholds
     private static final double THRESHOLD_INCHES = 4;
@@ -209,6 +206,9 @@ public class Tilerunner {
         // Create a motor pair when manipulating both wheels at the same time
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
+        // Set up ticks/in
+        ticksPerInch = leftMotor.getMotorType().getTicksPerRev() / WHEEL_CIRCUMFERENCE;
+
 
         // Claw motor
         clawMotor = createDcMotor(hardwareMap, "claw");
@@ -296,10 +296,6 @@ public class Tilerunner {
         Twigger.getInstance()
                 .sendOnce("Tilerunner initialized in " + initTime.seconds() + " seconds.")
                 .update();
-    }
-
-    public void switchTickRatio(boolean isCompBot) {
-        ticksPerInch = isCompBot ? COMP_TICKS_PER_IN : PRAC_TICKS_PER_IN;
     }
 
     /**
