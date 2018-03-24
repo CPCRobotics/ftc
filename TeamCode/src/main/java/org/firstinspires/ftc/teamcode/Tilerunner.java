@@ -39,12 +39,14 @@ public class Tilerunner {
     private static final String ROBOT_VERSION = "0.0.10.2-1";
 
     // Hardware
-    private static final int TICKS_PER_WHEEL_REVOLUTION = 1120;
-    private static final double WHEEL_DIAMETER_IN = 4;
-    private static final double WHEEL_CIRCUMFERENCE_IN = WHEEL_DIAMETER_IN * Math.PI;
+
+    private static final double PRAC_TICKS_PER_IN = 1120 / (4 * Math.PI); // NeverRest 40 AM-2964
+    private static final double COMP_TICKS_PER_IN = 537.6 / (4 * Math.PI); // NeverRest 20 AM-3637
+
+    private double ticksPerInch = COMP_TICKS_PER_IN;
 
     // Thresholds
-    private static final double THRESHOLD_TICKS = Tilerunner.TICKS_PER_WHEEL_REVOLUTION;
+    private static final double THRESHOLD_INCHES = 4;
     private static final double THRESHOLD_HEADING_DEG = 180;
     public static final double MOTOR_DEADZONE = 0.2; // range [0,1]
 
@@ -296,6 +298,10 @@ public class Tilerunner {
                 .update();
     }
 
+    public void switchTickRatio(boolean isCompBot) {
+        ticksPerInch = isCompBot ? COMP_TICKS_PER_IN : PRAC_TICKS_PER_IN;
+    }
+
     /**
      * Sets lift to the lowest point possible and resets the encoder
      */
@@ -343,7 +349,7 @@ public class Tilerunner {
      * Moves the robot a specified distance.
      */
     public void move(BusyWaitHandler waitHandler, double powerMultiplier, double inches) {
-        int ticks = (int)(Tilerunner.TICKS_PER_WHEEL_REVOLUTION * inches / Tilerunner.WHEEL_CIRCUMFERENCE_IN);
+        int ticks = (int)(ticksPerInch * inches);
 
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setTargetPosition( ticks );
@@ -353,7 +359,7 @@ public class Tilerunner {
         while (leftMotor.isBusy() && waitHandler.isActive()) {
             double currentPower = calculateSpeed(
                     Math.abs(motorPair.getTargetPosition() - motorPair.getCurrentPosition()),
-                    THRESHOLD_TICKS);
+                    THRESHOLD_INCHES / ticksPerInch);
             Twigger.getInstance()
                     .addLine(".move()")
                     .addData("mode", leftMotor.getMode())
