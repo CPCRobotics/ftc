@@ -35,6 +35,9 @@ public class JudgeMode extends OpMode {
     public void loop() {
         Twigger.getInstance().update();
 
+        boolean glyphDetected = tilerunner.glyphDetected();
+        tilerunner.setLights(glyphDetected, glyphDetected);
+
         // Claw Motor (Gamepad 1 Triggers)
         double putVal = glyphPut.get(gamepad1.left_trigger);
         if (putVal > 0) {

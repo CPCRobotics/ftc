@@ -36,7 +36,7 @@ import java.util.Arrays;
  * All the hardware and its utility methods
  */
 public class Tilerunner {
-    private static final String ROBOT_VERSION = "0.0.10.2-1";
+    private static final String ROBOT_VERSION = "0.1.0";
 
     // Hardware
     private static final double WHEEL_CIRCUMFERENCE = 4 * Math.PI;
@@ -54,8 +54,10 @@ public class Tilerunner {
     private boolean ignoreSoftwareLimits = false;
 
     private static final int LIFT_MOTOR_MIN = 10;
-    private static final int LIFT_MOTOR_MAX = 5000; // True max: 5017
+    private static final int LIFT_MOTOR_MAX = 2500; // True max: 2518
     private static final int LIFT_LOW_POSITION = 200;
+
+    private static final double LIGHT_MOTOR_SPEED = 1;
 
     private static final int NEAR_LIFT_POSITION_THRESHOLD = 150;
 
@@ -70,6 +72,11 @@ public class Tilerunner {
     private DcMotor liftMotor;
     private DigitalChannel liftSensorLow;
     private DigitalChannel liftSensorHigh;
+
+    // According to Game Rules, lights can not be controlled via Digital Output,
+    // but they can still be controlled via DC Motors.
+    private DcMotor lightRed = new NullDcMotor();
+    private DcMotor lightGreen = new NullDcMotor();
 
     // Aligns the glyph in the 4th row to prevent it from toppling
     private Servo holderLeft = new NullServo();
@@ -202,9 +209,18 @@ public class Tilerunner {
         //  Drive Motors
         leftMotor   = createDcMotor(hardwareMap, "left_drive");
         rightMotor  = createDcMotor(hardwareMap, "right_drive");
-        rightMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftMotor.setDirection(DcMotor.Direction.REVERSE);
         // Create a motor pair when manipulating both wheels at the same time
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
+
+        // Lights
+        lightRed = new DCMotorGroup(Arrays.asList(
+                createDcMotor(hardwareMap, "lightr1"),
+                createDcMotor(hardwareMap, "lightr2")));
+        lightGreen = new DCMotorGroup(Arrays.asList(
+                createDcMotor(hardwareMap, "lightg1"),
+                createDcMotor(hardwareMap, "lightg2")
+        ));
 
         // Set up ticks/in
         ticksPerInch = leftMotor.getMotorType().getTicksPerRev() / WHEEL_CIRCUMFERENCE;
@@ -233,7 +249,7 @@ public class Tilerunner {
         // LIFT devices
         try {
             liftMotor = createDcMotor(hardwareMap, "lift");
-            liftMotor.setDirection(DcMotor.Direction.REVERSE);
+
             liftSensorLow = hardwareMap.digitalChannel.get("lift_low");
             liftSensorLow.setMode(DigitalChannel.Mode.INPUT);
             liftSensorHigh = hardwareMap.digitalChannel.get("lift_high");
@@ -621,6 +637,23 @@ public class Tilerunner {
 
     private boolean isHoldingGlyph() {
         return proximitySensor.getDistance(DistanceUnit.MM) <= HOLDING_GLYPH_DIST_MM;
+    }
+
+    public void setRed(boolean isOn) {
+        lightRed.setPower(isOn ? LIGHT_MOTOR_SPEED : 0);
+    }
+
+    public void setGreen(boolean isOn) {
+        lightGreen.setPower(isOn ? LIGHT_MOTOR_SPEED : 0);
+    }
+
+    public void setLights(boolean red, boolean green) {
+        setRed(red);
+        setGreen(green);
+    }
+
+    public boolean glyphDetected() {
+        return proximitySensor.getDistance(DistanceUnit.MM) > HOLDING_GLYPH_DIST_MM;
     }
 }
 

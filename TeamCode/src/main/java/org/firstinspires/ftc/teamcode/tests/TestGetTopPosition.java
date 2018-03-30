@@ -18,7 +18,7 @@ public class TestGetTopPosition extends AutonomousOpmode {
 
         tilerunner.setIgnoreSoftwareLimits(true);
         while (!tilerunner.isLiftAtHighPoint())
-            tilerunner.setLiftPower(0.25);
+            tilerunner.setLiftPower(0.15);
 
         Twigger.getInstance().sendOnce("ELEVATOR POSITION: " + tilerunner.getElevatorPos()).update();
         Thread.sleep(10000);

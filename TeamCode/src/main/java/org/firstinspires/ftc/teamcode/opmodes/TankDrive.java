@@ -94,6 +94,10 @@ public class TankDrive extends OpMode {
         Twigger.getInstance().update();
 
         tilerunner.retractJewelWhacker();
+
+        boolean glyphDetected = tilerunner.glyphDetected();
+        tilerunner.setLights(glyphDetected, glyphDetected);
+
         // "Special" function features
         if (easyPut.call(gamepad1.left_bumper)) return;
         if (easyStack.call(gamepad1.right_bumper)) return;
