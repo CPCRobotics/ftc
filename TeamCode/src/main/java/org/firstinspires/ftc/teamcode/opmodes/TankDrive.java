@@ -66,7 +66,7 @@ public class TankDrive extends OpMode {
     }
 
     private static double calculateLiftSpeed(double joystickPower) {
-        double result = (joystickPower * joystickPower) * Math.signum(joystickPower);
+        double result = (joystickPower * joystickPower * joystickPower);
         return clamp(result * 5, -1, 1);
     }
     /*

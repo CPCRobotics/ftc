@@ -36,7 +36,7 @@ import java.util.Arrays;
  * All the hardware and its utility methods
  */
 public class Tilerunner {
-    private static final String ROBOT_VERSION = "0.1.0";
+    private static final String ROBOT_VERSION = "0.1.1";
 
     // Hardware
     private static final double WHEEL_CIRCUMFERENCE = 4 * Math.PI;
@@ -44,7 +44,7 @@ public class Tilerunner {
 
     // Thresholds
     private static final double THRESHOLD_INCHES = 4;
-    private static final double THRESHOLD_HEADING_DEG = 180;
+    private static final double THRESHOLD_HEADING_DEG = 360;
     public static final double MOTOR_DEADZONE = 0.2; // range [0,1]
 
     private static final double TURN_THRESHOLD_DEG = 5;
@@ -54,14 +54,14 @@ public class Tilerunner {
     private boolean ignoreSoftwareLimits = false;
 
     private static final int LIFT_MOTOR_MIN = 10;
-    private static final int LIFT_MOTOR_MAX = 2500; // True max: 2518
+    private static final int LIFT_MOTOR_MAX = 2480; // True max: 2518
     private static final int LIFT_LOW_POSITION = 200;
 
     private static final double LIGHT_MOTOR_SPEED = 1;
 
     private static final int NEAR_LIFT_POSITION_THRESHOLD = 150;
 
-    private static final double ZERO_LIFT_POWER = 0.25;
+    private static final double ZERO_LIFT_POWER = 0.4;
 
     // Wheels
     public DcMotor leftMotor;
@@ -312,6 +312,8 @@ public class Tilerunner {
         Twigger.getInstance()
                 .sendOnce("Tilerunner initialized in " + initTime.seconds() + " seconds.")
                 .update();
+
+        setLights(true, true);
     }
 
     /**
@@ -463,6 +465,7 @@ public class Tilerunner {
 
         currentPosition = destination;
 
+
         // Correct turn if too bad after momentum is gone
         if (Math.min(delta, 360-delta) > TURN_THRESHOLD_DEG) {
             // Calculate shortest distance to be corrected
@@ -470,8 +473,9 @@ public class Tilerunner {
 
             Twigger.getInstance().sendOnce("Delta (" + delta + ") Too big. Correcting by " +
                     correctionSpeed);
-            turn(waitHandler, power/2, correctionSpeed);
+            turn(waitHandler, power/4, correctionSpeed);
         }
+
 
         Twigger.getInstance()
                 .update()
