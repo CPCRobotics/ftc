@@ -357,20 +357,9 @@ public class Tilerunner {
     /**
      * Moves the robot a specified distance.
      */
-    public void move(BusyWaitHandler waitHandler, double power, double destInches) {
-
-        // If power is negative (it shouldn't), flip the sign to the destination
-        if (power < 0) {
-            Twigger.getInstance()
-                    .sendOnce("WARN: .move() received negative power (" + power + ").");
-            power *= -1;
-            destInches *= -1;
-        }
-
+    public void move(BusyWaitHandler waitHandler, double destInches, PIDController pid) {
         // Calculate required ticks
         int destTicks = (int)(ticksPerInch * destInches);
-
-        PIDController controller = new PIDController(-power, power, 0.1, 0, 0);
 
         // Set up motors to stop at destination
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -381,7 +370,7 @@ public class Tilerunner {
             double
                     currPos = motorPair.getCurrentPosition() / ticksPerInch,
                     err = destInches - currPos,
-                    currPower = controller.get(err);
+                    currPower = pid.get(err);
 
             // Ensure the motors are powerful enough to move the bot
             currPower = Math.max(MOTOR_DEADZONE, Math.abs(currPower)) * Math.signum(currPower);
@@ -399,6 +388,19 @@ public class Tilerunner {
         Twigger.getInstance()
                 .update()
                 .remove(".move()");
+    }
+
+    public void move(BusyWaitHandler waitHandler, double power, double destInches) {
+
+        // If power is negative (it shouldn't), flip the sign to the destination
+        if (power < 0) {
+            Twigger.getInstance()
+                    .sendOnce("WARN: .move() received negative power (" + power + ").");
+            power *= -1;
+            destInches *= -1;
+        }
+
+        move(waitHandler, destInches, new PIDController(-power, power, 0.02, 0, 0));
     }
 
     /**
