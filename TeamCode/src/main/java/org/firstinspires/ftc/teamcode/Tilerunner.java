@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.teamcode.hardware.AdafruitADPS9960;
 import org.firstinspires.ftc.teamcode.hardware.ProximitySensor;
 import org.firstinspires.ftc.teamcode.util.DCMotorGroup;
 import org.firstinspires.ftc.teamcode.util.PIDController;
+import org.firstinspires.ftc.teamcode.util.RobotType;
 import org.firstinspires.ftc.teamcode.util.ServoGroup;
 import org.firstinspires.ftc.teamcode.util.SpeedController;
 import org.firstinspires.ftc.teamcode.util.VirtualCompass;
@@ -207,7 +209,14 @@ public class Tilerunner {
         //  Drive Motors
         leftMotor   = createDcMotor(hardwareMap, "left_drive");
         rightMotor  = createDcMotor(hardwareMap, "right_drive");
-        leftMotor.setDirection(DcMotor.Direction.REVERSE);
+
+        // The competition and test bots have the tilerunner hooked up in reverse.
+        if (RobotType.detect(hardwareMap) == RobotType.COMPETITION) {
+            leftMotor.setDirection(DcMotor.Direction.REVERSE);
+        } else {
+            rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        }
+
         // Create a motor pair when manipulating both wheels at the same time
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
@@ -229,8 +238,8 @@ public class Tilerunner {
 
 
         // Kickers are grouped to behave the same
-        Servo kicker1 = getHardware(Servo.class, hardwareMap, "kicker", new NullServo());
-        Servo kicker2 = getHardware(Servo.class, hardwareMap, "kicker2", new NullServo());
+        Servo kicker1 = getHardware(Servo.class, hardwareMap, "kicku", new NullServo());
+        Servo kicker2 = getHardware(Servo.class, hardwareMap, "kickd", new NullServo());
         kicker = new ServoGroup(kicker1, kicker2);
 
         if (opMode == OpmodeType.AUTONOMOUS)
@@ -600,10 +609,6 @@ public class Tilerunner {
         setGlyphHolder(0);
     }
 
-    private boolean isHoldingGlyph() {
-        return proximitySensor.getDistance(DistanceUnit.MM) <= HOLDING_GLYPH_DIST_MM;
-    }
-
     public void setRed(boolean isOn) {
         lightRed.setPower(isOn ? LIGHT_MOTOR_SPEED : 0);
     }
@@ -617,8 +622,8 @@ public class Tilerunner {
         setGreen(green);
     }
 
-    public boolean glyphDetected() {
-        return proximitySensor.getDistance(DistanceUnit.MM) > HOLDING_GLYPH_DIST_MM;
+    public boolean isHoldingGlyph() {
+        return proximitySensor.getDistance(DistanceUnit.MM) <= HOLDING_GLYPH_DIST_MM;
     }
 }
 

@@ -22,11 +22,11 @@ public class TestOpmodeTurn extends LinearOpMode implements BusyWaitHandler {
 
         waitForStart();
 
+        double angle = 360;
         while (opModeIsActive()) {
-            tilerunner.turn(this, SPEED, 180);
+            tilerunner.turn(this, SPEED, angle);
             Thread.sleep(1000);
-            tilerunner.turn(this, SPEED, -180);
-            Thread.sleep(1000);
+            angle *= -1; // Reverse the angle
         }
     }
 

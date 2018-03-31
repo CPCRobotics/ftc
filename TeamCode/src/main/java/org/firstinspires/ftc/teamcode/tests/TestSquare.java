@@ -12,16 +12,19 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
  */
 @Autonomous(name="Test Square", group="Test")
 public class TestSquare extends LinearOpMode implements BusyWaitHandler {
+    private static final double ROBOT_POWER = 0.25;
+
     @Override
     public void runOpMode() throws InterruptedException {
         Tilerunner tilerunner = new Tilerunner();
         tilerunner.init(hardwareMap, telemetry, Tilerunner.OpmodeType.AUTONOMOUS);
 
+
         waitForStart();
 
         while (isActive()) {
-            tilerunner.move(this, 1, 12);
-            tilerunner.turn(this, 1, 90);
+            tilerunner.move(this, ROBOT_POWER, 12);
+            tilerunner.turn(this, ROBOT_POWER, 90);
         }
     }
 
