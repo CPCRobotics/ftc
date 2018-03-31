@@ -17,7 +17,11 @@ public class TestLights extends AutonomousOpmode {
         while (opModeIsActive()) {
             tilerunner.setLights(false, false);
             Thread.sleep(SLEEP_DELAY);
+            tilerunner.setRed(true, false);
+            Thread.sleep(SLEEP_DELAY);
             tilerunner.setRed(true);
+            Thread.sleep(SLEEP_DELAY);
+            tilerunner.setGreen(true, false);
             Thread.sleep(SLEEP_DELAY);
             tilerunner.setGreen(true);
             Thread.sleep(SLEEP_DELAY);

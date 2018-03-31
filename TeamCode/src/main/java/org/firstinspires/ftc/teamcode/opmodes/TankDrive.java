@@ -95,8 +95,9 @@ public class TankDrive extends OpMode {
 
         tilerunner.retractJewelWhacker();
 
+        // Red = no glyph, Green = glyph
         boolean glyphDetected = tilerunner.isHoldingGlyph();
-        tilerunner.setLights(glyphDetected, glyphDetected);
+        tilerunner.setLights(!glyphDetected, glyphDetected);
 
         // "Special" function features
         if (easyPut.call(gamepad1.left_bumper)) return;

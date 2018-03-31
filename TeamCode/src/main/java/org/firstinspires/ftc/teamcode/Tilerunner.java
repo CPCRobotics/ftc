@@ -75,8 +75,10 @@ public class Tilerunner {
 
     // According to Game Rules, lights can not be controlled via Digital Output,
     // but they can still be controlled via DC Motors.
-    private DcMotor lightRed = new NullDcMotor();
-    private DcMotor lightGreen = new NullDcMotor();
+    private DcMotor lightRedL = new NullDcMotor();
+    private DcMotor lightRedR = new NullDcMotor();
+    private DcMotor lightGreenL = new NullDcMotor();
+    private DcMotor lightGreenR = new NullDcMotor();
 
     // Aligns the glyph in the 4th row to prevent it from toppling
     private Servo holderLeft = new NullServo();
@@ -221,13 +223,10 @@ public class Tilerunner {
         motorPair = new DCMotorGroup(Arrays.asList(leftMotor, rightMotor));
 
         // Lights
-        lightRed = new DCMotorGroup(Arrays.asList(
-                createDcMotor(hardwareMap, "lightr1"),
-                createDcMotor(hardwareMap, "lightr2")));
-        lightGreen = new DCMotorGroup(Arrays.asList(
-                createDcMotor(hardwareMap, "lightg1"),
-                createDcMotor(hardwareMap, "lightg2")
-        ));
+        lightRedL = createDcMotor(hardwareMap, "lightr1");
+        lightRedR = createDcMotor(hardwareMap, "lightr2");
+        lightGreenL = createDcMotor(hardwareMap, "lightg1");
+        lightGreenR = createDcMotor(hardwareMap, "lightg2");
 
         // Set up ticks/in
         ticksPerInch = leftMotor.getMotorType().getTicksPerRev() / WHEEL_CIRCUMFERENCE;
@@ -612,17 +611,35 @@ public class Tilerunner {
         setGlyphHolder(0);
     }
 
+    private void setLight(DcMotor light, boolean isOn) {
+        light.setPower(isOn ? LIGHT_MOTOR_SPEED : 0);
+    }
+
+    public void setRed(boolean left, boolean right) {
+        setLight(lightRedL, left);
+        setLight(lightRedR, right);
+    }
+
     public void setRed(boolean isOn) {
-        lightRed.setPower(isOn ? LIGHT_MOTOR_SPEED : 0);
+        setRed(isOn, isOn);
+    }
+
+    public void setGreen(boolean left, boolean right) {
+        setLight(lightGreenL, left);
+        setLight(lightGreenR, right);
     }
 
     public void setGreen(boolean isOn) {
-        lightGreen.setPower(isOn ? LIGHT_MOTOR_SPEED : 0);
+        setGreen(isOn, isOn);
     }
 
     public void setLights(boolean red, boolean green) {
         setRed(red);
         setGreen(green);
+    }
+
+    public void setLights(boolean isOn) {
+        setLights(isOn, isOn);
     }
 
     public boolean isHoldingGlyph() {
