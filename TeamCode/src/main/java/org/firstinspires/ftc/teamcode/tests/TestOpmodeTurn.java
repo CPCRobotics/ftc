@@ -13,6 +13,8 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
  */
 @Autonomous(name="Test Turn", group="TestConcept")
 public class TestOpmodeTurn extends LinearOpMode implements BusyWaitHandler {
+    private final double SPEED = 0.5;
+
     @Override
     public void runOpMode() throws InterruptedException {
         Tilerunner tilerunner = new Tilerunner();
@@ -21,10 +23,10 @@ public class TestOpmodeTurn extends LinearOpMode implements BusyWaitHandler {
         waitForStart();
 
         while (opModeIsActive()) {
-            tilerunner.turn(this, 1, 180);
-            Thread.sleep(500);
-            tilerunner.turn(this, -1, 180);
-            Thread.sleep(500);
+            tilerunner.turn(this, SPEED, 180);
+            Thread.sleep(1000);
+            tilerunner.turn(this, SPEED, -180);
+            Thread.sleep(1000);
         }
     }
 

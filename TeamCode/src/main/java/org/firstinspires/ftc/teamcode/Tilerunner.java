@@ -11,16 +11,15 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.hardware.AdafruitADPS9960;
 import org.firstinspires.ftc.teamcode.hardware.ProximitySensor;
 import org.firstinspires.ftc.teamcode.util.DCMotorGroup;
+import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.ServoGroup;
 import org.firstinspires.ftc.teamcode.util.SpeedController;
+import org.firstinspires.ftc.teamcode.util.VirtualCompass;
 import org.firstinspires.ftc.teamcode.util.nulls.NullBNO055IMU;
 import org.firstinspires.ftc.teamcode.util.nulls.NullDcMotor;
 import org.firstinspires.ftc.teamcode.util.nulls.NullDigitalChannel;
@@ -44,8 +43,7 @@ public class Tilerunner {
 
     // Thresholds
     private static final double THRESHOLD_INCHES = 4;
-    private static final double THRESHOLD_HEADING_DEG = 360;
-    public static final double MOTOR_DEADZONE = 0.2; // range [0,1]
+    public static final double MOTOR_DEADZONE = 0.05; // range [0,1]
 
     private static final double TURN_THRESHOLD_DEG = 5;
 
@@ -88,7 +86,7 @@ public class Tilerunner {
     public Servo jewelWhacker;
     private Servo kicker = new NullServo();
 
-    private BNO055IMU imu;
+    public VirtualCompass compass;
     private ProximitySensor proximitySensor;
 
     private final SpeedController leftController = new SpeedController();
@@ -261,8 +259,8 @@ public class Tilerunner {
         }
 
 
-        //  IMU
-        imu = new NullBNO055IMU();
+        //  Compass (IMU)
+        BNO055IMU imu = new NullBNO055IMU();
         if (opMode == OpmodeType.AUTONOMOUS) {
             try {
                 // Set up the parameters with which we will use our IMU. Note that integration
@@ -293,6 +291,7 @@ public class Tilerunner {
                 Twigger.getInstance().sendOnce("WARN: IMU Sensor Missing");
             }
         }
+        compass = new VirtualCompass(imu);
 
 
         // Proximity Sensor
@@ -388,20 +387,6 @@ public class Tilerunner {
                 .remove(".move()");
     }
 
-    private double distanceDegrees(double start, double end, double direction) {
-        double dist = (direction > 0) ? start - end : end - start;
-        if (dist < 0)
-            dist += 360;
-        return dist;
-    }
-
-    /**
-     * Get the angle the robot is at range [0-360)
-     */
-    private double getHeading() {
-        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
-    }
-
     /**
      * Rotates the robot at a specified angle.
      *1
@@ -412,48 +397,38 @@ public class Tilerunner {
     public void turn(BusyWaitHandler waitHandler, double power, double angle)
             throws InterruptedException {
 
-        // The current position is calibrated on the first .turn() call
+        // If power is negative, shift it to angles.
+        if (power < 0) {
+            angle *= -1;
+            power *= -1;
+        }
+
         if (currentPosition == null)
-            currentPosition = getHeading();
+            currentPosition = compass.getAngle();
+        final double dest = currentPosition + angle;
 
-        Twigger.getInstance().sendOnce("Arguments: power " + power + ", angle " + angle);
+        final PIDController pid = new PIDController(-power, power, .01, 0, 0);
 
+        Twigger.getInstance().sendOnce(".turn() arguments: power " + power + ", angle " + angle);
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        // Calculate the distance within a range of 0°-360°
-        double destination = (currentPosition - angle) % 360;
-        // The % operator doesn't convert a negative value to a positive value;
-        //   do this manually.
-        if (destination < 0)
-            destination += 360;
+        double error;
+        while (waitHandler.isActive() && Math.abs(error = dest - compass.getAngle()) > TURN_THRESHOLD_DEG) {
+            double currentPower = pid.get(error);
+            // ensure movement is powerful enough
+            currentPower = Math.max(MOTOR_DEADZONE, Math.abs(currentPower)) * Math.signum(currentPower);
 
-        // Get the product of all signs of both numbers, i.e. positive if
-        //  both numbers are the same sign, and negative otherwise
-        int direction = (int) (Math.signum(power) * Math.signum(angle));
-        power = Math.abs(power);
-
-        double delta = distanceDegrees(getHeading(), destination, direction);
-
-        Twigger.getInstance().sendOnce("Calculations: dest " + destination + ", delta " + delta);
-        while (delta > TURN_THRESHOLD_DEG && delta < (360 - TURN_THRESHOLD_DEG) && waitHandler.isActive()) {
-
-            // Update the current speed
-            double currentPower = power * calculateSpeed(delta, THRESHOLD_HEADING_DEG);
-            currentPower = Math.max(MOTOR_DEADZONE, currentPower);
-            currentPower *= direction;
-
-            leftMotor.setPower(currentPower);
-            rightMotor.setPower(-currentPower);
+            leftMotor.setPower(-currentPower);
+            rightMotor.setPower(currentPower);
 
             Twigger.getInstance().addLine(".turn()")
                     .addData("power", currentPower)
-                    .addData("delta", delta)
-                    .addData("dest", destination)
-                    .addData("curr", getHeading());
+                    .addData("dest", dest)
+                    .addData("curr", compass.getAngle())
+                    .addData("err", error);
 
             Thread.sleep(1);
-            delta = distanceDegrees(getHeading(), destination, direction);
         }
 
         motorPair.setPower(0);
@@ -461,21 +436,7 @@ public class Tilerunner {
 
         Thread.sleep(100); // Wait for momentum to finish
 
-        delta = distanceDegrees(getHeading(), destination, direction);
-
-        currentPosition = destination;
-
-
-        // Correct turn if too bad after momentum is gone
-        if (Math.min(delta, 360-delta) > TURN_THRESHOLD_DEG) {
-            // Calculate shortest distance to be corrected
-            double correctionSpeed = delta < 360-delta ? delta : delta-360;
-
-            Twigger.getInstance().sendOnce("Delta (" + delta + ") Too big. Correcting by " +
-                    correctionSpeed);
-            turn(waitHandler, power/4, correctionSpeed);
-        }
-
+        currentPosition = dest;
 
         Twigger.getInstance()
                 .update()
