@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.tests;
+package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.util.PIDTuner;
  * For PID Tuning
  */
 @TeleOp(name="Tune PID .move()", group="Tune")
-public class TestPIDMove extends LinearOpMode implements BusyWaitHandler {
+public class TunePIDMove extends LinearOpMode implements BusyWaitHandler {
     private PIDTuner tuner;
 
         @Override

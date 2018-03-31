@@ -24,7 +24,7 @@ public class TestOpmodeMove extends LinearOpMode implements BusyWaitHandler {
         ElapsedTime time = new ElapsedTime();
 
         Twigger.getInstance()
-                .addLine("TestPIDMove")
+                .addLine("TunePIDMove")
                     .addData("left", new Func<String>() {
                         @Override
                         public String value() {
