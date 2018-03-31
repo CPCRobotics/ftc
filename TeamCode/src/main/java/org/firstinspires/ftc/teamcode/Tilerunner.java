@@ -373,7 +373,7 @@ public class Tilerunner {
                     currPower = pid.get(err);
 
             // Ensure the motors are powerful enough to move the bot
-            currPower = Math.max(MOTOR_DEADZONE, Math.abs(currPower)) * Math.signum(currPower);
+            //currPower = Math.max(MOTOR_DEADZONE, Math.abs(currPower)) * Math.signum(currPower);
 
             motorPair.setPower(currPower);
 
@@ -400,7 +400,7 @@ public class Tilerunner {
             destInches *= -1;
         }
 
-        move(waitHandler, destInches, new PIDController(-power, power, 0.02, 0, 0));
+        move(waitHandler, destInches, new PIDController(-power, power, 0.03, 0.01, 0.01));
     }
 
     /**
@@ -428,7 +428,7 @@ public class Tilerunner {
         while (waitHandler.isActive() && Math.abs(error = dest - compass.getAngle()) > TURN_THRESHOLD_DEG) {
             double currentPower = pid.get(error);
             // ensure movement is powerful enough
-            currentPower = Math.max(MOTOR_DEADZONE, Math.abs(currentPower)) * Math.signum(currentPower);
+            //currentPower = Math.max(MOTOR_DEADZONE, Math.abs(currentPower)) * Math.signum(currentPower);
 
             leftMotor.setPower(-currentPower);
             rightMotor.setPower(currentPower);
@@ -462,7 +462,7 @@ public class Tilerunner {
             power *= -1;
         }
 
-        turn(waitHandler, angle, new PIDController(-power, power, 0.1, 0, 0));
+        turn(waitHandler, angle, new PIDController(-power, power, 0.03, 0.01, 0));
     }
 
     /**
