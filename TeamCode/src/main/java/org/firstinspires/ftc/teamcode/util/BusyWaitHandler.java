@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode.util;
 
 public interface BusyWaitHandler {
-    boolean isActive();
+    boolean isActive() throws InterruptedException;
 }

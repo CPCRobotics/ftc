@@ -10,17 +10,14 @@ import org.firstinspires.ftc.teamcode.util.BusyWaitHandler;
 import org.firstinspires.ftc.teamcode.util.PIDTuner;
 
 /**
- * Drives the robot back and forth to test Tilerunner.move().
- *
- * For PID Tuning
+ * Tune the PID live via the gamepad buttons
  */
-@TeleOp(name="Tune PID .move()", group="Tune")
-public class TestPIDMove extends LinearOpMode implements BusyWaitHandler {
+@TeleOp(name="Tune PID .turn()", group="Tune")
+public class TunePIDTurn extends LinearOpMode implements BusyWaitHandler {
     private PIDTuner tuner;
 
-        @Override
+    @Override
     public void runOpMode() throws InterruptedException {
-        final double DEST_IN = 36;
 
         tuner = new PIDTuner(0.5, gamepad1);
         Tilerunner tilerunner = new Tilerunner();
@@ -28,11 +25,11 @@ public class TestPIDMove extends LinearOpMode implements BusyWaitHandler {
 
         waitForStart();
 
+        int direction = 1;
         while (opModeIsActive()) {
-            tilerunner.move(this, DEST_IN, tuner.get());
+            tilerunner.turn(this, 360 * direction, tuner.get());
             longSleep();
-            tilerunner.move(this, -DEST_IN, tuner.get());
-            longSleep();
+            direction *= -1;
         }
     }
 

@@ -357,7 +357,7 @@ public class Tilerunner {
     /**
      * Moves the robot a specified distance.
      */
-    public void move(BusyWaitHandler waitHandler, double destInches, PIDController pid) {
+    public void move(BusyWaitHandler waitHandler, double destInches, PIDController pid) throws InterruptedException {
         // Calculate required ticks
         int destTicks = (int)(ticksPerInch * destInches);
 
@@ -390,7 +390,7 @@ public class Tilerunner {
                 .remove(".move()");
     }
 
-    public void move(BusyWaitHandler waitHandler, double power, double destInches) {
+    public void move(BusyWaitHandler waitHandler, double power, double destInches) throws InterruptedException {
 
         // If power is negative (it shouldn't), flip the sign to the destination
         if (power < 0) {
@@ -410,25 +410,17 @@ public class Tilerunner {
      * and a tired developer that's too afraid to change it any more, lets it breaks
      * again.
      */
-    public void turn(BusyWaitHandler waitHandler, double power, double angle)
+    public void turn(BusyWaitHandler waitHandler, double angle, PIDController pid)
             throws InterruptedException {
 
         // Turn algorithm uses positive angles to turn CCW. .turn() promises
         // positive angles turns CW instead.
         angle *= -1;
-        // If power is negative, shift it to angles.
-        if (power < 0) {
-            angle *= -1;
-            power *= -1;
-        }
 
         if (currentPosition == null)
             currentPosition = compass.getAngle();
         final double dest = currentPosition + angle;
 
-        final PIDController pid = new PIDController(-power, power, .01, 0, 0);
-
-        Twigger.getInstance().sendOnce(".turn() arguments: power " + power + ", angle " + angle);
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -461,6 +453,16 @@ public class Tilerunner {
                 .update()
                 .remove(".turn()");
 
+    }
+
+    public void turn(BusyWaitHandler waitHandler, double power, double angle) throws InterruptedException {
+        // If power is negative, shift it to angles.
+        if (power < 0) {
+            angle *= -1;
+            power *= -1;
+        }
+
+        turn(waitHandler, angle, new PIDController(-power, power, 0.1, 0, 0));
     }
 
     /**
