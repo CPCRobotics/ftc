@@ -29,16 +29,17 @@ public class Twigger {
         return ourInstance;
     }
 
-    private Twigger() {
-    }
+    private Twigger() {}
 
     public class Line implements Func<String> {
 
-        // Line should only be created by Twigger.
-        private Line() {}
-
-        final Telemetry.Line line = telemetry.addLine();
+        private final Telemetry.Line line;
         private final HashMap<String, Func<String>> dataFuncs = new HashMap<>();
+
+        // Line should only be created by Twigger.
+        private Line(String name) {
+            line = telemetry.addLine(name);
+        }
 
         @Override
         public String value() {
@@ -52,12 +53,14 @@ public class Twigger {
         }
 
         public Line addData(String name, final Object data) {
-            return addData(name, new Func<String>() {
+            line.addData(name, data);
+            dataFuncs.put(name, new Func<String>() {
                 @Override
                 public String value() {
                     return data.toString();
                 }
             });
+            return this;
         }
 
         public Line addData(String name, Func<String> data) {
@@ -76,24 +79,22 @@ public class Twigger {
         telemetry.setAutoClear(true);
     }
 
-    public Line addLine() {
-        return addLine("Line");
-    }
-
     public Line addLine(String name) {
-        Line line = new Line();
+        Line line = new Line(name);
         dataFuncs.put(name, line);
 
         return line;
     }
 
     public Twigger addData(String name, final Object data) {
-        return addData(name, new Func<String>() {
+        telemetry.addData(name, data);
+        dataFuncs.put(name, new Func<String>() {
             @Override
             public String value() {
                 return data.toString();
             }
         });
+        return this;
     }
 
     public Twigger addData(String name, Func<String> data) {

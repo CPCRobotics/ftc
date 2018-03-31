@@ -37,14 +37,13 @@ import java.util.Arrays;
  * All the hardware and its utility methods
  */
 public class Tilerunner {
-    private static final String ROBOT_VERSION = "0.1.1";
+    private static final String ROBOT_VERSION = "0.1.2";
 
     // Hardware
     private static final double WHEEL_CIRCUMFERENCE = 4 * Math.PI;
     private double ticksPerInch = 0;
 
     // Thresholds
-    private static final double THRESHOLD_INCHES = 4;
     public static final double MOTOR_DEADZONE = 0.05; // range [0,1]
 
     private static final double TURN_THRESHOLD_DEG = 5;
@@ -355,39 +354,46 @@ public class Tilerunner {
         return liftMotor.getCurrentPosition();
     }
 
-    // Utility Commands
-
-    /**
-     * @return the speed to run according to the goal distance left
-     */
-    private double calculateSpeed(double dist, double threshold) {
-
-        // Slow down when the distance to the target is less than the threshold
-        return Math.min(1, Math.max(MOTOR_DEADZONE, dist / threshold) );
-    }
-
     /**
      * Moves the robot a specified distance.
      */
-    public void move(BusyWaitHandler waitHandler, double powerMultiplier, double inches) {
-        int ticks = (int)(ticksPerInch * inches);
+    public void move(BusyWaitHandler waitHandler, double power, double destInches) {
 
+        // If power is negative (it shouldn't), flip the sign to the destination
+        if (power < 0) {
+            Twigger.getInstance()
+                    .sendOnce("WARN: .move() received negative power (" + power + ").");
+            power *= -1;
+            destInches *= -1;
+        }
+
+        // Calculate required ticks
+        int destTicks = (int)(ticksPerInch * destInches);
+
+        PIDController controller = new PIDController(-power, power, 0.1, 0, 0);
+
+        // Set up motors to stop at destination
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorPair.setTargetPosition( ticks );
+        motorPair.setTargetPosition( destTicks );
         motorPair.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorPair.setPower(powerMultiplier);
 
         while (leftMotor.isBusy() && waitHandler.isActive()) {
-            double currentPower = calculateSpeed(
-                    Math.abs(motorPair.getTargetPosition() - motorPair.getCurrentPosition()),
-                    THRESHOLD_INCHES / ticksPerInch);
-            Twigger.getInstance()
-                    .addLine(".move()")
-                    .addData("mode", leftMotor.getMode())
-                    .addData("target", leftMotor.getTargetPosition())
-                    .addData("pos", leftMotor.getCurrentPosition());
+            double
+                    currPos = motorPair.getCurrentPosition() / ticksPerInch,
+                    err = destInches - currPos,
+                    currPower = controller.get(err);
 
-            motorPair.setPower(currentPower * powerMultiplier);
+            // Ensure the motors are powerful enough to move the bot
+            currPower = Math.max(MOTOR_DEADZONE, Math.abs(currPower)) * Math.signum(currPower);
+
+            motorPair.setPower(currPower);
+
+            Twigger.getInstance().addLine(".move()")
+                    .addData("pos", currPos)
+                    .addData("target", destInches)
+                    .addData("err", err)
+                    .addData("pow", currPower);
+
         }
 
         Twigger.getInstance()
