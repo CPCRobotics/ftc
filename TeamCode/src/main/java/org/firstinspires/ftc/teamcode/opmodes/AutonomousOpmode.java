@@ -31,6 +31,8 @@ public abstract class AutonomousOpmode extends LinearOpMode implements BusyWaitH
 
     @Override
     public boolean isActive() {
-        return false;
+        Twigger.getInstance().update();
+        tilerunner.compass.updateCompass();
+        return opModeIsActive();
     }
 }

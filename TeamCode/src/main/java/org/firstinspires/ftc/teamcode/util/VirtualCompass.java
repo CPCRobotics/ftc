@@ -5,17 +5,18 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
  * Feigns continuous angles, i.e. angle measurements beyond the [-180°, 180°] range
  */
-public class VirtualCompass {
+public final class VirtualCompass {
     private static final double ANGLE_CROSS_THRESHOLD = 180;
 
     private final BNO055IMU imu;
 
     private double lastRawAngle = 0;
-    private double offset = 0; // Offset number of revolutions
+    private int offset = 0; // Offset number of revolutions
     private boolean firstTimeRun = true;
 
     public VirtualCompass(BNO055IMU imu) {
@@ -30,16 +31,29 @@ public class VirtualCompass {
     }
 
     public void updateCompass() {
+        double currAngle = getRawAngle();
+
         if (!firstTimeRun) {
-            double diff = lastRawAngle - getRawAngle();
-            if (diff < -ANGLE_CROSS_THRESHOLD)
-                offset -= 1;
-            else if (diff > ANGLE_CROSS_THRESHOLD)
-                offset += 1;
+            double diff = lastRawAngle - currAngle;
+            int rotation = 0;
+            if (diff < -ANGLE_CROSS_THRESHOLD) rotation = -1;
+            if (diff > ANGLE_CROSS_THRESHOLD) rotation = 1;
+
+            offset += rotation;
+
+
+            Twigger.getInstance().addLine("compass")
+                    .addData("last", lastRawAngle)
+                    .addData("curr", currAngle)
+                    .addData("diff", diff)
+                    .addData("status", rotation)
+                    .done();
         }
 
         firstTimeRun = false;
-        lastRawAngle = getRawAngle();
+        lastRawAngle = currAngle;
+        Twigger.getInstance().addLine("compass")
+                .addData("curr", currAngle);
     }
 
     public double getAngle() {

@@ -406,6 +406,9 @@ public class Tilerunner {
     public void turn(BusyWaitHandler waitHandler, double power, double angle)
             throws InterruptedException {
 
+        // Turn algorithm uses positive angles to turn CCW. .turn() promises
+        // positive angles turns CW instead.
+        angle *= -1;
         // If power is negative, shift it to angles.
         if (power < 0) {
             angle *= -1;
