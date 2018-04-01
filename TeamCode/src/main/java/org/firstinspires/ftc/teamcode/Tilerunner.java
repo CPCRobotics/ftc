@@ -233,6 +233,7 @@ public class Tilerunner {
 
         // Claw motor
         clawMotor = createDcMotor(hardwareMap, "claw");
+        clawMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         // Kickers are grouped to behave the same
@@ -462,7 +463,7 @@ public class Tilerunner {
             power *= -1;
         }
 
-        turn(waitHandler, angle, new PIDController(-power, power, 0.03, 0.01, 0));
+        turn(waitHandler, angle, new PIDController(-power, power, 0.002, 0.0002, 0.0002));
     }
 
     /**

@@ -24,7 +24,7 @@ public class EasyStackFeature extends Feature {
         }
 
         tilerunner.ejectGlyph(1, false);
-        tilerunner.motorPair.setPower(-0.7);
+        tilerunner.motorPair.setPower(-0.4);
 
         return (lastActive = true);
     }

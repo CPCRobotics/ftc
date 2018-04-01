@@ -36,7 +36,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.opmodes.feature.EasyPutFeature;
 import org.firstinspires.ftc.teamcode.opmodes.feature.EasyStackFeature;
 import org.firstinspires.ftc.teamcode.opmodes.feature.Feature;
 import org.firstinspires.ftc.teamcode.opmodes.feature.TurnFeature;
@@ -53,22 +52,30 @@ public class TankDrive extends OpMode {
     private final Tilerunner tilerunner = new Tilerunner();
 
     private final Feature easyStack = new EasyStackFeature(tilerunner);
-    private final Feature easyPut = new EasyPutFeature(tilerunner);
     private final Feature easyTurn = new TurnFeature(tilerunner);
 
     private final ThresholdTrigger glyphEject = new ThresholdTrigger();
     private final ThresholdTrigger glyphGrab = new ThresholdTrigger();
 
-    private static double clamp(double val, double min, double max) {
-        if (val < min) return min;
+    private double clamp(double val) {
+        double max = getMaxSpeed();
+        if (val < -max) return -max;
         if (val > max) return max;
         return val;
     }
 
-    private static double calculateLiftSpeed(double joystickPower) {
+    private double calculateLiftSpeed(double joystickPower) {
         double result = (joystickPower * joystickPower * joystickPower);
-        return clamp(result * 5, -1, 1);
+        return clamp(result * 5);
     }
+
+    /**
+     * Holding the left bumper will restrict
+     */
+    private double getMaxSpeed() {
+        return gamepad1.left_bumper ? 0.25 : 1.0;
+    }
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -100,7 +107,6 @@ public class TankDrive extends OpMode {
         tilerunner.setLights(!glyphDetected, glyphDetected);
 
         // "Special" function features
-        if (easyPut.call(gamepad1.left_bumper)) return;
         if (easyStack.call(gamepad1.right_bumper)) return;
 
         if (gamepad1.x) {
