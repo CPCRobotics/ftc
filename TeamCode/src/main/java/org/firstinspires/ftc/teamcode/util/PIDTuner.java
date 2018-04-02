@@ -33,7 +33,7 @@ public class PIDTuner {
     }
 
     public PIDController get() {
-        return new PIDController(-speed, speed, kP, kI, kD);
+        return new PIDController(speed, kP, kI, kD);
     }
 
     public void update() {

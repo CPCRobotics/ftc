@@ -11,8 +11,7 @@ public final class PIDController {
     private final double kIntegral;
     private final double kDerivative;
 
-    private final double min;
-    private final double max;
+    private final double speed;
 
     private boolean firstTime = true;
     private double errSum = 0;
@@ -22,22 +21,17 @@ public final class PIDController {
     private double lastErr = 0;
 
     private double clamp(double val) {
-        if (val < min) return min;
-        if (val > max) return max;
+        if (val < -speed) return -speed;
+        if (val > speed) return speed;
         return val;
     }
 
-    public PIDController(double min, double max, double kP, double kI, double kD) {
+    public PIDController(double speed, double kP, double kI, double kD) {
         kProportional = kP;
         kIntegral = kI;
         kDerivative = kD;
 
-        this.min = min;
-        this.max = max;
-    }
-
-    public PIDController(double kP, double kI, double kD) {
-        this(-1, 1, kP, kI, kD);
+        this.speed = speed;
     }
 
     public double get(double error) {

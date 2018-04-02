@@ -401,7 +401,7 @@ public class Tilerunner {
             destInches *= -1;
         }
 
-        move(waitHandler, destInches, new PIDController(-power, power, 0.03, 0.01, 0.01));
+        move(waitHandler, destInches, new PIDController(power, 0.03, 0.01, 0.01));
     }
 
     /**
@@ -463,7 +463,7 @@ public class Tilerunner {
             power *= -1;
         }
 
-        turn(waitHandler, angle, new PIDController(-power, power, 0.002, 0.0002, 0.0002));
+        turn(waitHandler, angle, new PIDController(power, 0.002, 0.0002, 0.0002));
     }
 
     /**
