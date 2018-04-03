@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.RobotMap;
 import org.firstinspires.ftc.teamcode.Tilerunner;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 import org.firstinspires.ftc.teamcode.util.BusyWaitHandler;
@@ -22,9 +23,9 @@ public class TunePIDMove extends LinearOpMode implements BusyWaitHandler {
     public void runOpMode() throws InterruptedException {
         final double DEST_IN = 36;
 
-        tuner = new PIDTuner(0.5, gamepad1);
         Tilerunner tilerunner = new Tilerunner();
         tilerunner.init(hardwareMap, telemetry, Tilerunner.OpmodeType.AUTONOMOUS);
+        tuner = new PIDTuner(RobotMap.PID_MOVE, 0.5, gamepad1);
 
         waitForStart();
 

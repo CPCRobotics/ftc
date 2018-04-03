@@ -19,14 +19,79 @@ public final class PIDController {
     private final double kI;
     private final double kD;
 
-    private final transient double speed;
+    private final double speed;
 
-    private transient boolean firstTime = true;
-    private transient double errSum = 0;
-    private transient final ElapsedTime timer = new ElapsedTime();
+    private boolean firstTime = true;
+    private double errSum = 0;
+    private final ElapsedTime timer = new ElapsedTime();
 
-    private transient double lastTime = 0;
-    private transient double lastErr = 0;
+    private double lastTime = 0;
+    private double lastErr = 0;
+
+    public static final class PIDConfiguration {
+        public final double kP;
+        public final double kI;
+        public final double kD;
+
+        public PIDConfiguration(double kP, double kI, double kD) {
+            this.kP = kP;
+            this.kI = kI;
+            this.kD = kD;
+        }
+
+        public PIDConfiguration kP(double kP) {
+            return new PIDConfiguration(kP, kI, kD);
+        }
+
+        public PIDConfiguration kI(double kI) {
+            return new PIDConfiguration(kP, kI, kD);
+        }
+
+        public PIDConfiguration kD(double kD) {
+            return new PIDConfiguration(kP, kI, kD);
+        }
+
+        public PIDController finish(double speed) {
+            return new PIDController(speed, kP, kI, kD);
+        }
+
+        /**
+         * Save PID configuration to a JSON file
+         */
+        public void save(String filename) {
+            File file = AppUtil.getInstance().getSettingsFile(filename);
+
+            // Serialize it in JSON format
+            String serializedJson = SimpleGson.getInstance().toJson(this);
+            ReadWriteFile.writeFile(file, serializedJson);
+
+            Twigger.getInstance().sendOnce(String.format("Saved PID %s", filename));
+        }
+
+        /**
+         * Return configuration from file, or itself if unsuccessful
+         * @param filename
+         */
+        public PIDConfiguration load(String filename) {
+            File file = AppUtil.getInstance().getSettingsFile(filename);
+            if (!file.exists()) {
+                Twigger.getInstance()
+                        .sendOnce(String.format("WARN: Failed to load PID %s", filename));
+                return this;
+            }
+
+            String json = ReadWriteFile.readFile(file);
+            PIDConfiguration loadedConfig = SimpleGson.getInstance().fromJson(json, PIDConfiguration.class);
+            Twigger.getInstance()
+                    .sendOnce(String.format("Loaded PID %s: %s", filename, loadedConfig.toString()));
+            return loadedConfig;
+        }
+
+        @Override
+        public String toString() {
+            return String.format(Locale.ENGLISH, "[PIDConfig P=%f, I=%f, D=%f]", kP, kI, kD);
+        }
+    }
 
     private double clamp(double val) {
         if (val < -speed) return -speed;
@@ -64,55 +129,5 @@ public final class PIDController {
         }
 
         return clamp(prop + inte + deri);
-    }
-
-    /**
-     * Save PID configuration to a JSON file
-     */
-    public void save(String filename) {
-        File file = AppUtil.getInstance().getSettingsFile(filename);
-
-        // Serialize it in JSON format
-        String serializedJson = SimpleGson.getInstance().toJson(this);
-        ReadWriteFile.writeFile(file, serializedJson);
-
-        Twigger.getInstance().sendOnce(String.format("Saved to %s", filename));
-    }
-
-    /**
-     * Load PID configuration from a JSON file w/ speed, and use default PID values
-     * if unsuccessful
-     *
-     * @param filename name of configuration file
-     * @param speed speed of controller
-     * @param defKP default kP value
-     * @param defKI default kI value
-     * @param defKD default kD value
-     * @return loaded PIDController, or new controller with default values if unsuccessful
-     */
-    public static PIDController load(String filename, double speed,
-                                     double defKP, double defKI, double defKD) {
-        File file = AppUtil.getInstance().getSettingsFile(filename);
-        if (!file.exists()) {
-            // Warning isn't a good sign
-            Twigger.getInstance().sendOnce(String.format("WARN: PID config %s doesn't exist", filename));
-
-            // Fall back to default PID values
-            return new PIDController(speed, defKD, defKI, defKP);
-        }
-
-        String serializedJson = ReadWriteFile.readFile(file);
-        PIDController fromMemory = SimpleGson.getInstance().fromJson(serializedJson, PIDController.class);
-
-        // Show in telemetry
-        Twigger.getInstance().sendOnce(String.format("Loaded into memory %s", fromMemory.toString()));
-        return new PIDController(speed, fromMemory.kP, fromMemory.kI, fromMemory.kD);
-    }
-
-    /**
-     * Show PID values
-     */
-    public String toString() {
-        return String.format(Locale.ENGLISH,"(PID P=%f, I=%f, D=%f)", kP, kI, kD);
     }
 }

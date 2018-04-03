@@ -37,7 +37,7 @@ import java.util.Arrays;
  * All the hardware and its utility methods
  */
 public class Tilerunner {
-    private static final String ROBOT_VERSION = "0.1.2";
+    private static final String ROBOT_VERSION = "0.1.3";
 
     // Hardware
     private static final double WHEEL_CIRCUMFERENCE = 4 * Math.PI;
@@ -57,9 +57,7 @@ public class Tilerunner {
     private static final int LIFT_LOW_POSITION = 200;
 
     private static final double LIGHT_MOTOR_SPEED = 1;
-
     private static final int NEAR_LIFT_POSITION_THRESHOLD = 150;
-
     private static final double ZERO_LIFT_POWER = 0.4;
 
     // Wheels
@@ -71,6 +69,11 @@ public class Tilerunner {
     private DcMotor liftMotor;
     private DigitalChannel liftSensorLow;
     private DigitalChannel liftSensorHigh;
+
+    private PIDController.PIDConfiguration pidMove =
+            new PIDController.PIDConfiguration(.03, .01, .01);
+    private PIDController.PIDConfiguration pidTurn =
+            new PIDController.PIDConfiguration(.02, .0002, .0002);
 
     // According to Game Rules, lights can not be controlled via Digital Output,
     // but they can still be controlled via DC Motors.
@@ -315,12 +318,16 @@ public class Tilerunner {
                     holderRight);
         }
 
+        // PID Config
+        pidMove = pidMove.load(RobotMap.PID_MOVE);
+        pidTurn = pidTurn.load(RobotMap.PID_TURN);
+
 
         Twigger.getInstance()
                 .sendOnce("Tilerunner initialized in " + initTime.seconds() + " seconds.")
                 .update();
 
-        setLights(true, true);
+        setLights(true);
     }
 
     /**
@@ -401,8 +408,7 @@ public class Tilerunner {
             destInches *= -1;
         }
 
-        move(waitHandler, destInches, PIDController.load(RobotMap.PID_MOVE, power,
-                0.03, 0.01, 0.01));
+        move(waitHandler, destInches, pidMove.finish(power));
     }
 
     /**
@@ -464,8 +470,7 @@ public class Tilerunner {
             power *= -1;
         }
 
-        turn(waitHandler, angle, PIDController.load(RobotMap.PID_TURN, power,
-                0.02, 0.0002, 0.0002));
+        turn(waitHandler, angle, pidTurn.finish(power));
     }
 
     /**

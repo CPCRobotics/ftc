@@ -8,13 +8,12 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
  * Tunes PID live w/ Controls
  */
 public class PIDTuner {
+
     private final double speed;
     private final Gamepad gamepad;
     private final String filename;
-
-    private double kP = 0.01;
-    private double kI = 0.01;
-    private double kD = 0.00;
+    private PIDController.PIDConfiguration pidConfig =
+            new PIDController.PIDConfiguration(0.01,0,0);
 
     private double magnitude = -2; // 10¯²
     private int direction = 1; // Raise, lower
@@ -31,12 +30,14 @@ public class PIDTuner {
 
     public PIDTuner(String filename, double speed, Gamepad gamepad) {
         this.filename = filename;
+        pidConfig = pidConfig.load(filename);
+
         this.gamepad = gamepad;
         this.speed = speed;
     }
 
     public PIDController get() {
-        return new PIDController(speed, kP, kI, kD);
+        return pidConfig.finish(speed);
     }
 
     public void update() {
@@ -45,16 +46,20 @@ public class PIDTuner {
         if (kRaiseButton.get(gamepad.dpad_up)) magnitude++;
         if (kLowerButton.get(gamepad.dpad_down)) magnitude--;
 
-        if (kPButton.get(gamepad.x)) kP += Math.pow(10, magnitude) * direction;
-        if (kIButton.get(gamepad.y)) kI += Math.pow(10, magnitude) * direction;
-        if (kDButton.get(gamepad.b)) kD += Math.pow(10, magnitude) * direction;
-        if (saveButton.get(gamepad.a)) get().save(filename); // Save to config
+        if (kPButton.get(gamepad.x))
+            pidConfig = pidConfig.kP(pidConfig.kP + Math.pow(10, magnitude) * direction);
+        if (kIButton.get(gamepad.y))
+            pidConfig = pidConfig.kI(pidConfig.kI + Math.pow(10, magnitude) * direction);
+        if (kDButton.get(gamepad.b))
+            pidConfig = pidConfig.kD(pidConfig.kD + Math.pow(10, magnitude) * direction);
+
+        if (saveButton.get(gamepad.a)) pidConfig.save(filename); // Save to config
 
         Twigger.getInstance().addLine("PID")
                 .addData("mag", magnitude)
                 .addData("dir", direction)
-                .addData("kP", kP)
-                .addData("kI", kI)
-                .addData("kD", kD);
+                .addData("kP", pidConfig.kP)
+                .addData("kI", pidConfig.kI)
+                .addData("kD", pidConfig.kD);
     }
 }
