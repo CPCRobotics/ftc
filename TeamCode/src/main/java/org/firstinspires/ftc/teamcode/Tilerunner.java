@@ -401,7 +401,8 @@ public class Tilerunner {
             destInches *= -1;
         }
 
-        move(waitHandler, destInches, new PIDController(power, 0.03, 0.01, 0.01));
+        move(waitHandler, destInches, PIDController.load(RobotMap.PID_MOVE, power,
+                0.03, 0.01, 0.01));
     }
 
     /**
@@ -463,7 +464,8 @@ public class Tilerunner {
             power *= -1;
         }
 
-        turn(waitHandler, angle, new PIDController(power, 0.002, 0.0002, 0.0002));
+        turn(waitHandler, angle, PIDController.load(RobotMap.PID_TURN, power,
+                0.02, 0.0002, 0.0002));
     }
 
     /**

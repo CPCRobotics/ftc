@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
 public class PIDTuner {
     private final double speed;
     private final Gamepad gamepad;
+    private final String filename;
 
     private double kP = 0.01;
     private double kI = 0.01;
@@ -25,9 +26,11 @@ public class PIDTuner {
     private final DepressedButton kLowerButton = new DepressedButton();
     private final DepressedButton kNegButton = new DepressedButton();
     private final DepressedButton kPosButton = new DepressedButton();
+    private final DepressedButton saveButton = new DepressedButton();
 
 
-    public PIDTuner(double speed, Gamepad gamepad) {
+    public PIDTuner(String filename, double speed, Gamepad gamepad) {
+        this.filename = filename;
         this.gamepad = gamepad;
         this.speed = speed;
     }
@@ -45,6 +48,7 @@ public class PIDTuner {
         if (kPButton.get(gamepad.x)) kP += Math.pow(10, magnitude) * direction;
         if (kIButton.get(gamepad.y)) kI += Math.pow(10, magnitude) * direction;
         if (kDButton.get(gamepad.b)) kD += Math.pow(10, magnitude) * direction;
+        if (saveButton.get(gamepad.a)) get().save(filename); // Save to config
 
         Twigger.getInstance().addLine("PID")
                 .addData("mag", magnitude)
