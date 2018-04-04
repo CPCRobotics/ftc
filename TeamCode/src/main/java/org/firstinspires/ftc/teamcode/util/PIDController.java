@@ -107,27 +107,27 @@ public final class PIDController {
     }
 
     public double get(double error) {
-        double prop = kP * error;
+        double curTime = timer.seconds();
 
-        double inte = 0, deri = 0;
+        double slope = 0;
         if (!firstTime) {
-            double dt = timer.seconds() - lastTime;
+            double dt = curTime - lastTime;
 
             // Integral
             errSum += dt * error;
-            inte = errSum * kI;
 
             // Derivative
-            deri = (error - lastErr) / dt * kD;
+            slope = (error - lastErr) / dt;
         }
 
-        lastTime = timer.seconds();
+        // Setting up for next iteration
+        lastTime = curTime;
         lastErr = error;
         if (firstTime) {
             timer.reset();
             firstTime = false;
         }
 
-        return clamp(prop + inte + deri);
+        return clamp(error * kP + errSum * kI + slope * kD);
     }
 }

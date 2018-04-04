@@ -22,13 +22,13 @@ public class TunePIDTurn extends LinearOpMode implements BusyWaitHandler {
 
         Tilerunner tilerunner = new Tilerunner();
         tilerunner.init(hardwareMap, telemetry, Tilerunner.OpmodeType.AUTONOMOUS);
-        tuner = new PIDTuner(RobotMap.PID_TURN, 0.5, gamepad1);
+        tuner = new PIDTuner(RobotMap.PID_TURN, 1, gamepad1);
 
         waitForStart();
 
         int direction = 1;
         while (opModeIsActive()) {
-            tilerunner.turn(this, 360 * direction, tuner.get());
+            tilerunner.turn(this, 360 * direction, tuner.get(), 10);
             longSleep();
             direction *= -1;
         }

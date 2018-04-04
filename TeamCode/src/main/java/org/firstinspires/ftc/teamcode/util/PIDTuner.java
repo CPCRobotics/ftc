@@ -1,8 +1,12 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import android.annotation.SuppressLint;
+
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
+
+import java.util.Locale;
 
 /**
  * Tunes PID live w/ Controls
@@ -30,7 +34,7 @@ public class PIDTuner {
 
     public PIDTuner(String filename, double speed, Gamepad gamepad) {
         this.filename = filename;
-        pidConfig = pidConfig.load(filename);
+        //pidConfig = pidConfig.load(filename);
 
         this.gamepad = gamepad;
         this.speed = speed;
@@ -40,6 +44,7 @@ public class PIDTuner {
         return pidConfig.finish(speed);
     }
 
+    @SuppressLint("DefaultLocale")
     public void update() {
         if (kNegButton.get(gamepad.dpad_left)) direction = -1;
         if (kPosButton.get(gamepad.dpad_right)) direction = 1;
@@ -55,5 +60,11 @@ public class PIDTuner {
 
         if (saveButton.get(gamepad.a)) pidConfig.save(filename); // Save to config
 
+        Twigger.getInstance().addLine("Tuner")
+                .addData("mag", magnitude)
+                .addData("dir", direction)
+                .addData("kP", String.format("%6.3g", pidConfig.kP))
+                .addData("kI", String.format("%6.3g", pidConfig.kI))
+                .addData("kD", String.format("%6.3g", pidConfig.kD));
     }
 }

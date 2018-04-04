@@ -46,7 +46,7 @@ public class Tilerunner {
     // Thresholds
     public static final double MOTOR_DEADZONE = 0.05; // range [0,1]
 
-    private static final double TURN_THRESHOLD_DEG = 5;
+    private static final double TURN_THRESHOLD_DEG = 2;
 
     private static final double HOLDING_GLYPH_DIST_MM = 10;
 
@@ -100,9 +100,9 @@ public class Tilerunner {
 
     private OpmodeType selectedOpmode;
 
-    private static double clamp(double val, double limit) {
-        if (val < -limit) return -limit;
-        if (val > limit)  return limit;
+    private static double clamp(double val) {
+        if (val < -1) return -1;
+        if (val > 1)  return 1;
         return val;
     }
 
@@ -371,20 +371,26 @@ public class Tilerunner {
     /**
      * Moves the robot a specified distance.
      */
-    public void move(BusyWaitHandler waitHandler, double destInches, PIDController pid) throws InterruptedException {
+    public void move(BusyWaitHandler waitHandler, double destInches, PIDController pid, double maxSecs)
+            throws InterruptedException {
+
         // Calculate required ticks
         int destTicks = (int)(ticksPerInch * destInches);
 
+        final ElapsedTime timeoutTimer = new ElapsedTime();
+
         // Track angle at beginning
         double startAngle = compass.getAngle();
-        final double ANGLE_THRESHOLD = 90; // go full-turn when at 90° or higher
+        final double ANGLE_THRESHOLD = 45; // go full-turn when at 90° or higher
 
         // Set up motors to stop at destination
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setTargetPosition( destTicks );
         motorPair.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (leftMotor.isBusy() && waitHandler.isActive()) {
+        while (leftMotor.isBusy() && waitHandler.isActive() &&
+                (maxSecs <= 0 || timeoutTimer.seconds() < maxSecs)) {
+
             double
                     currPos = motorPair.getCurrentPosition() / ticksPerInch,
                     err = destInches - currPos,
@@ -420,7 +426,7 @@ public class Tilerunner {
             destInches *= -1;
         }
 
-        move(waitHandler, destInches, pidMove.finish(power));
+        move(waitHandler, destInches, pidMove.finish(power), 0);
     }
 
     /**
@@ -430,8 +436,11 @@ public class Tilerunner {
      * and a tired developer that's too afraid to change it any more, lets it breaks
      * again.
      */
-    public void turn(BusyWaitHandler waitHandler, double angle, PIDController pid)
+    public void turn(BusyWaitHandler waitHandler, double angle, PIDController pid, double maxSecs)
             throws InterruptedException {
+
+        final ElapsedTime timeoutTimer = new ElapsedTime();
+        final ElapsedTime momentumTimer = new ElapsedTime();
 
         // Turn algorithm uses positive angles to turn CCW. .turn() promises
         // positive angles turns CW instead.
@@ -445,7 +454,9 @@ public class Tilerunner {
         motorPair.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         double error;
-        while (waitHandler.isActive() && Math.abs(error = dest - compass.getAngle()) > TURN_THRESHOLD_DEG) {
+        while (waitHandler.isActive() && (maxSecs <= 0 || timeoutTimer.seconds() < maxSecs)) {
+            error = dest - compass.getAngle();
+
             double currentPower = pid.get(error);
             // ensure movement is powerful enough
             //currentPower = Math.max(MOTOR_DEADZONE, Math.abs(currentPower)) * Math.signum(currentPower);
@@ -459,7 +470,15 @@ public class Tilerunner {
                     .addData("curr", compass.getAngle())
                     .addData("err", error);
 
-            Thread.sleep(1);
+
+            // Ensure that it's within threshold for longer than enough
+            if (Math.abs(error) > TURN_THRESHOLD_DEG) {
+                momentumTimer.reset();
+            } else if (momentumTimer.seconds() > 0.1) {
+                break;
+            }
+
+            Thread.sleep(10);
         }
 
         motorPair.setPower(0);
@@ -482,12 +501,12 @@ public class Tilerunner {
             power *= -1;
         }
 
-        turn(waitHandler, angle, pidTurn.finish(power));
+        turn(waitHandler, angle, pidTurn.finish(power), 0);
     }
 
-    public void driveArcade(double power, double rotation) {
-        power = clamp(power, 1);
-        rotation = clamp(rotation, 1);
+    private void driveArcade(double power, double rotation) {
+        power = clamp(power);
+        rotation = clamp(rotation);
 
         final double maxInput = Math.copySign(Math.max(Math.abs(power), Math.abs(rotation)), power);
         if (power >= 0) {

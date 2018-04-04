@@ -25,14 +25,14 @@ public class TunePIDMove extends LinearOpMode implements BusyWaitHandler {
 
         Tilerunner tilerunner = new Tilerunner();
         tilerunner.init(hardwareMap, telemetry, Tilerunner.OpmodeType.AUTONOMOUS);
-        tuner = new PIDTuner(RobotMap.PID_MOVE, 0.5, gamepad1);
+        tuner = new PIDTuner(RobotMap.PID_MOVE, 1, gamepad1);
 
         waitForStart();
 
         while (opModeIsActive()) {
-            tilerunner.move(this, DEST_IN, tuner.get());
+            tilerunner.move(this, DEST_IN, tuner.get(), 10);
             longSleep();
-            tilerunner.move(this, -DEST_IN, tuner.get());
+            tilerunner.move(this, -DEST_IN, tuner.get(), 10);
             longSleep();
         }
     }
