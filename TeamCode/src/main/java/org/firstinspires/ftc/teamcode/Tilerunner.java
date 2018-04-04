@@ -100,6 +100,12 @@ public class Tilerunner {
 
     private OpmodeType selectedOpmode;
 
+    private static double clamp(double val, double limit) {
+        if (val < -limit) return -limit;
+        if (val > limit)  return limit;
+        return val;
+    }
+
     public enum OpmodeType {
         TELEOP, AUTONOMOUS
     }
@@ -369,6 +375,10 @@ public class Tilerunner {
         // Calculate required ticks
         int destTicks = (int)(ticksPerInch * destInches);
 
+        // Track angle at beginning
+        double startAngle = compass.getAngle();
+        final double ANGLE_THRESHOLD = 90; // go full-turn when at 90° or higher
+
         // Set up motors to stop at destination
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPair.setTargetPosition( destTicks );
@@ -383,7 +393,9 @@ public class Tilerunner {
             // Ensure the motors are powerful enough to move the bot
             //currPower = Math.max(MOTOR_DEADZONE, Math.abs(currPower)) * Math.signum(currPower);
 
-            motorPair.setPower(currPower);
+            // use driveArcade to correct steering in the wrong way
+            driveArcade(currPower, (compass.getAngle() - startAngle) / ANGLE_THRESHOLD);
+            // motorPair.setPower(currPower);
 
             Twigger.getInstance().addLine(".move()")
                     .addData("pos", currPos)
@@ -471,6 +483,30 @@ public class Tilerunner {
         }
 
         turn(waitHandler, angle, pidTurn.finish(power));
+    }
+
+    public void driveArcade(double power, double rotation) {
+        power = clamp(power, 1);
+        rotation = clamp(rotation, 1);
+
+        final double maxInput = Math.copySign(Math.max(Math.abs(power), Math.abs(rotation)), power);
+        if (power >= 0) {
+            if (rotation >= 0) {
+                leftMotor.setPower(maxInput);
+                rightMotor.setPower(power - rotation);
+            } else {
+                leftMotor.setPower(power + rotation);
+                rightMotor.setPower(maxInput);
+            }
+        } else {
+            if (rotation >= 0) {
+                leftMotor.setPower(power + rotation);
+                rightMotor.setPower(maxInput);
+            } else {
+                leftMotor.setPower(maxInput);
+                rightMotor.setPower(power - rotation);
+            }
+        }
     }
 
     /**

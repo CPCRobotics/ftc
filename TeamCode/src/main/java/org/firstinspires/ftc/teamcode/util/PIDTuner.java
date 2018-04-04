@@ -55,11 +55,5 @@ public class PIDTuner {
 
         if (saveButton.get(gamepad.a)) pidConfig.save(filename); // Save to config
 
-        Twigger.getInstance().addLine("PID")
-                .addData("mag", magnitude)
-                .addData("dir", direction)
-                .addData("kP", pidConfig.kP)
-                .addData("kI", pidConfig.kI)
-                .addData("kD", pidConfig.kD);
     }
 }
