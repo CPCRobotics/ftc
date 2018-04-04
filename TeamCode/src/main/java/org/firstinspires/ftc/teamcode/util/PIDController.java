@@ -112,7 +112,6 @@ public final class PIDController {
         double inte = 0, deri = 0;
         if (!firstTime) {
             double dt = timer.seconds() - lastTime;
-            lastTime = timer.seconds();
 
             // Integral
             errSum += dt * error;
@@ -122,6 +121,7 @@ public final class PIDController {
             deri = (error - lastErr) / dt * kD;
         }
 
+        lastTime = timer.seconds();
         lastErr = error;
         if (firstTime) {
             timer.reset();
