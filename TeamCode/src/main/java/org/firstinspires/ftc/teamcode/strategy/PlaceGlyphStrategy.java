@@ -13,7 +13,7 @@ public class PlaceGlyphStrategy {
     private final TeamPosition position;
     private final BusyWaitHandler waitHandler;
 
-    private final double DEF_SPEED = 0.225;
+    private final double DEF_SPEED = .5;
 
     public static final double COLUMNBOX_WIDTH = 7.25;
 
@@ -45,8 +45,8 @@ public class PlaceGlyphStrategy {
     }
 
     private void moveToCryptoboxColumn(CryptoboxColumn column, double offset) throws InterruptedException {
-        final double TURN_SPEED = 0.1;
-        final double BSTONE_SPEED = 0.25; // go slower when getting off of the balance stone
+        final double TURN_SPEED = .5;
+        final double BSTONE_SPEED = .4; // go slower when getting off of the balance stone
         // Move to the cryptobox depending on the position
         switch (position) {
             case BLUE_A:
@@ -55,7 +55,7 @@ public class PlaceGlyphStrategy {
                 tilerunner.move(waitHandler, DEF_SPEED, 9);
                 break;
             case RED_A:
-                tilerunner.move(waitHandler, BSTONE_SPEED, -(30 - cryptoboxOffset(column)) - offset);
+                tilerunner.move(waitHandler, BSTONE_SPEED, -(30.25 - cryptoboxOffset(column)) - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, -90);
                 tilerunner.move(waitHandler, DEF_SPEED, 9);
                 break;
@@ -86,7 +86,7 @@ public class PlaceGlyphStrategy {
                 tilerunner.move(waitHandler, DEF_SPEED, -inches);
                 tilerunner.grabGlyph(0);
                 tilerunner.turn(waitHandler, DEF_SPEED, 180);
-                tilerunner.move(waitHandler, DEF_SPEED, -(inches+PUSH_GLYPH_IN));
+                tilerunner.moveTimed(waitHandler, -DEF_SPEED / 2, 1.5);
 
                 tilerunner.move(waitHandler, DEF_SPEED, BACK_UP_IN);
                 break;

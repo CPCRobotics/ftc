@@ -71,9 +71,9 @@ public class Tilerunner {
     private DigitalChannel liftSensorHigh;
 
     private PIDController.PIDConfiguration pidMove =
-            new PIDController.PIDConfiguration(.03, .01, .01);
+            new PIDController.PIDConfiguration(.1, .001, .005);
     private PIDController.PIDConfiguration pidTurn =
-            new PIDController.PIDConfiguration(.02, .0002, .0002);
+            new PIDController.PIDConfiguration(.04, .0001, .005);
 
     // According to Game Rules, lights can not be controlled via Digital Output,
     // but they can still be controlled via DC Motors.
@@ -427,6 +427,15 @@ public class Tilerunner {
         }
 
         move(waitHandler, destInches, pidMove.finish(power), 0);
+    }
+
+    public void moveTimed(BusyWaitHandler waitHandler, double power, double secs) throws InterruptedException {
+        final ElapsedTime timer = new ElapsedTime();
+        motorPair.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        while (waitHandler.isActive() && timer.seconds() < secs) {
+            motorPair.setPower(power);
+            Thread.sleep(10);
+        }
     }
 
     /**
