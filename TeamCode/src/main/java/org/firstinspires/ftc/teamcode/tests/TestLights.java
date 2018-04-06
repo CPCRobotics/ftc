@@ -2,13 +2,13 @@ package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.opmodes.AutonomousOpmode;
+import org.firstinspires.ftc.teamcode.opmodes.EasyLinearOpmode;
 
 /**
  * Displays the Robot status lights in order: red, green
  */
 @Autonomous(name="Test Lights", group="TestHardware")
-public class TestLights extends AutonomousOpmode {
+public class TestLights extends EasyLinearOpmode {
 
     @Override
     protected void startAutonomous() throws InterruptedException {

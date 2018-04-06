@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
 /**
  * Make autonomous opmodes more easily
  */
-public abstract class AutonomousOpmode extends LinearOpMode implements BusyWaitHandler {
+public abstract class EasyLinearOpmode extends LinearOpMode implements BusyWaitHandler {
     protected Tilerunner tilerunner;
 
     @Override

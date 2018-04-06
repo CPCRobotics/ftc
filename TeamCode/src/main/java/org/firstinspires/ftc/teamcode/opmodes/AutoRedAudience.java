@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.util.BusyWaitHandler;
-import org.firstinspires.ftc.teamcode.strategy.AutonomousStrategy;
+import org.firstinspires.ftc.teamcode.strategy.AutonomousDelegator;
 import org.firstinspires.ftc.teamcode.strategy.TeamPosition;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
 public class AutoRedAudience extends LinearOpMode implements BusyWaitHandler {
     @Override
     public void runOpMode() throws InterruptedException {
-        AutonomousStrategy strategy = new AutonomousStrategy(TeamPosition.RED_A, this,
+        AutonomousDelegator strategy = new AutonomousDelegator(TeamPosition.RED_A, this,
                 this);
 
         waitForStart();

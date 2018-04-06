@@ -12,12 +12,12 @@ import org.firstinspires.ftc.teamcode.twigger.Twigger;
  * Finds what Cryptobox Key to go to
  */
 @SuppressWarnings("WeakerAccess")
-public class PictographStrategy {
+public class PictographPhase {
 
     private final BusyWaitHandler waitHandler;
     private final Tilerunner tilerunner;
 
-    public PictographStrategy(Tilerunner tilerunner, BusyWaitHandler waitHandler) {
+    public PictographPhase(Tilerunner tilerunner, BusyWaitHandler waitHandler) {
         this.waitHandler = waitHandler;
         this.tilerunner = tilerunner;
     }

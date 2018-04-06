@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.Tilerunner;
  * Picks up a glyph and moves it to the correct cryptobox column
  */
 
-public class PlaceGlyphStrategy {
+public class PlaceGlyphPhase {
 
     private final Tilerunner tilerunner;
     private final TeamPosition position;
@@ -17,7 +17,7 @@ public class PlaceGlyphStrategy {
 
     public static final double COLUMNBOX_WIDTH = 7.25;
 
-    public PlaceGlyphStrategy(Tilerunner tilerunner, TeamPosition position, BusyWaitHandler waitHandler) {
+    public PlaceGlyphPhase(Tilerunner tilerunner, TeamPosition position, BusyWaitHandler waitHandler) {
         this.position = position;
         this.tilerunner = tilerunner;
         this.waitHandler = waitHandler;

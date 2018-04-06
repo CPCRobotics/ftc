@@ -24,7 +24,7 @@ import cpc.robotics.vision.VisionHelper;
  * Finds the the jewel to topple and topples it
  */
 
-public class JewelTopplerStrategy {
+public class JewelTopplerPhase {
 
     private final TeamPosition position;
     private final VisionHelper visionHelper;
@@ -33,8 +33,8 @@ public class JewelTopplerStrategy {
 
     private final JewelsExtension jewels = new JewelsExtension();
 
-    public JewelTopplerStrategy(TeamPosition position, BusyWaitHandler waitHandler,
-                                Context context, Tilerunner tilerunner) {
+    public JewelTopplerPhase(TeamPosition position, BusyWaitHandler waitHandler,
+                             Context context, Tilerunner tilerunner) {
         this.position = position;
         this.waitHandler = waitHandler;
         this.tilerunner = tilerunner;

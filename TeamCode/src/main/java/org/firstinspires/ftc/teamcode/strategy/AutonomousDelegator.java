@@ -9,14 +9,14 @@ import org.firstinspires.ftc.teamcode.Tilerunner;
 /**
  * Stitches together all the code for autonomous mode
  */
-public class AutonomousStrategy {
+public class AutonomousDelegator {
 
     private final TeamPosition position;
     private final Tilerunner tilerunner;
     private final BusyWaitHandler waitHandler;
     private final OpMode opMode;
 
-    public AutonomousStrategy(TeamPosition position, BusyWaitHandler waitHandler, OpMode opMode) throws InterruptedException {
+    public AutonomousDelegator(TeamPosition position, BusyWaitHandler waitHandler, OpMode opMode) throws InterruptedException {
         this.position = position;
         this.tilerunner = new Tilerunner();
         this.waitHandler = waitHandler;
@@ -31,9 +31,9 @@ public class AutonomousStrategy {
 
     public void start() throws InterruptedException {
         tilerunner.setLights(false, false);
-        CryptoboxColumn column = new PictographStrategy(tilerunner, waitHandler).readCryptoboxKey();
-        double offset = new JewelTopplerStrategy(position, waitHandler, opMode.hardwareMap.appContext, tilerunner).toppleEnemyJewel();
-        new PlaceGlyphStrategy(tilerunner, position, waitHandler).placeGlyph(column, offset);
+        CryptoboxColumn column = new PictographPhase(tilerunner, waitHandler).readCryptoboxKey();
+        double offset = new JewelTopplerPhase(position, waitHandler, opMode.hardwareMap.appContext, tilerunner).toppleEnemyJewel();
+        new PlaceGlyphPhase(tilerunner, position, waitHandler).placeGlyph(column, offset);
     }
 
 }

@@ -1,16 +1,15 @@
 package org.firstinspires.ftc.teamcode.tests;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.opmodes.AutonomousOpmode;
+import org.firstinspires.ftc.teamcode.opmodes.EasyLinearOpmode;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**
  * Report limit switch outputs
  */
 @TeleOp
-public class TestLimitSwitch extends AutonomousOpmode {
+public class TestLimitSwitch extends EasyLinearOpmode {
     @Override
     protected void startAutonomous() throws InterruptedException {
         while (true) {
