@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.util.BusyWaitHandler;
-import org.firstinspires.ftc.teamcode.strategy.AutonomousDelegator;
-import org.firstinspires.ftc.teamcode.strategy.TeamPosition;
+import org.firstinspires.ftc.teamcode.autonomous.AutonomousDelegator;
+import org.firstinspires.ftc.teamcode.autonomous.TeamPosition;
 import org.firstinspires.ftc.teamcode.twigger.Twigger;
 
 /**

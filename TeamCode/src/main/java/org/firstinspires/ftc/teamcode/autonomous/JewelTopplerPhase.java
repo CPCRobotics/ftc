@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.strategy;
+package org.firstinspires.ftc.teamcode.autonomous;
 
 import android.content.Context;
 import android.hardware.Camera;
