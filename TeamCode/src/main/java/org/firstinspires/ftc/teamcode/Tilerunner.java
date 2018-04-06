@@ -391,18 +391,9 @@ public class Tilerunner {
         motorPair.setTargetPosition(destTicks);
         motorPair.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        moveGeneric(new Producer<Boolean>() {
-            @Override
-            public Boolean get() throws InterruptedException {
-                return leftMotor.isBusy() && waitHandler.isActive() &&
-                        (maxSecs <= 0 || timeoutTimer.seconds() < maxSecs);
-            }
-        }, new Producer<Double>() {
-            @Override
-            public Double get() throws InterruptedException {
-                return pid.get(destInches - (leftMotor.getCurrentPosition() / ticksPerInch));
-            }
-        });
+        moveGeneric(() -> leftMotor.isBusy() && waitHandler.isActive() &&
+                (maxSecs <= 0 || timeoutTimer.seconds() < maxSecs),
+                () -> pid.get(destInches - (leftMotor.getCurrentPosition() / ticksPerInch)));
     }
 
     public void moveInches(BusyWaitHandler waitHandler, double power, double destInches)
@@ -417,17 +408,30 @@ public class Tilerunner {
         motorPair.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         final ElapsedTime timer = new ElapsedTime();
 
-        moveGeneric(new Producer<Boolean>() {
-            @Override
-            public Boolean get() throws InterruptedException {
-                return waitHandler.isActive() && timer.seconds() < secs;
-            }
-        }, new Producer<Double>() {
-            @Override
-            public Double get() throws InterruptedException {
-                return power;
-            }
-        });
+        moveGeneric(() -> waitHandler.isActive() && timer.seconds() < secs,
+                () -> power);
+    }
+
+    /**
+     * Moves to pick up a glyph or until it reaches a specific limit
+     * */
+    public double moveToGlyph(final BusyWaitHandler waitHandler, final double power, final double limitInches)
+        throws InterruptedException {
+
+        grabGlyph(1);
+
+        final int destInches = (int)(ticksPerInch * limitInches);
+        motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorPair.setTargetPosition(destInches);
+        motorPair.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        final PIDController pid = pidMove.finish(power);
+
+        moveGeneric(() -> leftMotor.isBusy() && waitHandler.isActive() && !isHoldingGlyph(),
+                () -> pid.get(destInches - (leftMotor.getCurrentPosition() / ticksPerInch)));
+
+        grabGlyph(0);
+        return leftMotor.getCurrentPosition() / ticksPerInch;
     }
 
     /**
