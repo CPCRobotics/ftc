@@ -13,9 +13,9 @@ public class TestForwardBackward extends EasyLinearOpmode {
     @Override
     protected void startAutonomous() throws InterruptedException {
         while (opModeIsActive()) {
-            tilerunner.move(this, 1, 10);
+            tilerunner.moveInches(this, 1, 10);
             Thread.sleep(100);
-            tilerunner.move(this, 1, -10);
+            tilerunner.moveInches(this, 1, -10);
             Thread.sleep(100);
         }
     }

@@ -50,28 +50,28 @@ public class PlaceGlyphPhase {
         // Move to the cryptobox depending on the position
         switch (position) {
             case BLUE_A:
-                tilerunner.move(waitHandler, BSTONE_SPEED, 33.5 + cryptoboxOffset(column) - offset);
+                tilerunner.moveInches(waitHandler, BSTONE_SPEED, 33.5 + cryptoboxOffset(column) - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, -90);
-                tilerunner.move(waitHandler, DEF_SPEED, 9);
+                tilerunner.moveInches(waitHandler, DEF_SPEED, 9);
                 break;
             case RED_A:
-                tilerunner.move(waitHandler, BSTONE_SPEED, -(30.25 - cryptoboxOffset(column)) - offset);
+                tilerunner.moveInches(waitHandler, BSTONE_SPEED, -(30.25 - cryptoboxOffset(column)) - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, -90);
-                tilerunner.move(waitHandler, DEF_SPEED, 9);
+                tilerunner.moveInches(waitHandler, DEF_SPEED, 9);
                 break;
             case BLUE_FAR:
-                tilerunner.move(waitHandler, BSTONE_SPEED, 26 - offset);
+                tilerunner.moveInches(waitHandler, BSTONE_SPEED, 26 - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
-                tilerunner.move(waitHandler, DEF_SPEED, 13 + cryptoboxOffset(column));
+                tilerunner.moveInches(waitHandler, DEF_SPEED, 13 + cryptoboxOffset(column));
                 tilerunner.turn(waitHandler, TURN_SPEED, -90);
-                tilerunner.move(waitHandler, DEF_SPEED, 5);
+                tilerunner.moveInches(waitHandler, DEF_SPEED, 5);
                 break;
             case RED_FAR:
-                tilerunner.move(waitHandler, BSTONE_SPEED, -28 - offset);
+                tilerunner.moveInches(waitHandler, BSTONE_SPEED, -28 - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
-                tilerunner.move(waitHandler, DEF_SPEED, 13 - cryptoboxOffset(column));
+                tilerunner.moveInches(waitHandler, DEF_SPEED, 13 - cryptoboxOffset(column));
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
-                tilerunner.move(waitHandler, DEF_SPEED, 3);
+                tilerunner.moveInches(waitHandler, DEF_SPEED, 3);
                 break;
         }
     }
@@ -83,16 +83,16 @@ public class PlaceGlyphPhase {
         switch (position) {
             case RED_A:
             case BLUE_A:
-                tilerunner.move(waitHandler, DEF_SPEED, -inches);
+                tilerunner.moveInches(waitHandler, DEF_SPEED, -inches);
                 tilerunner.grabGlyph(0);
                 tilerunner.turn(waitHandler, DEF_SPEED, 180);
                 tilerunner.moveTimed(waitHandler, -DEF_SPEED / 2, 1.5);
 
-                tilerunner.move(waitHandler, DEF_SPEED, BACK_UP_IN);
+                tilerunner.moveInches(waitHandler, DEF_SPEED, BACK_UP_IN);
                 break;
             case RED_FAR:
             case BLUE_FAR:
-                tilerunner.move(waitHandler, DEF_SPEED, -BACK_UP_IN);
+                tilerunner.moveInches(waitHandler, DEF_SPEED, -BACK_UP_IN);
         }
     }
 

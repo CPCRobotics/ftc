@@ -167,7 +167,7 @@ public class JewelTopplerPhase {
         }
 
         tilerunner.longSleep(waitHandler, 250);
-        tilerunner.move(waitHandler, 1, TOPPLE_DISTANCE*direction);
+        tilerunner.moveInches(waitHandler, 1, TOPPLE_DISTANCE*direction);
         Thread.sleep(100);
         Thread.sleep(100);
         tilerunner.retractJewelWhacker();

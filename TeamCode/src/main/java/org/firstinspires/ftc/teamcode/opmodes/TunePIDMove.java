@@ -30,9 +30,9 @@ public class TunePIDMove extends LinearOpMode implements BusyWaitHandler {
         waitForStart();
 
         while (opModeIsActive()) {
-            tilerunner.move(this, DEST_IN, tuner.get(), 10);
+            tilerunner.moveInches(this, DEST_IN, tuner.get(), 10);
             longSleep();
-            tilerunner.move(this, -DEST_IN, tuner.get(), 10);
+            tilerunner.moveInches(this, -DEST_IN, tuner.get(), 10);
             longSleep();
         }
     }

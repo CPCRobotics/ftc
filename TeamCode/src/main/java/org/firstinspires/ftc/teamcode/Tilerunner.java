@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.hardware.AdafruitADPS9960;
 import org.firstinspires.ftc.teamcode.hardware.ProximitySensor;
 import org.firstinspires.ftc.teamcode.util.DCMotorGroup;
 import org.firstinspires.ftc.teamcode.util.PIDController;
+import org.firstinspires.ftc.teamcode.util.Producer;
 import org.firstinspires.ftc.teamcode.util.RobotType;
 import org.firstinspires.ftc.teamcode.util.ServoGroup;
 import org.firstinspires.ftc.teamcode.util.SpeedController;
@@ -368,74 +369,65 @@ public class Tilerunner {
         return liftMotor.getCurrentPosition();
     }
 
-    /**
-     * Moves the robot a specified distance.
-     */
-    public void move(BusyWaitHandler waitHandler, double destInches, PIDController pid, double maxSecs)
+    private void moveGeneric(Producer<Boolean> condition, Producer<Double> power)
             throws InterruptedException {
+        final double startAngle = compass.getAngle();
+        final double ANGLE_THRESHOLD = 45;
 
-        // Calculate required ticks
-        int destTicks = (int)(ticksPerInch * destInches);
+        while (condition.get()) {
+            double curPower = power.get();
+            driveArcade(curPower, (compass.getAngle() - startAngle) / ANGLE_THRESHOLD);
+        }
+    }
 
+    public void moveInches(final BusyWaitHandler waitHandler, final double destInches,
+                           final PIDController pid, final double maxSecs)
+        throws InterruptedException {
+
+        final int destTicks = (int)(ticksPerInch * destInches);
         final ElapsedTime timeoutTimer = new ElapsedTime();
 
-        // Track angle at beginning
-        double startAngle = compass.getAngle();
-        final double ANGLE_THRESHOLD = 45; // go full-turn when at 90° or higher
-
-        // Set up motors to stop at destination
         motorPair.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorPair.setTargetPosition( destTicks );
+        motorPair.setTargetPosition(destTicks);
         motorPair.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (leftMotor.isBusy() && waitHandler.isActive() &&
-                (maxSecs <= 0 || timeoutTimer.seconds() < maxSecs)) {
-
-            double
-                    currPos = motorPair.getCurrentPosition() / ticksPerInch,
-                    err = destInches - currPos,
-                    currPower = pid.get(err);
-
-            // Ensure the motors are powerful enough to move the bot
-            //currPower = Math.max(MOTOR_DEADZONE, Math.abs(currPower)) * Math.signum(currPower);
-
-            // use driveArcade to correct steering in the wrong way
-            driveArcade(currPower, (compass.getAngle() - startAngle) / ANGLE_THRESHOLD);
-            // motorPair.setPower(currPower);
-
-            Twigger.getInstance().addLine(".move()")
-                    .addData("pos", currPos)
-                    .addData("target", destInches)
-                    .addData("err", err)
-                    .addData("pow", currPower);
-
-        }
-
-        Twigger.getInstance()
-                .update()
-                .remove(".move()");
+        moveGeneric(new Producer<Boolean>() {
+            @Override
+            public Boolean get() throws InterruptedException {
+                return leftMotor.isBusy() && waitHandler.isActive() &&
+                        (maxSecs <= 0 || timeoutTimer.seconds() < maxSecs);
+            }
+        }, new Producer<Double>() {
+            @Override
+            public Double get() throws InterruptedException {
+                return pid.get(destInches - (leftMotor.getCurrentPosition() / ticksPerInch));
+            }
+        });
     }
 
-    public void move(BusyWaitHandler waitHandler, double power, double destInches) throws InterruptedException {
+    public void moveInches(BusyWaitHandler waitHandler, double power, double destInches)
+        throws InterruptedException {
 
-        // If power is negative (it shouldn't), flip the sign to the destination
-        if (power < 0) {
-            Twigger.getInstance()
-                    .sendOnce("WARN: .move() received negative power (" + power + ").");
-            power *= -1;
-            destInches *= -1;
-        }
-
-        move(waitHandler, destInches, pidMove.finish(power), 0);
+        moveInches(waitHandler, destInches, pidMove.finish(power), 0);
     }
 
-    public void moveTimed(BusyWaitHandler waitHandler, double power, double secs) throws InterruptedException {
-        final ElapsedTime timer = new ElapsedTime();
+    public void moveTimed(final BusyWaitHandler waitHandler, final double power, final double secs)
+            throws InterruptedException {
+
         motorPair.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        while (waitHandler.isActive() && timer.seconds() < secs) {
-            motorPair.setPower(power);
-            Thread.sleep(10);
-        }
+        final ElapsedTime timer = new ElapsedTime();
+
+        moveGeneric(new Producer<Boolean>() {
+            @Override
+            public Boolean get() throws InterruptedException {
+                return waitHandler.isActive() && timer.seconds() < secs;
+            }
+        }, new Producer<Double>() {
+            @Override
+            public Double get() throws InterruptedException {
+                return power;
+            }
+        });
     }
 
     /**

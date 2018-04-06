@@ -13,6 +13,6 @@ public class TestPerpetualMove extends EasyLinearOpmode {
     protected void startAutonomous() throws InterruptedException {
         final double SPEED = 0.3;
 
-        tilerunner.move(this, SPEED, 9999999);
+        tilerunner.moveInches(this, SPEED, 9999999);
     }
 }

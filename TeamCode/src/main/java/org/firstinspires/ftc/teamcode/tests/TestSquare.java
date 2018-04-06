@@ -23,7 +23,7 @@ public class TestSquare extends LinearOpMode implements BusyWaitHandler {
         waitForStart();
 
         while (isActive()) {
-            tilerunner.move(this, ROBOT_POWER, 12);
+            tilerunner.moveInches(this, ROBOT_POWER, 12);
             tilerunner.turn(this, ROBOT_POWER, 90);
         }
     }
