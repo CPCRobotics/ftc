@@ -399,7 +399,13 @@ public class Tilerunner {
     public void moveInches(BusyWaitHandler waitHandler, double power, double destInches)
         throws InterruptedException {
 
-        moveInches(waitHandler, destInches, pidMove.finish(power), 0);
+        moveInches(waitHandler, destInches, pidMove.finish(power), -1);
+    }
+
+    public void moveInches(BusyWaitHandler waitHandler, double power, double destInches, double maxSecs)
+            throws InterruptedException {
+
+        moveInches(waitHandler, destInches, pidMove.finish(power), maxSecs);
     }
 
     public void moveTimed(final BusyWaitHandler waitHandler, final double power, final double secs)
@@ -430,7 +436,9 @@ public class Tilerunner {
         moveGeneric(() -> leftMotor.isBusy() && waitHandler.isActive() && !isHoldingGlyph(),
                 () -> pid.get(destInches - (leftMotor.getCurrentPosition() / ticksPerInch)));
 
-        grabGlyph(0);
+        motorPair.setPower(0);
+        grabGlyph(0.1); // give just a tad bit power to keep hold of the glyph
+        longSleep(waitHandler, 500); // wait a bit to record the momentum as well
         return leftMotor.getCurrentPosition() / ticksPerInch;
     }
 

@@ -16,7 +16,7 @@ public class ExtraGlyphPhase {
     }
 
     public void grabExtraGlyph() throws InterruptedException {
-        double distanceWent = tilerunner.moveToGlyph(busyWaitHandler, 1, 48);
+        double distanceWent = tilerunner.moveToGlyph(busyWaitHandler, 0.5, 40);
         tilerunner.moveInches(busyWaitHandler, 1, -distanceWent);
     }
 }

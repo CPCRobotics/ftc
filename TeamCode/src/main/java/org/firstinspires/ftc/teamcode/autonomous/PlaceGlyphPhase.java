@@ -52,33 +52,32 @@ public class PlaceGlyphPhase {
             case BLUE_A:
                 tilerunner.moveInches(waitHandler, BSTONE_SPEED, 33.5 + cryptoboxOffset(column) - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, -90);
-                tilerunner.moveInches(waitHandler, DEF_SPEED, 9);
+                tilerunner.moveInches(waitHandler, DEF_SPEED, 9, 1);
                 break;
             case RED_A:
                 tilerunner.moveInches(waitHandler, BSTONE_SPEED, -(30.25 - cryptoboxOffset(column)) - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, -90);
-                tilerunner.moveInches(waitHandler, DEF_SPEED, 9);
+                tilerunner.moveInches(waitHandler, DEF_SPEED, 9, 1);
                 break;
             case BLUE_FAR:
                 tilerunner.moveInches(waitHandler, BSTONE_SPEED, 26 - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
                 tilerunner.moveInches(waitHandler, DEF_SPEED, 13 + cryptoboxOffset(column));
                 tilerunner.turn(waitHandler, TURN_SPEED, -90);
-                tilerunner.moveInches(waitHandler, DEF_SPEED, 5);
+                tilerunner.moveInches(waitHandler, DEF_SPEED, 5, 1);
                 break;
             case RED_FAR:
                 tilerunner.moveInches(waitHandler, BSTONE_SPEED, -28 - offset);
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
                 tilerunner.moveInches(waitHandler, DEF_SPEED, 13 - cryptoboxOffset(column));
                 tilerunner.turn(waitHandler, TURN_SPEED, 90);
-                tilerunner.moveInches(waitHandler, DEF_SPEED, 3);
+                tilerunner.moveInches(waitHandler, DEF_SPEED, 3, 1);
                 break;
         }
     }
 
     private void prepareForTele() throws InterruptedException {
         final double inches = 10;
-        final double PUSH_GLYPH_IN = 4;
         final double BACK_UP_IN = 10;
         switch (position) {
             case RED_A:
@@ -90,10 +89,14 @@ public class PlaceGlyphPhase {
 
                 tilerunner.moveInches(waitHandler, DEF_SPEED, BACK_UP_IN);
                 break;
+
             case RED_FAR:
             case BLUE_FAR:
                 tilerunner.moveInches(waitHandler, DEF_SPEED, -BACK_UP_IN);
         }
+
+        // Reorient itself
+        tilerunner.turn(waitHandler, 1, 0);
     }
 
 }
