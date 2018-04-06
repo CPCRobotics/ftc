@@ -50,17 +50,7 @@ public class OpmodeEncoderCheck extends LinearOpMode {
 
     private void composeLogging() {
         Twigger.getInstance()
-                .addData("mode", new Func<String>() {
-                    @Override
-                    public String value() {
-                        return mode;
-                    }
-                })
-                .addData("position", new Func<String>() {
-                    @Override
-                    public String value() {
-                        return String.valueOf(tilerunner.leftMotor.getCurrentPosition());
-                    }
-                });
+                .addData("mode", () -> mode)
+                .addData("position", () -> String.valueOf(tilerunner.leftMotor.getCurrentPosition()));
     }
 }

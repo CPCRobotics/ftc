@@ -54,12 +54,7 @@ public class Twigger {
 
         public Line addData(String name, final Object data) {
             line.addData(name, data);
-            dataFuncs.put(name, new Func<String>() {
-                @Override
-                public String value() {
-                    return data.toString();
-                }
-            });
+            dataFuncs.put(name, data::toString);
             return this;
         }
 
@@ -88,12 +83,7 @@ public class Twigger {
 
     public Twigger addData(String name, final Object data) {
         telemetry.addData(name, data);
-        dataFuncs.put(name, new Func<String>() {
-            @Override
-            public String value() {
-                return data.toString();
-            }
-        });
+        dataFuncs.put(name, data::toString);
         return this;
     }
 

@@ -25,18 +25,8 @@ public class TestOpmodeMove extends LinearOpMode implements BusyWaitHandler {
 
         Twigger.getInstance()
                 .addLine("TunePIDMove")
-                    .addData("left", new Func<String>() {
-                        @Override
-                        public String value() {
-                            return String.valueOf(tilerunner.leftMotor.getCurrentPosition());
-                        }
-                    })
-                    .addData("right", new Func<String>() {
-                        @Override
-                        public String value() {
-                            return String.valueOf(tilerunner.rightMotor.getCurrentPosition());
-                        }
-                    });
+                    .addData("left", () -> String.valueOf(tilerunner.leftMotor.getCurrentPosition()))
+                    .addData("right", () -> String.valueOf(tilerunner.rightMotor.getCurrentPosition()));
 
         waitForStart();
 
