@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.hardware.AdafruitBiColorMatrix;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.hardware.AdafruitGraphix;
  * Displays different symbols on the display to verify it is working
  */
 @Autonomous(name = "Adafruit BiColor Display", group = "TestHardware")
+@Disabled
 public class TestAdafruitDisplay extends LinearOpMode {
 
     private AdafruitBiColorMatrix display;

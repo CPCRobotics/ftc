@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import cpc.robotics.logging.NetLogContext;
@@ -9,6 +10,7 @@ import cpc.robotics.logging.NetLogContext;
  * Tests the NetLogContext logger
  */
 @Autonomous(name="Test Logger", group="TestSoftware")
+@Disabled
 public class TestLogger extends LinearOpMode {
 
     // This provides a context and ensures logging server is started
