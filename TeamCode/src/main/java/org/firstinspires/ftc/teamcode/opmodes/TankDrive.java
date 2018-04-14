@@ -73,7 +73,7 @@ public class TankDrive extends OpMode {
      * Holding the left bumper will restrict
      */
     private double getMaxSpeed() {
-        return gamepad1.left_bumper ? 0.25 : 1.0;
+        return gamepad1.left_bumper ? 0.5 : 1.0;
     }
 
     /*
@@ -117,8 +117,10 @@ public class TankDrive extends OpMode {
             return;
         }
 
-        tilerunner.setMotors(-gamepad1.left_stick_y, -gamepad1.right_stick_y);
-
+        // TODO: Why does this not use cubed power logic?
+        // formally tilerunner.setMotors(-gamepad1.left_stick_y, -gamepad1.right_stick_y);
+        tilerunner.setMotors(-gamepad1.left_stick_y*getMaxSpeed(),
+                -gamepad1.right_stick_y*getMaxSpeed());
 
 
         // Claw Motor (Gamepad 1 Triggers)
