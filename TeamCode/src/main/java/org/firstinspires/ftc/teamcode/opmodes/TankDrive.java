@@ -57,23 +57,22 @@ public class TankDrive extends OpMode {
     private final ThresholdTrigger glyphEject = new ThresholdTrigger();
     private final ThresholdTrigger glyphGrab = new ThresholdTrigger();
 
-    private double clamp(double val) {
-        double max = getMaxSpeed();
-        if (val < -max) return -max;
-        if (val > max) return max;
+    private double clamp(double val, double limit) {
+        if (val < -limit) return -limit;
+        if (val > limit) return limit;
         return val;
     }
 
     private double calculateLiftSpeed(double joystickPower) {
         double result = (joystickPower * joystickPower * joystickPower);
-        return clamp(result * 5);
+        return clamp(result * 5, 1);
     }
 
     /**
-     * Holding the left bumper will restrict
+     * Holding the left bumper will slow down the tilerunner
      */
-    private double getMaxSpeed() {
-        return gamepad1.left_bumper ? 0.5 : 1.0;
+    private double getWheelSpeedCoeff() {
+        return gamepad1.left_bumper ? 0.75 : 1.0;
     }
 
     /*
@@ -119,8 +118,8 @@ public class TankDrive extends OpMode {
 
         // TODO: Why does this not use cubed power logic?
         // formally tilerunner.setMotors(-gamepad1.left_stick_y, -gamepad1.right_stick_y);
-        tilerunner.setMotors(-gamepad1.left_stick_y*getMaxSpeed(),
-                -gamepad1.right_stick_y*getMaxSpeed());
+        tilerunner.setMotors(-gamepad1.left_stick_y* getWheelSpeedCoeff(),
+                -gamepad1.right_stick_y* getWheelSpeedCoeff());
 
 
         // Claw Motor (Gamepad 1 Triggers)
