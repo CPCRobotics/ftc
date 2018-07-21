@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -59,7 +60,20 @@ public class TileRunner {
 		rightDrive.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
 
 		// Get and initialize IMU
-		// imu = hardwareMap.get( BNO055IMU.class, "imu" );
+		imu = hardwareMap.get( BNO055IMU.class, "imu" );
+
+		// Set up the parameters with which we will use our IMU. Note that integration
+		// algorithm here just reports accelerations to the logcat log; it doesn't actually
+		// provide positional information.
+		BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+		parameters.angleUnit            = BNO055IMU.AngleUnit.DEGREES;
+		parameters.accelUnit            = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+		parameters.calibrationDataFile  = "BNO055IMUCalibration.json";
+		parameters.loggingEnabled       = true;
+		parameters.loggingTag           = "IMU";
+		parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+		imu.initialize( parameters );
 	}
 
 
