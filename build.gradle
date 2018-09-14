@@ -5,6 +5,7 @@
  */
 buildscript {
     repositories {
+        google()
         jcenter()
         google()
     }
@@ -12,5 +13,3 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.1.4'
     }
 }
-
-
