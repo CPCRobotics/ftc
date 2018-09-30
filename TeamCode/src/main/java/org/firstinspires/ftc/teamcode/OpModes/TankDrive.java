@@ -62,11 +62,15 @@ public class TankDrive extends OpMode {
 		robot.leftDrive.setPower( left );
 		robot.rightDrive.setPower( right );
 
-		// Send telemetry message to signify robot running;
+		// Read current heading from IMU
+		Orientation angles = robot.imu.getAngularOrientation( AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+		float heading = angles.firstAngle;
+
+		// Send telemetry data to driver station.
 		telemetry.addData( "Left Drive: ", "%.2f", left );
 		telemetry.addData( "RightDrive: ", "%.2f", right );
-
-		Orientation angles = robot.imu.getAngularOrientation( AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+		telemetry.addData( "Heading: ", "%.2f", heading );
+		telemetry.update();
 	}
 
 
