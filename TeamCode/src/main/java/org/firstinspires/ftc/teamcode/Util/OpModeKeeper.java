@@ -23,7 +23,7 @@ public class OpModeKeeper
 	}
 
 
-	// This method should be call once to initialize the OpMode reference.
+	// This method should be called once to initialize the OpMode reference.
 	public static void setOpMode( OpMode opmode ){
 		instance = opmode;
 	}

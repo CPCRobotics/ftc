@@ -15,29 +15,33 @@ public class TestAuto extends LinearOpMode {
     TileRunner         robot   = new TileRunner();
 
     @Override
-    public void runOpMode() {
-
-        robot.init(hardwareMap);
+    public void runOpMode()
+			throws InterruptedException
+	{
+		robot.init( hardwareMap );
 
 		// Initialize the OpModeKeeper Singleton so other parts of our code can use it to get a reference to the OpMode object.
-        OpModeKeeper.setOpMode( this );
+		OpModeKeeper.setOpMode( this );
 
-        // Create an IMUSensor object using the IMU on the robot.
+		// Create an IMUSensor object using the IMU on the robot.
 		IMUSensor imu = new IMUSensor( robot.imu );
 
-        // Create the NavUtils object that we will use to drive the robot.
+		// Create the NavUtils object that we will use to drive the robot.
 		NavUtils nav = new NavUtils( robot.leftDrive, robot.rightDrive, imu, 4.0 );
 
+		// Pause here waiting for the Run button on the driver station to be pressed.
+		waitForStart();
+
 		nav.drive( 18 );
+		nav.turn( 90 );
 		nav.drive( -18 );
 
-        while (opModeIsActive())
-        {
-            telemetry.update();
-        }
+		while ( opModeIsActive() ) {
+			telemetry.update();
+		}
 
-        // Stop all motors
-        robot.leftDrive.setPower(0);
-        robot.rightDrive.setPower(0);
+		// Stop all motors
+		robot.leftDrive.setPower( 0 );
+		robot.rightDrive.setPower( 0 );
     }
 }

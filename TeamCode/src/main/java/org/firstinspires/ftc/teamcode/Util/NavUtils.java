@@ -3,16 +3,16 @@ package org.firstinspires.ftc.teamcode.Util;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Util.OpModeKeeper;
-
 public class NavUtils {
 	DcMotor		leftMotor = null;
 	DcMotor 	rightMotor = null;
 	IMUSensor	imu = null;
 	int			ticksPerInch = 0;
+	private		PIDController turnPID = null;
 
 	// Constants
-	private static final double TURN_THRESHOLD_DEG = 2;
+	private final double TURN_TARGET_THRESHOLD = 2;
+	private final double TURN_POWER = 0.5;
 
 
 	public NavUtils( DcMotor left, DcMotor right, IMUSensor imu, double wheelDiameter )
@@ -29,6 +29,10 @@ public class NavUtils {
 
 		// Calculate motor ticks per inch of movement
 		ticksPerInch = (int)( motorTicksPerRevolution / circumference );
+
+		// Create the PID controller used by our IMU turn code.  These PID constants were
+		// determined experimentally during the 2017-2018 season, we might want to improve them.
+		turnPID = new PIDController( TURN_POWER, 0.04, 0.0001, 0.005 );
 	}
 
 	/**
@@ -60,10 +64,18 @@ public class NavUtils {
 	}
 
 
-	public void turn( double angle, PIDController pid, double maxSecs)
+	public void turn( double angle )
 			throws InterruptedException
 	{
-		double currentPosition;
+		turn( angle, 0 );
+	}
+
+
+	public void turn( double angle, double maxSecs )
+			throws InterruptedException
+	{
+		double currentHeading;
+		double targetHeading;
 		double error;
 
 		final ElapsedTime timeoutTimer = new ElapsedTime();
@@ -72,8 +84,8 @@ public class NavUtils {
 		// Turn algorithm uses positive angles to turn CCW. .turn() promises positive angles turns CW instead.
 		angle *= -1;
 
-		currentPosition = imu.getHeading();
-		final double dest = currentPosition + angle;
+		currentHeading = imu.getHeading();
+		targetHeading = currentHeading + angle;
 
 		leftMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
 		rightMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
@@ -83,15 +95,16 @@ public class NavUtils {
 
 		while (OpModeKeeper.isActive() && (maxSecs <= 0 || timeoutTimer.seconds() < maxSecs))
 		{
-			error = dest - imu.getHeading();
-
-			double currentPower = pid.get(error);
-
+			// Calculate the error (delta between the current and target headings) then use
+			// the PID controller to determine the correct motor power to use.
+			error = targetHeading - imu.getHeading();
+			double currentPower = turnPID.get(error);
 			leftMotor.setPower(-currentPower);
 			rightMotor.setPower(currentPower);
 
-			// Ensure that it's within threshold for longer than enough
-			if (Math.abs(error) > TURN_THRESHOLD_DEG) {
+			// If the current error has been within our target range for long enough
+			// then we are done so break out of the loop.
+			if (Math.abs(error) > TURN_TARGET_THRESHOLD ) {
 				momentumTimer.reset();
 			} else if (momentumTimer.seconds() > 0.1) {
 				break;
@@ -106,6 +119,6 @@ public class NavUtils {
 		leftMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
 		rightMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
 
-		Thread.sleep(100); // Wait for momentum to finish
+		Thread.sleep(100); // Give robot a moment to come to a stop.
 	}
 }
