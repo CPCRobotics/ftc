@@ -110,8 +110,8 @@ public class NavUtils {
 			// the PID controller to determine the correct motor power to use.
 			error = targetHeading - imu.getHeading();
 			double currentPower = turnPID.get(error);
-			leftMotor.setPower(-currentPower);
-			rightMotor.setPower(currentPower);
+			leftMotor.setPower(currentPower);
+			rightMotor.setPower(-currentPower);
 
 			//telemetry for testing
             telemetry.addData("Max Seconds", "" + maxSecs);

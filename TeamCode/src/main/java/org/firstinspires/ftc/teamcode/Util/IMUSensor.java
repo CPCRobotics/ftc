@@ -37,7 +37,8 @@ public final class IMUSensor {
     public double getHeading()
 	{
         readAngles();
-        return heading;
+        //adding 360 to keep it positive
+        return heading + 360;
     }
 
 	public double getRoll()

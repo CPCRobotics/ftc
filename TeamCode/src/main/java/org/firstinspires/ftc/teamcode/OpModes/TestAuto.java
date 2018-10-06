@@ -39,12 +39,12 @@ public class TestAuto extends LinearOpMode {
 		telemetry.update();
 
 		//nav.drive( 18 );
-		nav.turn( 90 );
+		nav.turn( 180 );
 
 		telemetry.addData("Turned", "right");
 		telemetry.update();
 
-		nav.turn( -90 );
+		//nav.turn( -90 );
 
 		//nav.drive( 1000 );
 
