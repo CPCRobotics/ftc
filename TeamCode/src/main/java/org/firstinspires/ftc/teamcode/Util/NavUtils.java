@@ -3,20 +3,24 @@ package org.firstinspires.ftc.teamcode.Util;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+
 public class NavUtils {
 	DcMotor		leftMotor = null;
 	DcMotor 	rightMotor = null;
 	IMUSensor	imu = null;
 	int			ticksPerInch = 0;
 	private		PIDController turnPID = null;
+	private 	Telemetry telemetry;
 
 	// Constants
 	private final double TURN_TARGET_THRESHOLD = 2;
 	private final double TURN_POWER = 0.5;
 
-
-	public NavUtils( DcMotor left, DcMotor right, IMUSensor imu, double wheelDiameter )
+	public NavUtils( DcMotor left, DcMotor right, IMUSensor imu, double wheelDiameter, Telemetry telelemtry )
 	{
+		this.telemetry = telemetry;
 		leftMotor = left;
 		rightMotor = right;
 		this.imu = imu;
@@ -71,7 +75,7 @@ public class NavUtils {
 	}
 
 
-	public void turn( double angle, double maxSecs )
+	public void turn( double angle, double maxSecs)
 			throws InterruptedException
 	{
 		double currentHeading;

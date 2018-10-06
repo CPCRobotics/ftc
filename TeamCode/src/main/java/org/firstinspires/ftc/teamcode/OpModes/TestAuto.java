@@ -18,6 +18,8 @@ public class TestAuto extends LinearOpMode {
     public void runOpMode()
 			throws InterruptedException
 	{
+		telemetry.addData("Initializing", "Initializing");
+		telemetry.update();
 		robot.init( hardwareMap );
 
 		// Initialize the OpModeKeeper Singleton so other parts of our code can use it to get a reference to the OpMode object.
@@ -27,14 +29,24 @@ public class TestAuto extends LinearOpMode {
 		IMUSensor imu = new IMUSensor( robot.imu );
 
 		// Create the NavUtils object that we will use to drive the robot.
-		NavUtils nav = new NavUtils( robot.leftDrive, robot.rightDrive, imu, 4.0 );
+		NavUtils nav = new NavUtils( robot.leftDrive, robot.rightDrive, imu, 4.0, telemetry );
 
 		// Pause here waiting for the Run button on the driver station to be pressed.
 		waitForStart();
+		telemetry.addData("Running", "Running");
+		telemetry.update();
 
-		nav.drive( 18 );
+		//nav.drive( 18 );
 		nav.turn( 90 );
-		nav.drive( -18 );
+
+		telemetry.addData("Turned", "right");
+		telemetry.update();
+
+		nav.turn( -90 );
+		//nav.drive( -18 );
+		telemetry.addData("Turned", "left");
+		telemetry.update();
+
 
 		while ( opModeIsActive() ) {
 			telemetry.update();
