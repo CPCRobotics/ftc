@@ -13,6 +13,7 @@ public class NavUtils {
 	int			ticksPerInch = 0;
 	private		PIDController turnPID = null;
 	private 	Telemetry telemetry;
+	private		VirtualCompass compass;
 
 	// Constants
 	private final double TURN_TARGET_THRESHOLD = 2;
@@ -24,6 +25,7 @@ public class NavUtils {
 		leftMotor = left;
 		rightMotor = right;
 		this.imu = imu;
+		compass = new VirtualCompass(imu);
 
 		//testing telemetry
 		telemetry.addLine("Testing nav util telemetry");
@@ -49,8 +51,11 @@ public class NavUtils {
 	 *
 	 * @param distance - Distance to drive in inches, negative values drive backwards.
 	 */
-	public void drive( double distance )
+	public void drive( double distance, double power )
 	{
+		rightMotor.setPower(-power);
+		leftMotor.setPower(power);
+
 		// First ensure that the motors are stopped and reset the encoders to zero.
 		leftMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
 		rightMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
@@ -95,7 +100,7 @@ public class NavUtils {
 		// Turn algorithm uses positive angles to turn CCW. .turn() promises positive angles turns CW instead.
 		angle *= -1;
 
-		currentHeading = imu.getHeading();
+		currentHeading = compass.getAngle();
 		targetHeading = currentHeading + angle;
 
 		leftMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
@@ -108,7 +113,7 @@ public class NavUtils {
 		{
 			// Calculate the error (delta between the current and target headings) then use
 			// the PID controller to determine the correct motor power to use.
-			error = targetHeading - imu.getHeading();
+			error = targetHeading - compass.getAngle();
 			double currentPower = turnPID.get(error);
 			leftMotor.setPower(currentPower);
 			rightMotor.setPower(-currentPower);

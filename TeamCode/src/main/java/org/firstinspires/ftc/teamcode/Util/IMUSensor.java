@@ -14,10 +14,13 @@ public final class IMUSensor {
     private double roll = 0;
     private double pitch = 0;
 
+    private double addDegree = 0;
+
 
     public IMUSensor( BNO055IMU imu )
 	{
         this.imu = imu;
+
     }
 
     /**
@@ -37,8 +40,7 @@ public final class IMUSensor {
     public double getHeading()
 	{
         readAngles();
-        //adding 360 to keep it positive
-        return heading + 360;
+        return heading;
     }
 
 	public double getRoll()
