@@ -18,12 +18,17 @@ public class NavUtils {
 	private final double TURN_TARGET_THRESHOLD = 2;
 	private final double TURN_POWER = 0.5;
 
-	public NavUtils( DcMotor left, DcMotor right, IMUSensor imu, double wheelDiameter, Telemetry telelemtry )
+	public NavUtils( DcMotor left, DcMotor right, IMUSensor imu, double wheelDiameter, Telemetry tel )
 	{
-		this.telemetry = telemetry;
+		telemetry = tel;
 		leftMotor = left;
 		rightMotor = right;
 		this.imu = imu;
+
+		//testing telemetry
+		telemetry.addLine("Testing nav util telemetry");
+		telemetry.addLine("Testing...");
+		telemetry.update();
 
 		// Get the number of encoder ticks per revolution from the motor configuration.
 		double motorTicksPerRevolution = left.getMotorType().getTicksPerRev();
@@ -78,6 +83,8 @@ public class NavUtils {
 	public void turn( double angle, double maxSecs)
 			throws InterruptedException
 	{
+	    telemetry.addData("Starting turn", "Angle: " + angle);
+	    telemetry.update();
 		double currentHeading;
 		double targetHeading;
 		double error;
@@ -106,12 +113,20 @@ public class NavUtils {
 			leftMotor.setPower(-currentPower);
 			rightMotor.setPower(currentPower);
 
+			//telemetry for testing
+            telemetry.addData("Max Seconds", "" + maxSecs);
+            telemetry.addData("timeoutTimer", "" + timeoutTimer.seconds());
+            telemetry.addData("current power", "" + currentPower);
+            telemetry.addData("Error", "" + error);
+            telemetry.addData("Heading", "" + imu.getHeading());
+            telemetry.update();
+
 			// If the current error has been within our target range for long enough
 			// then we are done so break out of the loop.
 			if (Math.abs(error) > TURN_TARGET_THRESHOLD ) {
-				momentumTimer.reset();
+                momentumTimer.reset();
 			} else if (momentumTimer.seconds() > 0.1) {
-				break;
+                break;
 			}
 
 			Thread.sleep(10);

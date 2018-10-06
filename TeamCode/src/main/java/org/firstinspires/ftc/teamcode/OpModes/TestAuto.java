@@ -28,6 +28,8 @@ public class TestAuto extends LinearOpMode {
 		// Create an IMUSensor object using the IMU on the robot.
 		IMUSensor imu = new IMUSensor( robot.imu );
 
+
+		telemetry.addLine("About to init nav util");
 		// Create the NavUtils object that we will use to drive the robot.
 		NavUtils nav = new NavUtils( robot.leftDrive, robot.rightDrive, imu, 4.0, telemetry );
 
@@ -43,7 +45,9 @@ public class TestAuto extends LinearOpMode {
 		telemetry.update();
 
 		nav.turn( -90 );
-		//nav.drive( -18 );
+
+		//nav.drive( 1000 );
+
 		telemetry.addData("Turned", "left");
 		telemetry.update();
 
