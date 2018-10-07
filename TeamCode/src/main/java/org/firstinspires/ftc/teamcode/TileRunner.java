@@ -51,8 +51,8 @@ public class TileRunner {
 
 		// Set motor rotation direction for positive power values.  AndyMark motors are opposite
 		// of Tetrix motors so this will need to be changed for different motor types.
-		leftDrive.setDirection( DcMotor.Direction.REVERSE );
-		rightDrive.setDirection( DcMotor.Direction.FORWARD );
+		leftDrive.setDirection( DcMotor.Direction.FORWARD );
+		rightDrive.setDirection( DcMotor.Direction.REVERSE );
 
 		// Set all motors to run without using position encoders.
 		leftDrive.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
