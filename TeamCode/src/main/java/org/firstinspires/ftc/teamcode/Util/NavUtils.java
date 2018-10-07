@@ -18,6 +18,7 @@ public class NavUtils {
 	// Constants
 	private final double TURN_TARGET_THRESHOLD = 2;
 	private final double TURN_POWER = 0.5;
+	public static final double MOTOR_DEADZONE = 0.07; // range [0,1]
 
 	public NavUtils( DcMotor left, DcMotor right, IMUSensor imu, double wheelDiameter, Telemetry tel )
 	{
@@ -115,6 +116,8 @@ public class NavUtils {
 			// the PID controller to determine the correct motor power to use.
 			error = targetHeading - compass.getAngle();
 			double currentPower = turnPID.get(error);
+			// ensure movement is powerful enough
+			currentPower = Math.max(MOTOR_DEADZONE, Math.abs(currentPower)) * Math.signum(currentPower);
 			leftMotor.setPower(currentPower);
 			rightMotor.setPower(-currentPower);
 
