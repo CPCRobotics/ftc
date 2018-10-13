@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Util.IMUSensor;
 import org.firstinspires.ftc.teamcode.Util.NavUtils;
 import org.firstinspires.ftc.teamcode.Util.OpModeKeeper;
 
-@Autonomous(name="TestAuto", group="Test")
+@Autonomous(name="Deadzone Tuner", group="Test")
 public class DeadzoneTuner extends LinearOpMode {
 
     /* Declare OpMode members. */
@@ -34,7 +34,7 @@ public class DeadzoneTuner extends LinearOpMode {
 		waitForStart();
 		telemetry.addLine("Running");
 
-		double currentPower = 0.2;
+		double currentPower = 0.02;
 		int direction = 1;
 		while(true && opModeIsActive())
 		{
@@ -46,8 +46,8 @@ public class DeadzoneTuner extends LinearOpMode {
 			robot.leftDrive.setPower( 0 );
 			robot.rightDrive.setPower( 0 );
 			sleep(2000);
-			currentPower += 0.2;
-			direction *= -1;	
+			currentPower += 0.02;
+			direction *= -1;
 		}
 
 		// Stop all motors

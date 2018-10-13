@@ -20,8 +20,8 @@ public class NavUtils {
 	private final double TURN_POWER = 0.5;
 	public static final double MOTOR_DEADZONE = 0.05; // range [0,1]
 
-	public final double MIN_TURN_POWER = 0.1;
-	public final int ADJUST_THRESHHOLD = 3;
+	public final double MIN_TURN_POWER = 0.14;
+	public final double ADJUST_THRESHHOLD = 2;
 
 	public NavUtils( DcMotor left, DcMotor right, IMUSensor imu, double wheelDiameter, Telemetry tel )
 	{
@@ -199,7 +199,7 @@ public class NavUtils {
 			turnPower = degreesFrom / 100 * direction;
 			if(Math.abs(degreesFrom) < 20 || turnPower < 0.17)
 			{
-				turnPower = 0.17 * direction;
+				turnPower = MIN_TURN_POWER * direction;
 			}
 
 			telemetry.addData("direction", "" + direction);
@@ -257,7 +257,7 @@ public class NavUtils {
 			turnPower = ticksFrom / 2000 * direction;
 			if(turnPower < 0.15)
 			{
-				turnPower = 0.15 * direction;
+				turnPower = 0.1 * direction;
 			}
 
 			telemetry.addData("direction", "" + direction);
