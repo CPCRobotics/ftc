@@ -192,9 +192,10 @@ public class NavUtils {
 			direction = (int)Math.signum(targetAngle - currentAngle);
 			degreesFrom = Math.abs(targetAngle - currentAngle);
 
+			//Alternate formula Math.abs(degreesFrom) < 15
 			if(Math.abs(previousError - currentAngle) < 2)
 			{
-				turnPower = 1.5 * direction;
+				turnPower = 0.07 * direction;
 			}
 			else
 			{
