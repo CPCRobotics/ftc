@@ -38,15 +38,14 @@ public class TestAuto2 extends LinearOpMode {
 		telemetry.addData("Running", "Running");
 		telemetry.update();
 
-		//nav.drive( 18 );
-		nav.rotate(90);
-		sleep(1000);
-		nav.rotate(90);
-		sleep(1000);
-		nav.rotate(90);
-		sleep(1000);
-		nav.rotate(90);
-
+		//nav.drive( 18, 0.4 );
+		for(int i = 0; i < 4; i++)
+		{
+			nav.move(55);
+			sleep(200);
+			nav.rotate(90);
+			sleep(200);
+		}
 
 
 		//nav.turn( -90 );

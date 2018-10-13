@@ -184,6 +184,8 @@ public class NavUtils {
 		double degreesFrom;
 		int direction;
 		double previousError = 1000;
+		//this timer is used to measure how long the robot is at the position it needs to be at
+		final ElapsedTime momentumTimer = new ElapsedTime();
 
 		//Rough Adjustment
 		while(OpModeKeeper.isActive())
@@ -192,16 +194,12 @@ public class NavUtils {
 			direction = (int)Math.signum(targetAngle - currentAngle);
 			degreesFrom = Math.abs(targetAngle - currentAngle);
 
+			//Math.abs(previousError - currentAngle) < 2
 			//Alternate formula Math.abs(degreesFrom) < 15
-			if(Math.abs(previousError - currentAngle) < 2)
+			turnPower = degreesFrom / 100 * direction;
+			if(Math.abs(degreesFrom) < 20 || turnPower < 0.17)
 			{
-				turnPower = 0.07 * direction;
-			}
-			else
-			{
-				turnPower = degreesFrom / 100 * direction;
-				//sets a minimum motor power
-				turnPower = Math.max(MIN_TURN_POWER, Math.abs(turnPower)) * Math.signum(turnPower);
+				turnPower = 0.17 * direction;
 			}
 
 			telemetry.addData("direction", "" + direction);
@@ -212,14 +210,80 @@ public class NavUtils {
 			leftMotor.setPower(-turnPower);
 			rightMotor.setPower(turnPower);
 
-			if(degreesFrom < ADJUST_THRESHHOLD && degreesFrom > -ADJUST_THRESHHOLD)
+			if(degreesFrom < ADJUST_THRESHHOLD && degreesFrom > -ADJUST_THRESHHOLD && momentumTimer.seconds() >= 0.2)
 			{
 				telemetry.addLine("Finished turn");
 				leftMotor.setPower(0);
 				rightMotor.setPower(0);
 				break;
 			}
+			else if(degreesFrom < ADJUST_THRESHHOLD && degreesFrom > -ADJUST_THRESHHOLD)
+			{
+
+			}
+			else
+			{
+				momentumTimer.reset();
+			}
 			previousError = degreesFrom;
+		}
+	}
+
+	//testing new driving method
+	public void move(int distance) throws InterruptedException
+	{
+		leftMotor.setPower(0);
+		rightMotor.setPower(0);
+
+		int startingTicks = leftMotor.getCurrentPosition();
+		int targetTicks = startingTicks + (int)(distance * ticksPerInch);
+		double turnPower;
+		int currentPosition;
+		double ticksFrom;
+		int direction;
+		double previousError = 1000;
+		//this timer is used to measure how long the robot is at the position it needs to be at
+		final ElapsedTime momentumTimer = new ElapsedTime();
+
+		//Rough Adjustment
+		while(OpModeKeeper.isActive())
+		{
+			currentPosition = leftMotor.getCurrentPosition();
+			direction = (int)Math.signum(targetTicks - currentPosition);
+			ticksFrom = Math.abs(targetTicks - currentPosition);
+
+			//Math.abs(previousError - currentAngle) < 2
+			//Alternate formula Math.abs(degreesFrom) < 15
+			turnPower = ticksFrom / 2000 * direction;
+			if(turnPower < 0.15)
+			{
+				turnPower = 0.15 * direction;
+			}
+
+			telemetry.addData("direction", "" + direction);
+			telemetry.addData("ticks from", "" + ticksFrom);
+			telemetry.addData("turnPower", "" + turnPower);
+			telemetry.update();
+
+			leftMotor.setPower(turnPower);
+			rightMotor.setPower(turnPower);
+
+			if(ticksFrom < 10 && ticksFrom > -10 && momentumTimer.seconds() >= 0.2)
+			{
+				telemetry.addLine("Finished move");
+				leftMotor.setPower(0);
+				rightMotor.setPower(0);
+				break;
+			}
+			else if(ticksFrom < 10 && ticksFrom > -10)
+			{
+
+			}
+			else
+			{
+				momentumTimer.reset();
+			}
+			previousError = ticksFrom;
 		}
 	}
 }
