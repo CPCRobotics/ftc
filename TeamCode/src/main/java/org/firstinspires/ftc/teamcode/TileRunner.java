@@ -25,6 +25,7 @@ public class TileRunner {
 	/* Public OpMode members. */
 	public DcMotor leftDrive = null;
 	public DcMotor rightDrive = null;
+	public DcMotor lift = null;
 	public BNO055IMU imu = null;
 
 	/* local OpMode members. */
@@ -44,19 +45,23 @@ public class TileRunner {
 		// Define and Initialize Motors
 		leftDrive = GetDcMotor( "left_drive" );
 		rightDrive = GetDcMotor( "right_drive" );
+		lift = GetDcMotor( "lift" );
 
 		// Make sure motors are initially stopped
 		leftDrive.setPower( 0 );
 		rightDrive.setPower( 0 );
+		lift.setPower(0);
 
 		// Set motor rotation direction for positive power values.  AndyMark motors are opposite
 		// of Tetrix motors so this will need to be changed for different motor types.
 		leftDrive.setDirection( DcMotor.Direction.FORWARD );
 		rightDrive.setDirection( DcMotor.Direction.REVERSE );
+		lift.setDirection(DcMotor.Direction.FORWARD);
 
 		// Set all motors to run without using position encoders.
 		leftDrive.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
 		rightDrive.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
+		lift.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
 
 		// Get and initialize IMU
 		imu = hardwareMap.get( BNO055IMU.class, "imu" );
