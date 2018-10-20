@@ -31,7 +31,7 @@ public class LiftTest extends OpMode {
 		robot.init( hardwareMap );
 
 		// Send telemetry message to signify robot waiting;
-		telemetry.addData( "Say", "Hello Driver" );    //
+		telemetry.addLine("Initialized");
 	}
 
 
@@ -53,17 +53,21 @@ public class LiftTest extends OpMode {
 	public void loop()
 	{
 		// Read the Y values of both joysticks, return values are [-1,1]
-		double left = gamepad1.left_stick_y;
+		double leftLift = gamepad2.left_stick_y;
+		double leftDrive = gamepad1.left_stick_y;
+		double rightDrive = gamepad1.right_stick_y;
 
 		// Set motor power for each side of robot to match values read from joysticks
-		robot.lift.setPower( left );
+		robot.lift.setPower(leftLift);
+		robot.leftDrive.setPower(leftDrive);
+		robot.rightDrive.setPower(rightDrive);
 
 		// Read the current motor encoder values so we can write them to telemetry.
 		int liftPosition = robot.lift.getCurrentPosition();
 
 		// Send telemetry data to driver station.
 		telemetry.addData("Lift Position", "" + liftPosition);
-		telemetry.addData("Lift Power", "" + left);
+		telemetry.addData("Lift Power", "" + leftLift);
 		telemetry.update();
 	}
 

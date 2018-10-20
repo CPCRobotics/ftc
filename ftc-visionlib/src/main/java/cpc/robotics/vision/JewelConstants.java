@@ -20,4 +20,10 @@ public final class JewelConstants {
     public static final ColorHSV COLOR_RED_UPPER = new ColorHSV((int) (380.0 / 360.0 * 255.0), 255, (int) (0.900 * 255.0));
     public static final ColorHSV COLOR_BLUE_LOWER = new ColorHSV((int) (180.0 / 360.0 * 255.0), (int) (0.300 * 255.0), (int) (0.200 * 255.0));
     public static final ColorHSV COLOR_BLUE_UPPER = new ColorHSV((int) (270.0 / 360.0 * 255.0), 255, (int) (0.900 * 255.0));
+    //yellow
+//    public static final ColorHSV COLOR_YELLOW_LOWER = new ColorHSV(0, 50, 100);
+//    public static final ColorHSV COLOR_YELLOW_UPPER = new ColorHSV(100, 50, 100);
+
+    public static final ColorHSV COLOR_YELLOW_LOWER = new ColorHSV(300, (int) (0.800 * 255.0), (int) (0.200 * 255.0));
+    public static final ColorHSV COLOR_YELLOW_UPPER = new ColorHSV(360, 255, (int) (0.900 * 255.0));
 }

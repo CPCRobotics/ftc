@@ -31,6 +31,8 @@ public final class JewelsDetector {
     private ColorBlobDetector blueDetector = new ColorBlobDetector(JewelConstants.COLOR_BLUE_LOWER, JewelConstants.COLOR_BLUE_UPPER);
     private ColorBlobDetector redDetector = new ColorBlobDetector(JewelConstants.COLOR_RED_LOWER, JewelConstants.COLOR_RED_UPPER);
     private ColorBlobDetector whiteDetector = new ColorBlobDetector(JewelConstants.COLOR_WHITE_LOWER, JewelConstants.COLOR_WHITE_UPPER);
+    //yellow
+    private ColorBlobDetector yellowDetector = new ColorBlobDetector(JewelConstants.COLOR_YELLOW_LOWER, JewelConstants.COLOR_YELLOW_UPPER);
     private boolean debug = false;
 
     /**
@@ -82,15 +84,18 @@ public final class JewelsDetector {
         redDetector.process(img);
         blueDetector.process(img);
         whiteDetector.process(img);
+        yellowDetector.process(img);
         List<Contour> contoursRed = redDetector.getContours();
         List<Contour> contoursBlue = blueDetector.getContours();
         List<Contour> contoursWhite = whiteDetector.getContours();
+        List<Contour> contoursYellow = yellowDetector.getContours();
 
         //DEBUG Draw contours before filtering
         if (debug) {
-            Drawing.drawContours(img, contoursRed, new ColorRGBA("#FF0000"), 2);
+            //Drawing.drawContours(img, contoursRed, new ColorRGBA("#FF0000"), 2);
             Drawing.drawContours(img, contoursBlue, new ColorRGBA("#0000FF"), 2);
             Drawing.drawContours(img, contoursWhite, new ColorRGBA("#FFFF00"), 2);
+            Drawing.drawContours(img, contoursYellow, new ColorRGBA("#83FF24"), 2);
             Drawing.drawRectangle(img, bounds, new ColorRGBA("#aaaaaa"), 4);
         }
 
@@ -125,10 +130,10 @@ public final class JewelsDetector {
 
         //DEBUG R/B text
         if (debug) {
-            Drawing.drawText(img, "R", bestRedCenter, 1.0f, new ColorRGBA("#FF00FF"));
-            Drawing.drawText(img, "B", bestBlueCenter, 1.0f, new ColorRGBA("#FF00FF"));
+            Drawing.drawText(img, "Red", bestRedCenter, 1.0f, new ColorRGBA("#FF00FF"));
+            Drawing.drawText(img, "Blue", bestBlueCenter, 1.0f, new ColorRGBA("#FF00FF"));
             if (bestWhiteCenter != null) {
-                Drawing.drawText(img, "W", bestWhiteCenter, 1.0f, new ColorRGBA("#FF00FF"));
+                Drawing.drawText(img, "White", bestWhiteCenter, 1.0f, new ColorRGBA("#FF00FF"));
             }
             Drawing.drawRectangle(img, bounds, new ColorRGBA("#00AAAA"), 4);
         }

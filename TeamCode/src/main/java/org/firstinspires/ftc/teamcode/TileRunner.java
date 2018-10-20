@@ -56,7 +56,7 @@ public class TileRunner {
 		// of Tetrix motors so this will need to be changed for different motor types.
 		leftDrive.setDirection( DcMotor.Direction.FORWARD );
 		rightDrive.setDirection( DcMotor.Direction.REVERSE );
-		lift.setDirection(DcMotor.Direction.FORWARD);
+		lift.setDirection(DcMotor.Direction.REVERSE);
 
 		// Set all motors to run without using position encoders.
 		leftDrive.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
