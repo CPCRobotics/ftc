@@ -219,7 +219,7 @@ public class NavUtils {
 				telemetry.addLine("Finished turn");
 				leftMotor.setPower(0);
 				rightMotor.setPower(0);
-				break;	
+				break;
 			}
 			else if(degreesFrom < ADJUST_THRESHHOLD && degreesFrom > -ADJUST_THRESHHOLD)
 			{
