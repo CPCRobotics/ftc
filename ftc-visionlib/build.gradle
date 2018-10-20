@@ -25,5 +25,5 @@ repositories {
 
 dependencies {
     implementation (name: 'RobotCore-release', ext: 'aar')
-    implementation project(':openCVLibrary343')
+    implementation project(':opencv-java')
 }

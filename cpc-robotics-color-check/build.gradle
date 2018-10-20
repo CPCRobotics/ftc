@@ -31,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    implementation project(':openCVLibrary343')
+    implementation project(':opencv-java')
     implementation project(':ftc-visionlib')
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 }
