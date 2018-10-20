@@ -18,9 +18,10 @@ public class NavUtils {
 	// Constants
 	private final double TURN_TARGET_THRESHOLD = 0.5;
 	private final double TURN_POWER = 0.5;
+
 	public static final double MOTOR_DEADZONE = 0.05; // range [0,1]
 
-	public final double MIN_TURN_POWER = 0.14;
+	public final double MIN_TURN_POWER = 0.2;
 	public final double ADJUST_THRESHHOLD = 2;
 
 	public NavUtils( DcMotor left, DcMotor right, IMUSensor imu, double wheelDiameter, Telemetry tel )
@@ -174,6 +175,8 @@ public class NavUtils {
 
 	public void rotate(double degrees) throws InterruptedException
 	{
+		degrees *= -1;
+
 		leftMotor.setPower(0);
 		rightMotor.setPower(0);
 
@@ -197,7 +200,7 @@ public class NavUtils {
 			//Math.abs(previousError - currentAngle) < 2
 			//Alternate formula Math.abs(degreesFrom) < 15
 			turnPower = degreesFrom / 100 * direction;
-			if(Math.abs(degreesFrom) < 20 || turnPower < 0.17)
+			if(Math.abs(degreesFrom) < 20 || Math.abs(turnPower) < MIN_TURN_POWER)
 			{
 				turnPower = MIN_TURN_POWER * direction;
 			}
@@ -207,6 +210,7 @@ public class NavUtils {
 			telemetry.addData("turnPower", "" + turnPower);
 			telemetry.update();
 
+
 			leftMotor.setPower(-turnPower);
 			rightMotor.setPower(turnPower);
 
@@ -215,7 +219,7 @@ public class NavUtils {
 				telemetry.addLine("Finished turn");
 				leftMotor.setPower(0);
 				rightMotor.setPower(0);
-				break;
+				break;	
 			}
 			else if(degreesFrom < ADJUST_THRESHHOLD && degreesFrom > -ADJUST_THRESHHOLD)
 			{
@@ -225,8 +229,13 @@ public class NavUtils {
 			{
 				momentumTimer.reset();
 			}
+			//testing for pulse turning
+//			Thread.sleep(100);
+//			leftMotor.setPower(0);
+//			rightMotor.setPower(0);
 			previousError = degreesFrom;
 		}
+		Thread.sleep(500);
 	}
 
 	//testing new driving method
@@ -254,8 +263,8 @@ public class NavUtils {
 
 			//Math.abs(previousError - currentAngle) < 2
 			//Alternate formula Math.abs(degreesFrom) < 15
-			turnPower = ticksFrom / 2000 * direction;
-			if(turnPower < 0.15)
+			turnPower = ticksFrom / 2500 * direction;
+			if(Math.abs(turnPower) < 0.15)
 			{
 				turnPower = 0.1 * direction;
 			}
@@ -285,5 +294,6 @@ public class NavUtils {
 			}
 			previousError = ticksFrom;
 		}
+		Thread.sleep(500);
 	}
 }
