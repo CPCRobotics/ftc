@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="8dp">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/hueText"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:text="Hue"
+                    android:textSize="24sp" />
+
+                <SeekBar
+                    android:id="@+id/hueLower"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:max="255"
+                    android:progress="0" />
+
+                <SeekBar
+                    android:id="@+id/hueUpper"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:max="255"
+                    android:progress="255" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/satText"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:text="Sat"
+                    android:textSize="24sp" />
+
+                <SeekBar
+                    android:id="@+id/satLower"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:max="255"
+                    android:progress="0" />
+
+                <SeekBar
+                    android:id="@+id/satUpper"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:max="255"
+                    android:progress="255" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/valText"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:text="Val"
+                    android:textSize="24sp" />
+
+                <SeekBar
+                    android:id="@+id/valLower"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:max="255"
+                    android:progress="0" />
+
+                <SeekBar
+                    android:id="@+id/valUpper"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:max="255"
+                    android:progress="255" />
+            </TableRow>
+
+        </TableLayout>
+
+        <TextView
+            android:id="@+id/summaryText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Set Hue/Sat/Val"
+            android:textAppearance="@android:style/TextAppearance"
+            android:textSize="18sp" />
+
+        <SurfaceView
+            android:id="@+id/previewSurface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
