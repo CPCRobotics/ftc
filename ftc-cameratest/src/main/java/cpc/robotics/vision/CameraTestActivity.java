@@ -39,7 +39,8 @@ public class CameraTestActivity extends VisionEnabledActivity {
 
         setContentView(R.layout.activity_cameratest);
 
-        vision = new VisionHelper(this, Camera.CameraInfo.CAMERA_FACING_BACK, 900, 900);
+        //vision = new VisionHelper(this, Camera.CameraInfo.CAMERA_FACING_BACK, 900, 900);
+        vision = new VisionHelper(this, 2, 900, 900);
         vision.addExtensions(crop, blur, jewels, rotation, cameraControl, debugOverlay);
         crop.setBounds(-10.0, 0.0, 50.0, 50.0);
         blur.setBlurWidth(5);

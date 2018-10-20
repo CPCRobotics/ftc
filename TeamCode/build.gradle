@@ -15,4 +15,5 @@ android {
 }
 dependencies {
     implementation project(':opencv-java')
+    implementation project(':ftc-visionlib')
 }
