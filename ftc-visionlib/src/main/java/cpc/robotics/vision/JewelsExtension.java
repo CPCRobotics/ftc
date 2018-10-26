@@ -15,6 +15,7 @@ import org.opencv.core.Mat;
  */
 public class JewelsExtension extends VisionExtension {
     private JewelsDetector jewels;
+
     private JewelsDetector.JewelAnalysis analysis = new JewelsDetector.JewelAnalysis();
     private ImageRotationExtension rotation = null;
 

@@ -2,9 +2,6 @@ package org.firstinspires.ftc.teamcode.Autonomus;
 
 import android.content.Context;
 import android.hardware.Camera;
-import android.support.annotation.NonNull;
-
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.TileRunner;
 import org.lasarobotics.vision.util.ScreenOrientation;
@@ -14,14 +11,13 @@ import cpc.robotics.vision.CameraControlExtension;
 import cpc.robotics.vision.CameraStatsExtension;
 import cpc.robotics.vision.CropExtension;
 import cpc.robotics.vision.ImageRotationExtension;
-import cpc.robotics.vision.JewelsDetector;
 import cpc.robotics.vision.JewelsExtension;
 import cpc.robotics.vision.VisionHelper;
 
 /**
  * Finds the the jewel to topple and topples it
  */
-public class JewelTopplerPhase {
+public class MineralVision {
 
     private final TeamPosition position;
     private final VisionHelper visionHelper;
@@ -29,7 +25,7 @@ public class JewelTopplerPhase {
 
     private final JewelsExtension jewels = new JewelsExtension();
 
-    public JewelTopplerPhase(TeamPosition position, Context context, TileRunner tilerunner)
+    public MineralVision(TeamPosition position, Context context, TileRunner tilerunner)
     {
         this.position = position;
         this.tilerunner = tilerunner;
@@ -97,10 +93,10 @@ public class JewelTopplerPhase {
 
         while (waitHandler.isActive()) {
 
-            JewelsDetector.JewelAnalysis analysis;
 
             // Waits for a full half second or until confidence is high enough
-            if ((analysis = jewels.getBestAnalysis()).getConfidence() < 0.75 && time.seconds() < 0.5) {
+            if ((analysis = jewels.getBestAnalysis()).get            JewelsDetector.JewelAnalysis analysis;
+            Confidence() < 0.75 && time.seconds() < 0.5) {
                 Twigger.getInstance()
                         .sendOnce("Confidence not high enough: " + analysis.getConfidence());
 
@@ -119,10 +115,10 @@ public class JewelTopplerPhase {
 
             Twigger.getInstance()
                     .addLine(".locateEnemyJewel()")
-                        .addData("colors", analysis.getColorString())
-                        .addData("confidence", analysis.getConfidenceString())
-                        .addData("center", analysis.getCenterString())
-                        .done()
+                    .addData("colors", analysis.getColorString())
+                    .addData("confidence", analysis.getConfidenceString())
+                    .addData("center", analysis.getCenterString())
+                    .done()
                     .update()
                     .remove(".locateEnemyJewel()"); // TODO Add sendLineOnce implementation
 
@@ -170,4 +166,5 @@ public class JewelTopplerPhase {
 
         return direction*TOPPLE_DISTANCE;
     }
+
 }
