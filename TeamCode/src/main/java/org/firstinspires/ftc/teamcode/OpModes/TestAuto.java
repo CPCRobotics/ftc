@@ -41,7 +41,7 @@ public class TestAuto extends LinearOpMode {
 		//nav.drive( 18 );
 		nav.samTurn( 0.5 , 90 );
 		sleep(2000);
-		nav.samTurn( 0.5, 180 );
+
 		sleep(2000);
 		nav.samTurn( 0.5, 270 );
 

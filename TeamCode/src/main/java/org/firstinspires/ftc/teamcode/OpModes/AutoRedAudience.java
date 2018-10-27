@@ -35,13 +35,18 @@ public class AutoRedAudience extends LinearOpMode {
 		waitForStart();
 
 		//move to
-		nav.move(13);
-		nav.rotate(-70);
-		nav.move(35);
-		nav.rotate(-64);
-		nav.move(23);
+		telemetry.addLine("moving to minerals");
+		nav.drive(13, 1);
+		telemetry.addLine("turning to wall");
+		nav.samTurn(1, -70);
+		telemetry.addLine("moving to wall");
+		nav.drive(35, 1);
+		telemetry.addLine("turning to depot");
+		nav.samTurn(1,-64);
+		telemetry.addLine("moving to depot");
+		nav.drive(35, 1);
 		//nav.rotate(180);
-		nav.move(-41);
+		nav.drive(-76, 1);
 
 		while ( opModeIsActive() ) {
 			telemetry.update();

@@ -65,8 +65,8 @@ public class NavUtils {
 	 */
 	public void drive( double distance, double power )
 	{
-		rightMotor.setPower(-power);
-		leftMotor.setPower(power);
+		rightMotor.setPower(power);
+		leftMotor.setPower(-power);
 
 		// First ensure that the motors are stopped and reset the encoders to zero.
 		leftMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
@@ -270,7 +270,7 @@ public class NavUtils {
 
 			//Math.abs(previousError - currentAngle) < 2
 			//Alternate formula Math.abs(degreesFrom) < 15
-			turnPower = ticksFrom / 2500 * direction;
+			turnPower = ticksFrom / 1000 * direction;
 
 			if(Math.abs(turnPower) < 0.15)
 			{
@@ -345,8 +345,8 @@ public class NavUtils {
 			// ensure movement is powerful enough
 			//currentPower = Math.max(MOTOR_DEADZONE, Math.abs(currentPower)) * Math.signum(currentPower);
 
-			leftMotor.setPower(currentPower);
-			rightMotor.setPower(-currentPower);
+			leftMotor.setPower(-currentPower);
+			rightMotor.setPower(currentPower);
 
 			// Ensure that it's within threshold for longer than enough
 			if (Math.abs(error) > TURN_THRESHOLD_DEG)
