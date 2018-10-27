@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.TileRunner;
 
@@ -29,6 +30,8 @@ public class CompetitionTeleop extends OpMode
 	private final double DUMPER_OPEN = 90;
 	private final double DUMPER_CLOSED = 0;
 
+	private int armBrake;
+
 	// Code to run ONCE when the driver hits INIT
 	@Override
 	public void init()
@@ -37,6 +40,7 @@ public class CompetitionTeleop extends OpMode
 		 * The init() method of the hardware class does all the work here
 		 */
 		robot.init( hardwareMap );
+		armBrake = robot.arm.getCurrentPosition();
 
 		// Send telemetry message to signify robot waiting;
 		telemetry.addLine("Initialized");
@@ -73,7 +77,20 @@ public class CompetitionTeleop extends OpMode
 		double intakePower = infeed - outfeed;
 
 		// Set power to the motors
-		robot.arm.setPower(armPower);
+		if(armPower == 0)
+		{
+			robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+			robot.arm.setTargetPosition(armBrake);
+			robot.arm.setPower(1);
+			telemetry.addData("Braking", "True");
+		}
+		else
+		{
+			telemetry.addData("Braking", "False");
+			robot.arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+			robot.arm.setPower(armPower);
+			armBrake = robot.arm.getCurrentPosition();
+		}
 		robot.intake.setPower(intakePower);
 		robot.lift.setPower(liftPower);
 

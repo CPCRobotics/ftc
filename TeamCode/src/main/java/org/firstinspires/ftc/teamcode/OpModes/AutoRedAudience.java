@@ -34,18 +34,23 @@ public class AutoRedAudience extends LinearOpMode {
 		// Pause here waiting for the Run button on the driver station to be pressed.
 		waitForStart();
 
-		//move to
-		telemetry.addLine("moving to minerals");
+
+		//move to minerals
 		nav.drive(13, 1);
-		telemetry.addLine("turning to wall");
-		nav.samTurn(1, -70);
-		telemetry.addLine("moving to wall");
+		//knock over minerals
+
+		//turn towards wall
+		nav.samTurn(1, -75);
+		//move to wall
+		nav.drive(37, 1);
+		//turn towards depot
+		nav.samTurn(1,-60);
+		//move to depot
 		nav.drive(35, 1);
-		telemetry.addLine("turning to depot");
-		nav.samTurn(1,-64);
-		telemetry.addLine("moving to depot");
-		nav.drive(35, 1);
-		//nav.rotate(180);
+		//place marker
+
+
+		//drive into crater
 		nav.drive(-76, 1);
 
 		while ( opModeIsActive() ) {
