@@ -41,9 +41,8 @@ public class TestAuto2 extends LinearOpMode {
 		//nav.drive( 18, 0.4 );
 		for(int i = 0; i < 4; i++)
 		{
-			nav.move(30);
-			sleep(200);
-			nav.samTurn(90, 10);
+			nav.samTurn(0.5, 90);
+			telemetry.addLine("Finished turn");
 			sleep(200);
 		}
 

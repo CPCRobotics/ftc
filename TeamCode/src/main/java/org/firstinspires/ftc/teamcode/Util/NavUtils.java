@@ -28,7 +28,8 @@ public class NavUtils {
 	private static final double TURN_SPEED = 0.7;
 	private static final double TURN_THRESHOLD_DEG = 2;
 	private Double currentPosition = null;
-	private PIDController turnPidController = new PIDController(TURN_SPEED, .04, .0001, .005);
+	private PIDController.PIDConfiguration pidTurn = new PIDController.PIDConfiguration(.04, .0001, .005);
+	//private PIDController turnPidController = new PIDController(TURN_SPEED, .04, .0001, .005);
 
 	public NavUtils( DcMotor left, DcMotor right, IMUSensor imu, double wheelDiameter, Telemetry tel )
 	{
@@ -304,14 +305,25 @@ public class NavUtils {
 		Thread.sleep(500);
 	}
 
-	public void samTurn(double angle, double maxSecs) throws InterruptedException
+	public void samTurn(double power, double angle) throws InterruptedException
+	{
+		// If power is negative, shift it to angles.
+		if (power < 0) {
+			angle *= -1;
+			power *= -1;
+		}
+
+		samTurn(angle, pidTurn.finish(power), 0);
+	}
+
+	public void samTurn(double angle, PIDController pid, double maxSecs) throws InterruptedException
 	{
 		final ElapsedTime timeoutTimer = new ElapsedTime();
 		final ElapsedTime momentumTimer = new ElapsedTime();
 
 		// Turn algorithm uses positive angles to turn CCW. .turn() promises
 		// positive angles turns CW instead.
-		//angle *= -1;
+		angle *= -1;
 
 		if (currentPosition == null)
 		{
@@ -329,12 +341,12 @@ public class NavUtils {
 		{
 			error = dest - compass.getAngle();
 
-			double currentPower = turnPidController.get(error);
+			double currentPower = pid.get(error);
 			// ensure movement is powerful enough
 			//currentPower = Math.max(MOTOR_DEADZONE, Math.abs(currentPower)) * Math.signum(currentPower);
 
-			leftMotor.setPower(-currentPower);
-			rightMotor.setPower(currentPower);
+			leftMotor.setPower(currentPower);
+			rightMotor.setPower(-currentPower);
 
 			// Ensure that it's within threshold for longer than enough
 			if (Math.abs(error) > TURN_THRESHOLD_DEG)

@@ -39,19 +39,19 @@ public class TestAuto extends LinearOpMode {
 		telemetry.update();
 
 		//nav.drive( 18 );
-		nav.turn( 90 );
+		nav.samTurn( 0.5 , 90 );
 		sleep(2000);
-		nav.turn( 180 );
+		nav.samTurn( 0.5, 180 );
 		sleep(2000);
-		nav.turn( 270 );
+		nav.samTurn( 0.5, 270 );
 
 		sleep(4000);
 
-		nav.turn( -90 );
+		nav.samTurn( 0.5, -90 );
 		sleep(2000);
-		nav.turn( -180 );
+		nav.samTurn( 0.5, -180 );
 		sleep(2000);
-		nav.turn( -270 );
+		nav.samTurn( 0.5, -270 );
 		sleep(2000);
 
 
