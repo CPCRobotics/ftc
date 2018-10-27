@@ -72,9 +72,10 @@ public class CompetitionTeleop extends OpMode
 		//this calculates the acutal value passed into the motor
 		double intakePower = infeed - outfeed;
 
-		// Set motor power for each side of robot to match values read from joysticks
+		// Set power to the motors
 		robot.arm.setPower(armPower);
 		robot.intake.setPower(intakePower);
+		robot.lift.setPower(liftPower);
 
 		//this opens the mineral dumper if the left bumper is pressed
 		if(gamepad2.left_bumper)
@@ -84,36 +85,6 @@ public class CompetitionTeleop extends OpMode
 		else
 		{
 			robot.dumper.setPosition(DUMPER_CLOSED);
-		}
-
-		//This keeps the lift within the limits defined in the constants
-		int liftPosition = robot.lift.getCurrentPosition();
-		if(liftPosition > LIFT_MAX)
-		{
-			robot.arm.setPower(-ARM_CORRECT_POWER);
-		}
-		else if(liftPosition < LIFT_MIN)
-		{
-			robot.arm.setPower(ARM_CORRECT_POWER);
-		}
-		else
-		{
-			robot.arm.setPower(armPower);
-		}
-
-		//This keeps the lift within the limits defined in the constants
-		int armPosition = robot.arm.getCurrentPosition();
-		if(armPosition > ARM_MAX)
-		{
-			robot.lift.setPower(-LIFT_CORRECT_POWER);
-		}
-		else if(armPosition < ARM_MIN)
-		{
-			robot.lift.setPower(LIFT_CORRECT_POWER);
-		}
-		else
-		{
-			robot.lift.setPower(liftPower);
 		}
 
 		//this reverses driving if the right bumper on controller one is pressed
@@ -129,6 +100,7 @@ public class CompetitionTeleop extends OpMode
 		}
 
 		// Send telemetry data to driver station.
+		double liftPosition = robot.lift.getCurrentPosition();
 		telemetry.addData("Lift Position", "" + liftPosition);
 		telemetry.update();
 	}

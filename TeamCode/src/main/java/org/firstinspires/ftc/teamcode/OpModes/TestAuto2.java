@@ -43,7 +43,7 @@ public class TestAuto2 extends LinearOpMode {
 		{
 			nav.move(30);
 			sleep(200);
-			nav.rotate(90);
+			nav.samTurn(90, 10);
 			sleep(200);
 		}
 

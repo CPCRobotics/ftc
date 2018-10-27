@@ -24,6 +24,12 @@ public class NavUtils {
 	public final double MIN_TURN_POWER = 0.2;
 	public final double ADJUST_THRESHHOLD = 2;
 
+	//used in Sam's turn
+	private static final double TURN_SPEED = 0.7;
+	private static final double TURN_THRESHOLD_DEG = 2;
+	private Double currentPosition = null;
+	private PIDController turnPidController = new PIDController(TURN_SPEED, .04, .0001, .005);
+
 	public NavUtils( DcMotor left, DcMotor right, IMUSensor imu, double wheelDiameter, Telemetry tel )
 	{
 		telemetry = tel;
@@ -296,5 +302,60 @@ public class NavUtils {
 			previousError = ticksFrom;
 		}
 		Thread.sleep(500);
+	}
+
+	public void samTurn(double angle, double maxSecs) throws InterruptedException
+	{
+		final ElapsedTime timeoutTimer = new ElapsedTime();
+		final ElapsedTime momentumTimer = new ElapsedTime();
+
+		// Turn algorithm uses positive angles to turn CCW. .turn() promises
+		// positive angles turns CW instead.
+		//angle *= -1;
+
+		if (currentPosition == null)
+		{
+			currentPosition = compass.getAngle();
+		}
+		final double dest = currentPosition + angle;
+
+		leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+		rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+		leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+		rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+		double error;
+		while (OpModeKeeper.isActive() && (maxSecs <= 0 || timeoutTimer.seconds() < maxSecs))
+		{
+			error = dest - compass.getAngle();
+
+			double currentPower = turnPidController.get(error);
+			// ensure movement is powerful enough
+			//currentPower = Math.max(MOTOR_DEADZONE, Math.abs(currentPower)) * Math.signum(currentPower);
+
+			leftMotor.setPower(-currentPower);
+			rightMotor.setPower(currentPower);
+
+			// Ensure that it's within threshold for longer than enough
+			if (Math.abs(error) > TURN_THRESHOLD_DEG)
+			{
+				momentumTimer.reset();
+			}
+			else if (momentumTimer.seconds() > 0.1)
+			{
+				break;
+			}
+
+			Thread.sleep(10);
+		}
+
+		leftMotor.setPower(0);
+		rightMotor.setPower(0);
+		leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+		rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+		Thread.sleep(100); // Wait for momentum to finish
+
+		currentPosition = dest;
 	}
 }
