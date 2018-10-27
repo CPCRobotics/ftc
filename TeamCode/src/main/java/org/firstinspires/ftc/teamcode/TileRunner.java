@@ -2,10 +2,13 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.configuration.annotations.ServoType;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.ServoConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
@@ -27,6 +30,9 @@ public class TileRunner {
 	public DcMotor leftDrive = null;
 	public DcMotor rightDrive = null;
 	public DcMotor lift = null;
+	public DcMotor arm = null;
+	public Servo dumper = null;
+	public CRServo intake = null;
 	public BNO055IMU imu = null;
 
 	/* local OpMode members. */
@@ -47,22 +53,34 @@ public class TileRunner {
 		leftDrive = GetDcMotor( "left_drive" );
 		rightDrive = GetDcMotor( "right_drive" );
 		lift = GetDcMotor( "lift" );
+		arm = GetDcMotor("arm");
+		dumper = hardwareMap.get(Servo.class, "dumper");
+		intake = hardwareMap.get(CRServo.class, "intake");
+
+		//tells certain motors to brake when power is zero
+		arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+		lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
 		// Make sure motors are initially stopped
-		leftDrive.setPower( 0 );
-		rightDrive.setPower( 0 );
+		leftDrive.setPower(0);
+		rightDrive.setPower(0);
 		lift.setPower(0);
+		arm.setPower(0);
+		intake.setPower(0);
 
 		// Set motor rotation direction for positive power values.  AndyMark motors are opposite
 		// of Tetrix motors so this will need to be changed for different motor types.
-		leftDrive.setDirection( DcMotor.Direction.FORWARD );
-		rightDrive.setDirection( DcMotor.Direction.REVERSE );
+		leftDrive.setDirection( DcMotor.Direction.REVERSE );
+		rightDrive.setDirection( DcMotor.Direction.FORWARD );
 		lift.setDirection(DcMotor.Direction.FORWARD);
+		arm.setDirection(DcMotor.Direction.FORWARD);
 
 		// Set all motors to run without using position encoders.
 		leftDrive.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
 		rightDrive.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
-		lift.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
+		lift.setMode( DcMotor.RunMode.RUN_USING_ENCODER );
+		arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 		// Get and initialize IMU
 		imu = hardwareMap.get( BNO055IMU.class, "imu" );

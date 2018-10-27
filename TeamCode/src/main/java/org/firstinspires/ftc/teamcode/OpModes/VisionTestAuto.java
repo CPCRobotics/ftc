@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Util.IMUSensor;
 import org.firstinspires.ftc.teamcode.Util.NavUtils;
 import org.firstinspires.ftc.teamcode.Util.OpModeKeeper;
 
-@Autonomous(name="TestAuto", group="Test")
+@Autonomous(name="TestVisionAuto", group="Test")
 public class VisionTestAuto extends LinearOpMode {
 
     /* Declare OpMode members. */

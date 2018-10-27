@@ -18,7 +18,7 @@ import cpc.robotics.vision.VisionHelper;
  * Finds the the jewel to topple and topples it
  */
 public class MineralVision {
-
+/*
     private final TeamPosition position;
     private final VisionHelper visionHelper;
     private final TileRunner tilerunner;
@@ -49,11 +49,14 @@ public class MineralVision {
         cameraControl.setAutoExposureCompensation();
 
         jewels.enableDebug();
+        */
     }
 
     /**
      * @return offset
      */
+
+    /*
     public double toppleEnemyJewel() throws InterruptedException {
         JewelDirection jd;
 
@@ -167,4 +170,6 @@ public class MineralVision {
         return direction*TOPPLE_DISTANCE;
     }
 
-}
+    */
+
+//}

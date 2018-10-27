@@ -264,6 +264,7 @@ public class NavUtils {
 			//Math.abs(previousError - currentAngle) < 2
 			//Alternate formula Math.abs(degreesFrom) < 15
 			turnPower = ticksFrom / 2500 * direction;
+
 			if(Math.abs(turnPower) < 0.15)
 			{
 				turnPower = 0.1 * direction;
