@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.TileRunner;
 @TeleOp( name = "Competition Teleop", group = "Competition" )
 public class CompetitionTeleop extends OpMode
 {
-
+	private final double ARM_POWER_LIMIT = 0.5;
 	// Declare OpMode members.
 	TileRunner robot = new TileRunner();
 	//constants for lift limits
@@ -40,7 +40,6 @@ public class CompetitionTeleop extends OpMode
 		 * The init() method of the hardware class does all the work here
 		 */
 		robot.init( hardwareMap );
-		armBrake = robot.arm.getCurrentPosition();
 
 		// Send telemetry message to signify robot waiting;
 		telemetry.addLine("Initialized");
@@ -56,7 +55,10 @@ public class CompetitionTeleop extends OpMode
 
 	// Code to run ONCE when the driver hits PLAY
 	@Override
-	public void start() {
+	public void start()
+	{
+		//this makes the robot arm brake at the current position.
+		armBrake = robot.arm.getCurrentPosition();
 	}
 
 
@@ -65,7 +67,7 @@ public class CompetitionTeleop extends OpMode
 	public void loop()
 	{
 		// Read the joystick values for the arm, lift, left drive, and right drive power
-		double armPower = gamepad2.left_stick_y;
+		double armPower = gamepad2.left_stick_y * ARM_POWER_LIMIT;
 		double liftPower = gamepad2.right_stick_y;
 		double leftDrivePower = gamepad1.left_stick_y;
 		double rightDrivePower = gamepad1.right_stick_y;
@@ -77,18 +79,20 @@ public class CompetitionTeleop extends OpMode
 		double intakePower = infeed - outfeed;
 
 		// Set power to the motors
+
+		//This makes the arm motor brake when the joystick is not moved
 		if(armPower == 0)
 		{
 			robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 			robot.arm.setTargetPosition(armBrake);
-			robot.arm.setPower(1);
+			robot.arm.setPower(ARM_POWER_LIMIT);
 			telemetry.addData("Braking", "True");
 		}
 		else
 		{
 			telemetry.addData("Braking", "False");
-			robot.arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-			robot.arm.setPower(armPower);
+			robot.arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+			robot.arm.setPower(ARM_POWER_LIMIT * armPower);
 			armBrake = robot.arm.getCurrentPosition();
 		}
 		robot.intake.setPower(intakePower);
