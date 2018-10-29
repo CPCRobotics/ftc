@@ -8,18 +8,17 @@ import org.firstinspires.ftc.teamcode.Util.IMUSensor;
 import org.firstinspires.ftc.teamcode.Util.NavUtils;
 import org.firstinspires.ftc.teamcode.Util.OpModeKeeper;
 
-@Autonomous(name= "AutoRedAudience", group="Competition")
-public class AutoRedAudience extends LinearOpMode {
+@Autonomous(name="Deadzone Tuner", group="Test")
+public class TuneDeadzone extends LinearOpMode {
 
     /* Declare OpMode members. */
     TileRunner         robot   = new TileRunner();
 
     @Override
-    public void runOpMode()
-			throws InterruptedException
+    public void runOpMode() throws InterruptedException
 	{
-		telemetry.addLine("Initializing");
-
+		telemetry.addData("Initializing", "Initializing");
+		telemetry.update();
 		robot.init( hardwareMap );
 
 		// Initialize the OpModeKeeper Singleton so other parts of our code can use it to get a reference to the OpMode object.
@@ -33,28 +32,22 @@ public class AutoRedAudience extends LinearOpMode {
 
 		// Pause here waiting for the Run button on the driver station to be pressed.
 		waitForStart();
+		telemetry.addLine("Running");
 
-
-		//move to minerals
-		nav.drive(13, 1);
-		//knock over minerals
-
-		//turn towards wall
-		nav.samTurn(1, -75);
-		//move to wall
-		nav.drive(37, 1);
-		//turn towards depot
-		nav.samTurn(1,-60);
-		//move to depot
-		nav.drive(35, 1);
-		//place marker
-
-
-		//drive into crater
-		nav.drive(-76, 1);
-
-		while ( opModeIsActive() ) {
+		double currentPower = 0.01;
+		int direction = 1;
+		while(true && opModeIsActive())
+		{
+			telemetry.addData("Power", "" + currentPower);
 			telemetry.update();
+			robot.leftDrive.setPower(currentPower * direction);
+			robot.rightDrive.setPower(-1 * currentPower * direction);
+			sleep(4000);
+			robot.leftDrive.setPower( 0 );
+			robot.rightDrive.setPower( 0 );
+			sleep(2000);
+			currentPower += 0.01;
+			direction *= -1;
 		}
 
 		// Stop all motors
