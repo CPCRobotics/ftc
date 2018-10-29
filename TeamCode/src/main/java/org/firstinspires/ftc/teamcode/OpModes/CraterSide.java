@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.OpModes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.Autonomus.Landing;
+import org.firstinspires.ftc.teamcode.Autonomous.Landing;
 import org.firstinspires.ftc.teamcode.TileRunner;
 import org.firstinspires.ftc.teamcode.Util.IMUSensor;
 import org.firstinspires.ftc.teamcode.Util.NavUtils;
