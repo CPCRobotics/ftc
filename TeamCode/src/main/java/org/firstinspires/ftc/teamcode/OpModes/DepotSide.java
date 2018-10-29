@@ -23,7 +23,7 @@ public class DepotSide extends LinearOpMode
 	public void runOpMode()
 			throws InterruptedException
 	{
-		telemetry.addData("Initializing", "Initializing");
+		telemetry.addData("DepotSide", "Initializing");
 		telemetry.update();
 		robot.init( hardwareMap );
 
@@ -39,7 +39,7 @@ public class DepotSide extends LinearOpMode
 
 		// Pause here waiting for the Run button on the driver station to be pressed.
 		waitForStart();
-		telemetry.addData("Running", "Running");
+		telemetry.addData("DepotSide", "Starting");
 		telemetry.update();
 
 		// Call the set of strategies the will accomplish the tasks for this run of autonomous.
