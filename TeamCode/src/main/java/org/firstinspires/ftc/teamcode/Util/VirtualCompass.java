@@ -1,11 +1,5 @@
 package org.firstinspires.ftc.teamcode.Util;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-
 /**
  * Feigns continuous angles, i.e. angle measurements beyond the [-180°, 180°] range
  */
