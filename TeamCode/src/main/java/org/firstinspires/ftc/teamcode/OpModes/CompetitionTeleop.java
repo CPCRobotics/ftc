@@ -96,7 +96,14 @@ public class CompetitionTeleop extends OpMode
 			armBrake = robot.arm.getCurrentPosition();
 		}
 		robot.intake.setPower(intakePower);
-		robot.lift.setPower(liftPower);
+		if (robot.liftLowerLimit.getState() == false && liftPower < 0){
+			robot.lift.setPower(liftPower);
+		}
+		else if (robot.liftUpperLimit.getState() == false && liftPower > 0){
+			robot.lift.setPower(liftPower);
+		}else {
+			robot.lift.setPower(0);
+		}
 
 		//this opens the mineral dumper if the left bumper is pressed
 		if(gamepad2.left_bumper)
