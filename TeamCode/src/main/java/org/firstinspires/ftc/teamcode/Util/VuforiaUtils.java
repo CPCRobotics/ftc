@@ -42,7 +42,7 @@ public class VuforiaUtils {
          *
          * Then replace "abc/123" with the correct vuphoria license key.
          */
-        parameters.vuforiaLicenseKey =  hardwareMap.appContext.getString(R.string.vuphoriaLicense);
+        //parameters.vuforiaLicenseKey =  hardwareMap.appContext.getString(R.string.vuphoriaLicense);
 
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
         vuforia = ClassFactory.createVuforiaLocalizer(parameters);

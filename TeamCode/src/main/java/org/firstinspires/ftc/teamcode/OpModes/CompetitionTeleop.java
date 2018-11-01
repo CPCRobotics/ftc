@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.TileRunner;
 public class CompetitionTeleop extends OpMode
 {
 	private final double ARM_POWER_LIMIT = 0.5;
+	private final double REVERSE_DRIVE_SPEED = 0.5;
 	// Declare OpMode members.
 	TileRunner robot = new TileRunner();
 	//constants for lift limits
@@ -111,8 +112,8 @@ public class CompetitionTeleop extends OpMode
 		//this reverses driving if the right bumper on controller one is pressed
 		if(gamepad1.right_bumper)
 		{
-			robot.leftDrive.setPower(-rightDrivePower);
-			robot.rightDrive.setPower(-leftDrivePower);
+			robot.leftDrive.setPower(-rightDrivePower * REVERSE_DRIVE_SPEED);
+			robot.rightDrive.setPower(-leftDrivePower * REVERSE_DRIVE_SPEED);
 		}
 		else
 		{
