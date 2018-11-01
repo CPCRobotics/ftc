@@ -38,9 +38,9 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.TileRunner;
 
-@TeleOp(name="ReadArmEncoder", group="Test")
+@TeleOp(name="TelemetryDump", group="Test")
 
-public class ArmEncoderTester extends OpMode
+public class TelemetryDump extends OpMode
 {
     // Declare OpMode members.
     TileRunner tilerunner = new TileRunner();

@@ -4,13 +4,9 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.configuration.annotations.ServoType;
-import com.qualcomm.robotcore.hardware.configuration.typecontainers.ServoConfigurationType;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 /**
@@ -105,6 +101,19 @@ public class TileRunner {
 	}
 
 
+	/**
+	 * The idea here is to allow us to return a mock motor class when running on a robot
+	 * that does not have all the same motors configured that the competition robot does.
+	 * This way we can run all the same code on the software robot which might not have
+	 * all motors the competition robot does.
+	 *
+	 * Currently this method just returns null if the named motor is not configured, it really should
+	 * return a mock object that could be called by other code without generating an exception.
+	 *
+	 * @param motorName - Name of the motor to get from the hardware map.
+	 *
+	 * @return - DcMotor object for the name motor or null if no motor with that name is configured.
+	 */
 	public DcMotor GetDcMotor( String motorName )
 	{
 		DcMotor motor = null;

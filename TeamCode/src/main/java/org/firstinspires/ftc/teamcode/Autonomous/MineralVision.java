@@ -1,18 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomus;
-
-import android.content.Context;
-import android.hardware.Camera;
-
-import org.firstinspires.ftc.teamcode.TileRunner;
-import org.lasarobotics.vision.util.ScreenOrientation;
-
-import cpc.robotics.vision.BlurExtension;
-import cpc.robotics.vision.CameraControlExtension;
-import cpc.robotics.vision.CameraStatsExtension;
-import cpc.robotics.vision.CropExtension;
-import cpc.robotics.vision.ImageRotationExtension;
-import cpc.robotics.vision.JewelsExtension;
-import cpc.robotics.vision.VisionHelper;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 /**
  * Finds the the jewel to topple and topples it
