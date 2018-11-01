@@ -40,11 +40,6 @@ public class NavUtils {
 		this.imu = imu;
 		compass = new VirtualCompass(imu);
 
-		//testing telemetry
-		telemetry.addLine("Testing nav util telemetry");
-		telemetry.addLine("Testing...");
-		telemetry.update();
-
 		// Get the number of encoder ticks per revolution from the motor configuration.
 		double motorTicksPerRevolution = left.getMotorType().getTicksPerRev();
 
@@ -66,8 +61,10 @@ public class NavUtils {
 	 */
 	public void drive( double distance, double power )
 	{
+		power *= -1;
+		distance *= -1;
 		rightMotor.setPower(power);
-		leftMotor.setPower(-power);
+		leftMotor.setPower(power);
 
 		// First ensure that the motors are stopped and reset the encoders to zero.
 		leftMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
@@ -317,6 +314,7 @@ public class NavUtils {
 		samTurn(angle, pidTurn.finish(power), 0);
 	}
 
+	//This is the turn method we should use
 	public void samTurn(double angle, PIDController pid, double maxSecs) throws InterruptedException
 	{
 		final ElapsedTime timeoutTimer = new ElapsedTime();
@@ -346,8 +344,8 @@ public class NavUtils {
 			// ensure movement is powerful enough
 			//currentPower = Math.max(MOTOR_DEADZONE, Math.abs(currentPower)) * Math.signum(currentPower);
 
-			leftMotor.setPower(-currentPower);
-			rightMotor.setPower(currentPower);
+			leftMotor.setPower(currentPower);
+			rightMotor.setPower(-currentPower);
 
 			// Ensure that it's within threshold for longer than enough
 			if (Math.abs(error) > TURN_THRESHOLD_DEG)
