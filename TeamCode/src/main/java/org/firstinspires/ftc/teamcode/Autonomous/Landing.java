@@ -19,7 +19,7 @@ public class Landing {
     public static void Land(DcMotor motor, DigitalChannel upperLimit)
     {
     	// Start raising the lift (which lowers the robot).
-        motor.setPower( 0.8 );
+        motor.setPower( 1 );
 
         // Spin here until lift hits upper limit or opmode is stopped.
         while( OpModeKeeper.isActive() && !upperLimit.getState())

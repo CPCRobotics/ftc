@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.TileRunner;
 @TeleOp( name = "Competition Teleop", group = "Competition" )
 public class CompetitionTeleop extends OpMode
 {
-	private final double ARM_POWER_LIMIT = 0.5;
+	private final double ARM_POWER_LIMIT = 0.75;
 	private final double REVERSE_DRIVE_SPEED = 0.5;
 	// Declare OpMode members.
 	TileRunner robot = new TileRunner();

@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.TileRunner;
 public class NavUtils {
 	DcMotor		leftMotor = null;
 	DcMotor 	rightMotor = null;
-	IMUSensor	imu = null;
+	public IMUSensor	imu = null;
 	int			ticksPerInch = 0;
 	private		PIDController turnPID = null;
 	private 	Telemetry telemetry;
@@ -54,6 +54,25 @@ public class NavUtils {
 		turnPID = new PIDController( TURN_POWER, 0.04, 0.0001, 0.005 );
 	}
 
+	public void driveCondition(Condition condition, double power)
+	{
+		power *= -1;
+
+		//run without encoders since we are running until our condition is true
+		leftMotor.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
+		rightMotor.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
+		//set the power passed in to the motors
+		rightMotor.setPower(power);
+		leftMotor.setPower(power);
+
+		// Just spin here until the condition is true or the OpMode is told to exit.
+		while (!condition.check() && OpModeKeeper.isActive())
+		{
+		}
+		//stop motors
+		rightMotor.setPower(0);
+		leftMotor.setPower(0);
+	}
 	/**
 	 * Drive the robot straight forwards or backwards a given distance.
 	 *

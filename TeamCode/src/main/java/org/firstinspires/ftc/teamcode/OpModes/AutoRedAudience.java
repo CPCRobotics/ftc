@@ -3,27 +3,26 @@ package org.firstinspires.ftc.teamcode.OpModes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.TileRunner;
-import org.firstinspires.ftc.teamcode.Autonomous.Landing;
-import org.firstinspires.ftc.teamcode.Autonomous.Sampling;
 import org.firstinspires.ftc.teamcode.Autonomous.Claiming;
+import org.firstinspires.ftc.teamcode.Autonomous.Landing;
 import org.firstinspires.ftc.teamcode.Autonomous.Parking;
+import org.firstinspires.ftc.teamcode.Autonomous.Sampling;
+import org.firstinspires.ftc.teamcode.TileRunner;
 import org.firstinspires.ftc.teamcode.Util.IMUSensor;
 import org.firstinspires.ftc.teamcode.Util.NavUtils;
 import org.firstinspires.ftc.teamcode.Util.OpModeKeeper;
 
 
-@Autonomous(name="CraterSide", group="Competition")
-public class CraterSide extends LinearOpMode
+@Autonomous(name="Auto red audience", group="Competition")
+public class AutoRedAudience extends LinearOpMode
 {
     /* Declare OpMode members. */
     TileRunner         robot   = new TileRunner();
 
     @Override
-    public void runOpMode()
-            throws InterruptedException
+    public void runOpMode() throws InterruptedException
     {
-        telemetry.addData("CraterSide", "Initializing");
+        telemetry.addData("Auto red audience", "Initializing");
         telemetry.update();
         robot.init( hardwareMap );
 
@@ -42,21 +41,39 @@ public class CraterSide extends LinearOpMode
         telemetry.addData("CraterSide", "Starting");
         telemetry.update();
 
-        // Call the set of strategies the will accomplish the tasks for this run of autonomous.
-        Landing.Land( robot.lift, robot.liftUpperLimit);
+        // Start raising the lift (which lowers the robot).
+        robot.lift.setPower( 0.8 );
 
-		Sampling.Collect( Sampling.Position.RIGHT, nav );
+        // Spin here until lift hits upper limit or opmode is stopped.
+        while( OpModeKeeper.isActive() && !robot.liftUpperLimit.getState()) { }
 
-        DriveToDepot( nav );
+        // Stop the motor now that we are on the ground and unlatched from lander.
+        robot.lift.setPower( 0 );
 
-        Claiming.DeployMarker( nav, robot.arm );
+        //drive to sampling
+        nav.drive(12, 1);
 
-        Parking.ParkInCrater(nav);
+        //sample right
+        nav.samTurn(1, 37.5);
+        nav.drive(19, 0.7);
+        nav.drive(-19, 0.7);
 
-        //lower lift (for convenience while testing)
+        //reset
+        nav.samTurn(1, -37.5);
+
+        //sample middle
+        nav.drive(13, 0.7);
+        nav.drive(-13, 0.7);
+
+        //sample left
+        nav.samTurn(1, -37.5);
+        nav.drive(19, 0.7);
+        nav.drive(-19, 0.7);
+
         robot.lift.setPower( -0.8 );
         while( OpModeKeeper.isActive() && !robot.liftLowerLimit.getState()) { }
         robot.lift.setPower( 0 );
+
 
         // Spin here updating telemetry until OpMode terminates
         while ( opModeIsActive() )
@@ -68,22 +85,4 @@ public class CraterSide extends LinearOpMode
         robot.leftDrive.setPower( 0 );
         robot.rightDrive.setPower( 0 );
     }
-
-
-	/**
-	 * Drive from our post-Sampling position to our alliances depot so we can deploy our team marker.
-	 */
-	void DriveToDepot( NavUtils nav ) throws InterruptedException
-	{
-	    //drive to wall
-	    nav.drive(39, 1);
-	    //turn part way towards depot
-        nav.samTurn(1, -45);
-        //start moving towards depot
-        nav.drive(22, 1);
-        //finish turning towards depot
-	    nav.samTurn(1, -10);
-	    //finish driving towards depot
-        nav.drive(12, 1);
-	}
 }

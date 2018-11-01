@@ -45,7 +45,7 @@ public class DepotSide extends LinearOpMode
 		// Call the set of strategies the will accomplish the tasks for this run of autonomous.
 		Landing.Land( robot.lift, robot.liftUpperLimit);
 
-		Sampling.Collect( Sampling.Position.LEFT );
+		Sampling.Collect( Sampling.Position.LEFT, nav );
 
 		DriveToDepot( nav );
 
