@@ -13,7 +13,7 @@ public class Claiming
 		armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-		armMotor.setTargetPosition(1500);
+		armMotor.setTargetPosition(1200);
 		armMotor.setPower(0.75);
 		while(armMotor.isBusy() && OpModeKeeper.isActive()) {}
 	}

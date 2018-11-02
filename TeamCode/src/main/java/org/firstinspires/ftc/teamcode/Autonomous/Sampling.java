@@ -1,41 +1,76 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.MineralDetector;
 import org.firstinspires.ftc.teamcode.Util.NavUtils;
 
 public class Sampling
 {
+	private MineralDetector mineralDetector;
 	private static final double WALL_TURN_DEGREES = -77;
-	static NavUtils nav;
+	private int leftCount = 0;
+	private int rightCount = 0;
+	private int centerCount = 0;
+	private NavUtils nav;
+	private Telemetry telemetry;
+
 	public enum Position {
 		LEFT,
 		CENTER,
 		RIGHT
 	}
 
-	public static void Collect( Position mineralPosition, NavUtils nav ) throws InterruptedException
+	public Sampling(MineralDetector mineralDetector, Telemetry telemetry)
 	{
-		Sampling.nav = nav;
+		this.mineralDetector = mineralDetector;
+		this.telemetry = telemetry;
+	}
 
-		//drive to sampling position
-		nav.drive(12, 1);
+	public void locate()
+	{
+		Position pos = mineralDetector.findMinerals();
 
-		switch ( mineralPosition )
+		switch (pos)
 		{
 			case LEFT:
-				CollectLeft() ;
+				leftCount++;
 				break;
 
 			case CENTER:
-				CollectCenter();
+				centerCount++;
 				break;
 
 			case RIGHT:
-				CollectRight();
+				rightCount++;
 				break;
+		}
+
+		//send telemetry about minerals
+		telemetry.addData("Left Count", leftCount);
+		telemetry.addData("Center Count", centerCount);
+		telemetry.addData("Right Count", rightCount);
+		telemetry.update();
+	}
+
+	public void Collect( NavUtils nav ) throws InterruptedException
+	{
+		this.nav = nav;
+
+		if(centerCount > leftCount && centerCount > rightCount)
+		{
+			CollectCenter();
+		}
+		else if(leftCount > rightCount)
+		{
+			CollectLeft();
+		}
+		else
+		{
+			CollectRight();
 		}
 	}
 
-	public static void CollectLeft() throws InterruptedException
+	public void CollectLeft() throws InterruptedException
 	{
 		nav.samTurn(1, -37.5);
 		nav.drive(19, 0.7);
@@ -44,7 +79,7 @@ public class Sampling
 		nav.samTurn(1, WALL_TURN_DEGREES + 37.5);
 	}
 
-	public static void CollectCenter() throws InterruptedException
+	public void CollectCenter() throws InterruptedException
 	{
 		nav.drive(13, 0.7);
 		nav.drive(-13, 0.7);
@@ -52,7 +87,7 @@ public class Sampling
 		nav.samTurn(1, WALL_TURN_DEGREES);
 	}
 
-	public static void CollectRight() throws InterruptedException
+	public void CollectRight() throws InterruptedException
 	{
 		nav.samTurn(1, 37.5);
 		nav.drive(19, 0.7);
