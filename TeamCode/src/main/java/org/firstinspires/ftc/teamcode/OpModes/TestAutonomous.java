@@ -3,62 +3,65 @@ package org.firstinspires.ftc.teamcode.OpModes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.TileRunner;
+import org.firstinspires.ftc.teamcode.Autonomous.Landing;
+import org.firstinspires.ftc.teamcode.Autonomous.Sampling;
+import org.firstinspires.ftc.teamcode.Autonomous.Claiming;
+import org.firstinspires.ftc.teamcode.Autonomous.Parking;
 import org.firstinspires.ftc.teamcode.Util.IMUSensor;
 import org.firstinspires.ftc.teamcode.Util.NavUtils;
 import org.firstinspires.ftc.teamcode.Util.OpModeKeeper;
 
-@Autonomous(name= "TestAutonomous", group="Test")
-public class TestAutonomous extends LinearOpMode {
 
-    /* Declare OpMode members. */
-    TileRunner         robot   = new TileRunner();
-
-    @Override
-    public void runOpMode()
-			throws InterruptedException
+@Autonomous(name="TestAutonomous", group="Test")
+public class TestAutonomous extends LinearOpMode
+{
+	@Override
+	public void runOpMode() throws InterruptedException
 	{
-		telemetry.addLine("Initializing");
-
-		robot.init( hardwareMap );
+		telemetry.addData("TestAutonomous", "Initializing");
+		telemetry.update();
 
 		// Initialize the OpModeKeeper Singleton so other parts of our code can use it to get a reference to the OpMode object.
 		OpModeKeeper.setOpMode( this );
 
-		// Create an IMUSensor object using the IMU on the robot.
-		IMUSensor imu = new IMUSensor( robot.imu );
+		//create the mineral detector
+		String vuforiaKey =  hardwareMap.appContext.getString(R.string.vuphoriaLicense);
+		int viewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-		// Create the NavUtils object that we will use to drive the robot.
-		NavUtils nav = new NavUtils( robot.leftDrive, robot.rightDrive, imu, 4.0, telemetry );
+		//create sampling object
+		Sampling sampling = new Sampling( null, telemetry, vuforiaKey, viewId );
+
+		//start locating the position of the minerals
+		sampling.startRecognition();
 
 		// Pause here waiting for the Run button on the driver station to be pressed.
-		waitForStart();
+		while (!isStarted())
+		{
+			sampling.locate();
 
-
-		//move to minerals
-		nav.drive(13, 1);
-		//knock over minerals
-
-		//turn towards wall
-		nav.samTurn(1, -75);
-		//move to wall
-		nav.drive(37, 1);
-		//turn towards depot
-		nav.samTurn(1,-60);
-		//move to depot
-		nav.drive(35, 1);
-		//place marker
-
-
-		//drive into crater
-		nav.drive(-76, 1);
-
-		while ( opModeIsActive() ) {
-			telemetry.update();
+			synchronized (this) {
+				try {
+					this.wait();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					break;
+				}
+			}
 		}
 
-		// Stop all motors
-		robot.leftDrive.setPower( 0 );
-		robot.rightDrive.setPower( 0 );
-    }
+		//stop locating minerals
+		sampling.stopRecognition();
+
+		telemetry.addData("TestAutonomous", "Starting");
+		telemetry.update();
+
+
+		// Spin here updating telemetry until OpMode terminates
+		while ( opModeIsActive() )
+		{
+			telemetry.update();
+		}
+	}
 }

@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.OpModes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.MineralDetector;
 import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.TileRunner;
 import org.firstinspires.ftc.teamcode.Autonomous.Landing;
@@ -40,14 +39,13 @@ public class DepotSide extends LinearOpMode
 
 		//create the mineral detector
 		String vuforiaKey =  hardwareMap.appContext.getString(R.string.vuphoriaLicense);
-		int viewID = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-		MineralDetector mineralDetector = new MineralDetector(telemetry, vuforiaKey, viewID);
+		int viewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
 		//create sampling object
-		Sampling sampling = new Sampling(mineralDetector, telemetry);
+		Sampling sampling = new Sampling( nav, telemetry, vuforiaKey, viewId );
 
 		//start locating the position of the minerals
-		mineralDetector.startRecognition();
+		sampling.startRecognition();
 
 		// Pause here waiting for the Run button on the driver station to be pressed.
 		while (!isStarted())
@@ -65,7 +63,7 @@ public class DepotSide extends LinearOpMode
 		}
 
 		//stop locating minerals
-		mineralDetector.stopRecognition();
+		sampling.stopRecognition();
 
 		telemetry.addData("DepotSide", "Starting");
 		telemetry.update();
@@ -73,7 +71,7 @@ public class DepotSide extends LinearOpMode
 		// Call the set of strategies the will accomplish the tasks for this run of autonomous.
 		Landing.Land( robot.lift, robot.liftUpperLimit, nav);
 
-		sampling.Collect(nav);
+		sampling.Collect();
 
 		DriveToDepot( nav );
 
