@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
+import java.io.PipedOutputStream;
+import java.util.List;
+
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -9,8 +12,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.teamcode.Util.NavUtils;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
+
+
 
 public class Sampling
 {
@@ -25,10 +28,10 @@ public class Sampling
 	private TFObjectDetector tfod = null;
 	private ElapsedTime timer = null;
 
-	private int leftCount = 0;
-	private int rightCount = 0;
-	private int centerCount = 0;
-	private int unknownCount = 0;
+	// Buffer to store our position history in.
+	private static final int POSITION_BUFFER_SIZE = 20;
+	private int posBufferIndex = 0;
+	private Position posBuffer[];
 
 	public enum Position {
 		NULL,
@@ -42,6 +45,13 @@ public class Sampling
 	{
 		this.nav = nav;
 		this.telemetry = telemetry;
+
+		// Allocate the position buffer and initialize it.
+		posBuffer = new Position[ POSITION_BUFFER_SIZE ];
+		for ( int n = 0; n < POSITION_BUFFER_SIZE; n++ )
+		{
+			posBuffer[n] = Position.NULL;
+		}
 
 		timer = new ElapsedTime( ElapsedTime.Resolution.MILLISECONDS );
 
@@ -126,53 +136,110 @@ public class Sampling
 					if (goldMineralY < silverMineral1Y && goldMineralY < silverMineral2Y)
 					{
 						result = Sampling.Position.LEFT;
-						leftCount++;
+						telemetry.addData( "Current Position", "LEFT");
 					}
 					else if (goldMineralY > silverMineral1Y && goldMineralY > silverMineral2Y)
 					{
 						result = Sampling.Position.RIGHT;
-						rightCount++;
+						telemetry.addData( "Current Position", "RIGHT");
 					}
 					else if((goldMineralY > silverMineral1Y && goldMineralY < silverMineral2Y) || (goldMineralY < silverMineral1Y && goldMineralY > silverMineral2Y))
 					{
 						result = Sampling.Position.CENTER;
-						centerCount++;
+						telemetry.addData( "Current Position", "CENTER");
 					}
 					else
 					{
 						result = Sampling.Position.UNKNOWN;
-						unknownCount++;
+						telemetry.addData( "Current Position", "UNKNOWN");
 					}
+
+					// Store this position in the position buffer and advance the buffer index to the next entry.
+					posBuffer[ posBufferIndex ] = result;
+					posBufferIndex = ++posBufferIndex % POSITION_BUFFER_SIZE;
+
+					checkBuffer();
+
+					telemetry.update();
 				}
-
-				telemetry.addData("Gold X", goldMineralY);
-				telemetry.addData("Silver 1X", silverMineral1Y);
-				telemetry.addData("Silver 2X", silverMineral2Y);
 			}
-
 		}
-
-		// Display updated counts in telemetry.
-		telemetry.addData("Left Count", leftCount);
-		telemetry.addData("Center Count", centerCount);
-		telemetry.addData("Right Count", rightCount);
-		telemetry.addData("Unknown Count", unknownCount);
-		telemetry.update();
 	}
 
-	public void Collect() throws InterruptedException
+	public Position checkBuffer()
 	{
-		if(centerCount > leftCount && centerCount > rightCount)
+		Position result = Position.NULL;
+		int leftCount = 0;
+		int rightCount = 0;
+		int centerCount = 0;
+		int unknownCount = 0;
+
+		for ( int n = 0; n < POSITION_BUFFER_SIZE; n++ )
 		{
-			CollectCenter();
+			switch ( posBuffer[n] )
+			{
+				case LEFT:
+					leftCount++;
+					break;
+
+				case RIGHT:
+					rightCount++;
+					break;
+
+				case CENTER:
+					centerCount++;
+					break;
+
+				case UNKNOWN:
+					unknownCount++;
+					break;
+			}
 		}
-		else if(leftCount > rightCount)
+
+		if ( (leftCount > rightCount) && (leftCount > centerCount) && ( leftCount > unknownCount))
 		{
-			CollectLeft();
+			result = Position.LEFT;
+		}
+		else if ( (rightCount > centerCount) && ( rightCount > unknownCount))
+		{
+			result = Position.RIGHT;
+		}
+		else if ( centerCount > unknownCount)
+		{
+			result = Position.CENTER;
 		}
 		else
 		{
-			CollectRight();
+			result = Position.UNKNOWN;
+		}
+
+		telemetry.addData( "leftCount", leftCount );
+		telemetry.addData( "centerCount", centerCount );
+		telemetry.addData( "rightCount", rightCount );
+		telemetry.addData( "unknownCount", unknownCount );
+
+		return result;
+	}
+
+
+	public void Collect() throws InterruptedException
+	{
+		switch ( checkBuffer() )
+		{
+			case LEFT:
+				CollectLeft();
+				break;
+
+			case RIGHT:
+				CollectRight();
+				break;
+
+			case CENTER:
+				CollectCenter();
+				break;
+
+			case UNKNOWN:
+				break;
 		}
 	}
 
