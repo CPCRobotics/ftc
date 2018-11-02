@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -37,7 +38,7 @@ public class Sampling
 		RIGHT
 	};
 
-	public Sampling( NavUtils nav, Telemetry telemetry, String vuforiaKey, int tfodMonitorViewId )
+	public Sampling( NavUtils nav, Telemetry telemetry, String vuforiaKey, int tfodMonitorViewId, WebcamName camera )
 	{
 		this.nav = nav;
 		this.telemetry = telemetry;
@@ -45,7 +46,7 @@ public class Sampling
 		timer = new ElapsedTime( ElapsedTime.Resolution.MILLISECONDS );
 
 		// Create the VuforiaLocalizer that will be used to capture frames of video.
-		initVuforia(vuforiaKey);
+		initVuforia(vuforiaKey, camera );
 
 		if ( ClassFactory.getInstance().canCreateTFObjectDetector())
 		{
@@ -76,7 +77,7 @@ public class Sampling
 	public void locate()
 	{
 		// We only poll the object detector once per second.
-		if ( timer.milliseconds() < 1000 )
+		if ( timer.milliseconds() < 250 )
 		{
 			return;
 		}
@@ -208,7 +209,7 @@ public class Sampling
 	/**
 	 * Initialize the Vuforia localization engine.
 	 */
-	private void initVuforia(String vuforiaKey)
+	private void initVuforia(String vuforiaKey, WebcamName camera )
 	{
 		/*
 		 * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
@@ -217,7 +218,16 @@ public class Sampling
 
 		//parameters.vuforiaLicenseKey = vuphoriaLicense;
 		parameters.vuforiaLicenseKey =  vuforiaKey;
-		parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+
+		// If caller provided an external camera name then use it otherwise use phone's built in camera.
+		if ( camera != null )
+		{
+			parameters.cameraName = camera;
+		}
+		else
+		{
+			parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+		}
 
 		//  Instantiate the Vuforia engine
 		vuforia = ClassFactory.getInstance().createVuforia(parameters);
