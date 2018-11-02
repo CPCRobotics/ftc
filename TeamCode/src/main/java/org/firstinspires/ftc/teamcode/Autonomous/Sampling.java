@@ -11,10 +11,13 @@ public class Sampling
 	private int leftCount = 0;
 	private int rightCount = 0;
 	private int centerCount = 0;
+	private int unknownCount = 0;
 	private NavUtils nav;
 	private Telemetry telemetry;
 
 	public enum Position {
+		NO_DATA,
+		UNKNOWN,
 		LEFT,
 		CENTER,
 		RIGHT
@@ -43,13 +46,24 @@ public class Sampling
 			case RIGHT:
 				rightCount++;
 				break;
+
+			case UNKNOWN:
+				unknownCount++;
+				break;
+
+			case NO_DATA:
+				break;
 		}
 
 		//send telemetry about minerals
-		telemetry.addData("Left Count", leftCount);
-		telemetry.addData("Center Count", centerCount);
-		telemetry.addData("Right Count", rightCount);
-		telemetry.update();
+		if(pos != Position.NO_DATA)
+		{
+			telemetry.addData("Left Count", leftCount);
+			telemetry.addData("Center Count", centerCount);
+			telemetry.addData("Right Count", rightCount);
+			telemetry.addData("Unknown Count", unknownCount);
+			telemetry.update();
+		}
 	}
 
 	public void Collect( NavUtils nav ) throws InterruptedException

@@ -83,7 +83,7 @@ public class MineralDetector
 
     public Sampling.Position findMinerals()
     {
-        Sampling.Position result = Sampling.Position.CENTER;
+        Sampling.Position result = Sampling.Position.NO_DATA;
         if (tfod != null)
         {
             // getUpdatedRecognitions() will return null if no new information is available since
@@ -112,24 +112,30 @@ public class MineralDetector
                             silverMineral2X = (int) recognition.getLeft();
                         }
                     }
+                    //NOTE: The left and right are swapped because of our camera position
                     if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1)
                     {
                         if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X)
                         {
-                            telemetry.addData("Gold Mineral Position", "Left");
-                            result = Sampling.Position.LEFT;
+                            result = Sampling.Position.RIGHT;
                         }
                         else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X)
                         {
-                            telemetry.addData("Gold Mineral Position", "Right");
-                            result = Sampling.Position.RIGHT;
+                            result = Sampling.Position.LEFT;
+                        }
+                        else if((goldMineralX > silverMineral1X && goldMineralX < silverMineral2X) || (goldMineralX < silverMineral1X && goldMineralX > silverMineral2X))
+                        {
+                            result = Sampling.Position.CENTER;
                         }
                         else
                         {
-                            telemetry.addData("Gold Mineral Position", "Center");
-                            result = Sampling.Position.CENTER;
+                            result = Sampling.Position.UNKNOWN;
                         }
                     }
+
+                    telemetry.addData("Gold X", goldMineralX);
+                    telemetry.addData("Silver 1X", silverMineral1X);
+                    telemetry.addData("Silver 2X", silverMineral2X);
                 }
             }
         }
