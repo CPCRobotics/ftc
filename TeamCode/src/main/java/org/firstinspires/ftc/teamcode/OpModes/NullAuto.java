@@ -5,34 +5,26 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 import org.firstinspires.ftc.teamcode.R;
-import org.firstinspires.ftc.teamcode.TileRunner;
-import org.firstinspires.ftc.teamcode.Autonomous.Landing;
 import org.firstinspires.ftc.teamcode.Autonomous.Sampling;
-import org.firstinspires.ftc.teamcode.Autonomous.Claiming;
-import org.firstinspires.ftc.teamcode.Autonomous.Parking;
-import org.firstinspires.ftc.teamcode.Util.IMUSensor;
-import org.firstinspires.ftc.teamcode.Util.NavUtils;
 import org.firstinspires.ftc.teamcode.Util.OpModeKeeper;
 
 
-@Autonomous(name="TestAutonomous", group="Test")
-public class TestAutonomous extends LinearOpMode
+@Autonomous(name="NullAuto", group="Test")
+public class NullAuto extends LinearOpMode
 {
 	@Override
 	public void runOpMode() throws InterruptedException
 	{
-		telemetry.addData("TestAutonomous", "Initializing");
+		telemetry.addData("NullAuto", "Initializing");
 		telemetry.update();
 
 		// Initialize the OpModeKeeper Singleton so other parts of our code can use it to get a reference to the OpMode object.
 		OpModeKeeper.setOpMode( this );
 
-		//create the mineral detector
+		// Setup the resources needed by the Sampling class and create it.
 		String vuforiaKey =  hardwareMap.appContext.getString(R.string.vuphoriaLicense);
 		int viewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 //		WebcamName camera = hardwareMap.get(WebcamName.class, "webcam");
-
-		//create sampling object
 		Sampling sampling = new Sampling( null, telemetry, vuforiaKey, viewId, null );
 
 		//start locating the position of the minerals
@@ -56,7 +48,7 @@ public class TestAutonomous extends LinearOpMode
 		//stop locating minerals
 		sampling.stopRecognition();
 
-		telemetry.addData("TestAutonomous", "Starting");
+		telemetry.addData("NullAuto", "Starting");
 		telemetry.update();
 
 
