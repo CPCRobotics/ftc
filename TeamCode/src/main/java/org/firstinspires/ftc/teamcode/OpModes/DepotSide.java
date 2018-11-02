@@ -77,9 +77,11 @@ public class DepotSide extends LinearOpMode
 
 		DriveToDepot( nav );
 
+		/*
 		Claiming.DeployMarker( nav, robot.arm );
 
 		Parking.ParkInCrater(nav);
+		*/
 
 		//lower lift (for convenience while testing)
 		robot.lift.setPower( -0.8 );
@@ -103,6 +105,9 @@ public class DepotSide extends LinearOpMode
 	 */
 	void DriveToDepot( NavUtils nav ) throws InterruptedException
 	{
-
+        nav.drive(39,1);
+        //needs to turn less
+        nav.samTurn(135, 120);
+        nav.drive(20, 1);
 	}
 }
