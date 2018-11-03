@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.TileRunner;
 public class CompetitionTeleop extends OpMode
 {
 	private final double ARM_POWER_LIMIT = 0.75;
+	private final double ARM_MIN_CONTROL_POWER = 0.2;
 	private final double REVERSE_DRIVE_SPEED = 0.5;
 	// Declare OpMode members.
 	TileRunner robot = new TileRunner();
@@ -68,10 +69,11 @@ public class CompetitionTeleop extends OpMode
 	public void loop()
 	{
 		// Read the joystick values for the arm, lift, left drive, and right drive power
-		double armPower = gamepad2.left_stick_y * ARM_POWER_LIMIT;
+		double armPower = -gamepad2.left_stick_y * ARM_POWER_LIMIT;
 		double liftPower = gamepad2.right_stick_y;
 		double leftDrivePower = gamepad1.left_stick_y;
 		double rightDrivePower = gamepad1.right_stick_y;
+		double armDivide =  1 - gamepad2.left_trigger + Math.signum(gamepad2.left_trigger) * ARM_MIN_CONTROL_POWER;
 
 		//read trigger values for mineral infeed and outfeed.
 		double infeed = gamepad1.left_trigger;

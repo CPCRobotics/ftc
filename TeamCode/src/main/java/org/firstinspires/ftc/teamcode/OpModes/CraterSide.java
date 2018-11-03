@@ -77,20 +77,11 @@ public class CraterSide extends LinearOpMode
 
 		sampling.Collect();
 
-		/*
-
         DriveToDepot( nav );
 
         Claiming.DeployMarker( nav, robot.arm );
 
         Parking.ParkInCrater(nav);
-
-        */
-
-        //lower lift (for convenience while testing)
-        robot.lift.setPower( -0.8 );
-        while( OpModeKeeper.isActive() && !robot.liftLowerLimit.getState()) { }
-        robot.lift.setPower( 0 );
 
         // Spin here updating telemetry until OpMode terminates
         while ( opModeIsActive() )
