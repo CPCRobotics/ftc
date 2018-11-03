@@ -77,11 +77,12 @@ public class DepotSide extends LinearOpMode
 
 		DriveToDepot( nav );
 
-		/*
 		Claiming.DeployMarker( nav, robot.arm );
 
+		//turn towards wall so we don't hit opponents minerals
+        nav.samTurn(1, 20);
+
 		Parking.ParkInCrater(nav);
-		*/
 
 		//lower lift (for convenience while testing)
 		robot.lift.setPower( -0.8 );
@@ -105,9 +106,11 @@ public class DepotSide extends LinearOpMode
 	 */
 	void DriveToDepot( NavUtils nav ) throws InterruptedException
 	{
+	    //turn towards wall
         nav.drive(39,1);
-        //needs to turn less
-        nav.samTurn(135, 120);
-        nav.drive(20, 1);
+        //turn towards depot
+        nav.samTurn(1, 107);
+        //move to depot
+        nav.drive(43, 1);
 	}
 }

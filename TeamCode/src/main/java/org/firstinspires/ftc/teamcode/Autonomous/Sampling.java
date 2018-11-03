@@ -29,7 +29,7 @@ public class Sampling
 	private ElapsedTime timer = null;
 
 	// Buffer to store our position history in.
-	private static final int POSITION_BUFFER_SIZE = 20;
+	private static final int POSITION_BUFFER_SIZE = 10;
 	private int posBufferIndex = 0;
 	private Position posBuffer[];
 
