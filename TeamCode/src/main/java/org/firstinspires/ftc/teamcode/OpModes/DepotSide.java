@@ -80,14 +80,9 @@ public class DepotSide extends LinearOpMode
 		Claiming.DeployMarker( nav, robot.arm );
 
 		//turn towards wall so we don't hit opponents minerals
-        nav.samTurn(1, 20);
+        nav.samTurn(1, 14);
 
 		Parking.ParkInCrater(nav);
-
-		//lower lift (for convenience while testing)
-		robot.lift.setPower( -0.8 );
-		while( OpModeKeeper.isActive() && !robot.liftLowerLimit.getState()) { }
-		robot.lift.setPower( 0 );
 
 		// Spin here updating telemetry until OpMode terminates
 		while ( opModeIsActive() )

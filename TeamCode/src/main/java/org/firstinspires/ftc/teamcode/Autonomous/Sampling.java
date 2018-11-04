@@ -239,6 +239,7 @@ public class Sampling
 				break;
 
 			case UNKNOWN:
+				CollectCenter();
 				break;
 		}
 	}

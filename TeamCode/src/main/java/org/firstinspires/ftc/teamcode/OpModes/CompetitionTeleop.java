@@ -76,8 +76,8 @@ public class CompetitionTeleop extends OpMode
 		double armDivide =  1 - gamepad2.left_trigger + Math.signum(gamepad2.left_trigger) * ARM_MIN_CONTROL_POWER;
 
 		//read trigger values for mineral infeed and outfeed.
-		double infeed = gamepad1.left_trigger;
-		double outfeed = gamepad1.right_trigger;
+		double infeed = gamepad1.right_trigger;
+		double outfeed = gamepad1.left_trigger;
 		//this calculates the acutal value passed into the motor
 		double intakePower = infeed - outfeed;
 
