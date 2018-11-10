@@ -111,6 +111,7 @@ public class CompetitionTeleop extends OpMode
 			{
 				robot.arm.setTargetPosition(ARM_DUMP_POSITION);
 			}
+			armBrake = robot.arm.getCurrentPosition();
 		}
 		else if(armPower == 0)
 		{
@@ -121,13 +122,14 @@ public class CompetitionTeleop extends OpMode
 		}
 		else
 		{
-			telemetry.addData("Braking", "False");
 			robot.arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-			robot.arm.setPower(ARM_POWER_LIMIT * armPower);
+				//need to double check the arm divide
+			robot.arm.setPower(ARM_POWER_LIMIT * armPower * armDivide);
 			armBrake = robot.arm.getCurrentPosition();
+			telemetry.addData("Braking", "False");
 		}
 
-		robot.intake.setPower(intakePower);
+//		robot.intake.setPower(intakePower);
 		if (robot.liftLowerLimit.getState() == false && liftPower < 0){
 			robot.lift.setPower(liftPower);
 		}

@@ -55,7 +55,7 @@ public class TileRunner {
 		lift = GetDcMotor( "lift" );
 		arm = GetDcMotor("arm");
 		dumper = hardwareMap.get(Servo.class, "dumper");
-		intake = hardwareMap.get(DcMotor.class, "intake");
+//		intake = hardwareMap.get(DcMotor.class, "intake");
 		liftUpperLimit = hardwareMap.get(DigitalChannel.class, "lift_upper_limit");
 		liftLowerLimit = hardwareMap.get(DigitalChannel.class, "lift_lower_limit");
 
@@ -69,7 +69,7 @@ public class TileRunner {
 		rightDrive.setPower(0);
 		lift.setPower(0);
 		arm.setPower(0);
-		intake.setPower(0);
+//		intake.setPower(0);
 
 		// Set motor rotation direction for positive power values.  AndyMark motors are opposite
 		// of Tetrix motors so this will need to be changed for different motor types.
@@ -77,14 +77,14 @@ public class TileRunner {
 		rightDrive.setDirection( DcMotor.Direction.FORWARD);
 		lift.setDirection(DcMotor.Direction.FORWARD);
 		arm.setDirection(DcMotor.Direction.FORWARD);
-		intake.setDirection(DcMotor.Direction.FORWARD);
+//		intake.setDirection(DcMotor.Direction.FORWARD);
 
 		// Set all motors to run without using position encoders.
 		leftDrive.setMode( DcMotor.RunMode.RUN_USING_ENCODER );
 		rightDrive.setMode( DcMotor.RunMode.RUN_USING_ENCODER );
 		lift.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
 		arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-		intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//		intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 		// Get and initialize IMU
 		imu = hardwareMap.get( BNO055IMU.class, "imu" );
