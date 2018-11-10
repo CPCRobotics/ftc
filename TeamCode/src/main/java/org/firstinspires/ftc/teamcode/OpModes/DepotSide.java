@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
+import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.TileRunner;
 import org.firstinspires.ftc.teamcode.Autonomous.Landing;
 import org.firstinspires.ftc.teamcode.Autonomous.Sampling;
@@ -20,8 +22,7 @@ public class DepotSide extends LinearOpMode
 	TileRunner         robot   = new TileRunner();
 
 	@Override
-	public void runOpMode()
-			throws InterruptedException
+	public void runOpMode() throws InterruptedException
 	{
 		telemetry.addData("DepotSide", "Initializing");
 		telemetry.update();
@@ -37,24 +38,55 @@ public class DepotSide extends LinearOpMode
 		telemetry.addLine("Initializing NavUtils...");
 		NavUtils nav = new NavUtils( robot.leftDrive, robot.rightDrive, imu, 4.0, telemetry );
 
+		//create the mineral detector
+		String vuforiaKey =  hardwareMap.appContext.getString(R.string.vuphoriaLicense);
+		int viewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+//		WebcamName camera = hardwareMap.get(WebcamName.class, "webcam");
+
+		//create sampling object
+		Sampling sampling = new Sampling( nav, telemetry, vuforiaKey, viewId, null );
+
+		//start locating the position of the minerals
+		sampling.startRecognition();
+
 		// Pause here waiting for the Run button on the driver station to be pressed.
-		waitForStart();
+		while (!isStarted())
+		{
+			sampling.locate();
+
+			synchronized (this) {
+				try {
+					this.wait();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					break;
+				}
+			}
+		}
+
+		//stop locating minerals
+		sampling.stopRecognition();
+
 		telemetry.addData("DepotSide", "Starting");
 		telemetry.update();
 
 		// Call the set of strategies the will accomplish the tasks for this run of autonomous.
-		Landing.Land( robot.lift, robot.liftUpperLimit);
+		Landing.Land( robot.lift, robot.liftUpperLimit, nav);
 
-		Sampling.Collect( Sampling.Position.LEFT, nav );
+		sampling.Collect();
 
 		DriveToDepot( nav );
 
 		Claiming.DeployMarker( nav, robot.arm );
 
-		Parking.ParkInCrater( nav );
+		//turn towards wall so we don't hit opponents minerals
+        nav.samTurn(1, 14);
+
+		Parking.ParkInCrater(nav);
 
 		// Spin here updating telemetry until OpMode terminates
-		while ( opModeIsActive() ) {
+		while ( opModeIsActive() )
+		{
 			telemetry.update();
 		}
 
@@ -67,19 +99,13 @@ public class DepotSide extends LinearOpMode
 	/**
 	 * Drive from our post-Sampling position to our alliances depot so we can deploy our team marker.
 	 */
-	void DriveToDepot( NavUtils nav )
+	void DriveToDepot( NavUtils nav ) throws InterruptedException
 	{
-/*
-        nav.drive( 10, .5);
-
-        nav.samTurn(.5, -70);
-
-        nav.drive(40,.5);
-        nav.samTurn(.5, -60);
-        nav.drive(60,.5);
-
-        nav.drive(-80,.5);
-
-        //nav.drive( 1000 );*/
+	    //turn towards wall
+        nav.drive(39,1);
+        //turn towards depot
+        nav.samTurn(1, 107);
+        //move to depot
+        nav.drive(43, 1);
 	}
 }

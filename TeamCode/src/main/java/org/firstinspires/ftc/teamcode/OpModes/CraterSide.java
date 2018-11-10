@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
+import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.TileRunner;
 import org.firstinspires.ftc.teamcode.Autonomous.Landing;
 import org.firstinspires.ftc.teamcode.Autonomous.Sampling;
@@ -13,6 +15,8 @@ import org.firstinspires.ftc.teamcode.Util.NavUtils;
 import org.firstinspires.ftc.teamcode.Util.OpModeKeeper;
 
 
+
+
 @Autonomous(name="CraterSide", group="Competition")
 public class CraterSide extends LinearOpMode
 {
@@ -20,8 +24,7 @@ public class CraterSide extends LinearOpMode
     TileRunner         robot   = new TileRunner();
 
     @Override
-    public void runOpMode()
-            throws InterruptedException
+    public void runOpMode() throws InterruptedException
     {
         telemetry.addData("CraterSide", "Initializing");
         telemetry.update();
@@ -37,16 +40,42 @@ public class CraterSide extends LinearOpMode
 		telemetry.addLine("Initializing NavUtils...");
         NavUtils nav = new NavUtils( robot.leftDrive, robot.rightDrive, imu, 4.0, telemetry );
 
+        //create the mineral detector
+        String vuforiaKey =  hardwareMap.appContext.getString(R.string.vuphoriaLicense);
+        int viewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+//        WebcamName camera = hardwareMap.get(WebcamName.class, "webcam");
+
+        //create sampling object
+        Sampling sampling = new Sampling( nav, telemetry, vuforiaKey, viewId, null );
+
+        //start locating the position of the minerals
+        sampling.startRecognition();
+
         // Pause here waiting for the Run button on the driver station to be pressed.
-        waitForStart();
+        while (!isStarted())
+        {
+            sampling.locate();
+
+            synchronized (this) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+
+        //stop locating minerals
+        sampling.stopRecognition();
+
         telemetry.addData("CraterSide", "Starting");
         telemetry.update();
 
         // Call the set of strategies the will accomplish the tasks for this run of autonomous.
-        Landing.Land( robot.lift, robot.liftUpperLimit);
+        Landing.Land( robot.lift, robot.liftUpperLimit, nav);
 
-        //sampling the minerals
-		Sampling.Collect( Sampling.Position.RIGHT, nav );
+		sampling.Collect();
 
 		//drive into posishion
         DriveToDepot( nav );
@@ -59,14 +88,6 @@ public class CraterSide extends LinearOpMode
 
         //Reseting the Lift
         robot.lowerLift(robot.lift, robot.liftLowerLimit);
-
-        /*
-        //lower lift (for convenience while testing)
-        robot.lift.setPower( -0.8 );
-        while( OpModeKeeper.isActive() && !robot.liftLowerLimit.getState()) { }
-        robot.lift.setPower( 0 );
-        */
-
 
         // Spin here updating telemetry until OpMode terminates
         while ( opModeIsActive() )

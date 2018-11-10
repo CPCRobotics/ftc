@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -31,7 +32,7 @@ public class TileRunner {
 	public DcMotor lift = null;
 	public DcMotor arm = null;
 	public Servo dumper = null;
-	public CRServo intake = null;
+	public DcMotor intake = null;
 	public BNO055IMU imu = null;
 	public DigitalChannel liftUpperLimit = null;
 	public DigitalChannel liftLowerLimit = null;
@@ -56,7 +57,7 @@ public class TileRunner {
 		lift = GetDcMotor( "lift" );
 		arm = GetDcMotor("arm");
 		dumper = hardwareMap.get(Servo.class, "dumper");
-		intake = hardwareMap.get(CRServo.class, "intake");
+		intake = hardwareMap.get(DcMotor.class, "intake");
 		liftUpperLimit = hardwareMap.get(DigitalChannel.class, "lift_upper_limit");
 		liftLowerLimit = hardwareMap.get(DigitalChannel.class, "lift_lower_limit");
 
@@ -78,12 +79,14 @@ public class TileRunner {
 		rightDrive.setDirection( DcMotor.Direction.FORWARD);
 		lift.setDirection(DcMotor.Direction.FORWARD);
 		arm.setDirection(DcMotor.Direction.FORWARD);
+		intake.setDirection(DcMotor.Direction.FORWARD);
 
 		// Set all motors to run without using position encoders.
 		leftDrive.setMode( DcMotor.RunMode.RUN_USING_ENCODER );
 		rightDrive.setMode( DcMotor.RunMode.RUN_USING_ENCODER );
 		lift.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
 		arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+		intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 		// Get and initialize IMU
 		imu = hardwareMap.get( BNO055IMU.class, "imu" );

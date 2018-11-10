@@ -78,7 +78,7 @@ public class NavUtils {
 	 *
 	 * @param distance - Distance to drive in inches, negative values drive backwards.
 	 */
-	public void drive( double distance, double power )
+	public void drive( double distance, double power )+
 	{
 		power *= -1;
 		distance *= -1;
