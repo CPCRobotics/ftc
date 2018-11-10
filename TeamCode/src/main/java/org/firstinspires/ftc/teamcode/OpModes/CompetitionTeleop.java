@@ -16,7 +16,12 @@ public class CompetitionTeleop extends OpMode
 {
 	private final double ARM_POWER_LIMIT = 0.75;
 	private final double ARM_MIN_CONTROL_POWER = 0.2;
+	private final double ARM_MACRO_SPEED = 0.5;
 	private final double REVERSE_DRIVE_SPEED = 0.5;
+	private final int ARM_DRIVE_POSITION = 100;
+	private final int ARM_DUMP_POSITION = 100;
+	private final int ARM_COLLECT_POSITION = 100;
+
 	// Declare OpMode members.
 	TileRunner robot = new TileRunner();
 	//constants for lift limits
@@ -78,13 +83,36 @@ public class CompetitionTeleop extends OpMode
 		//read trigger values for mineral infeed and outfeed.
 		double infeed = gamepad1.right_trigger;
 		double outfeed = gamepad1.left_trigger;
+
+		//read button macros
+		boolean armCollect = gamepad2.a;
+		boolean armDrive = gamepad2.b;
+		boolean armDump = gamepad2.x;
+
 		//this calculates the acutal value passed into the motor
 		double intakePower = infeed - outfeed;
 
 		// Set power to the motors
 
 		//This makes the arm motor brake when the joystick is not moved
-		if(armPower == 0)
+		if(armDrive || armCollect || armDump)
+		{
+			robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+			robot.arm.setPower(ARM_MACRO_SPEED);
+			if(armDrive)
+			{
+				robot.arm.setTargetPosition(ARM_DRIVE_POSITION);
+			}
+			else if(armCollect)
+			{
+				robot.arm.setTargetPosition(ARM_COLLECT_POSITION);
+			}
+			else if(armDump)
+			{
+				robot.arm.setTargetPosition(ARM_DUMP_POSITION);
+			}
+		}
+		else if(armPower == 0)
 		{
 			robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 			robot.arm.setTargetPosition(armBrake);
@@ -98,6 +126,7 @@ public class CompetitionTeleop extends OpMode
 			robot.arm.setPower(ARM_POWER_LIMIT * armPower);
 			armBrake = robot.arm.getCurrentPosition();
 		}
+
 		robot.intake.setPower(intakePower);
 		if (robot.liftLowerLimit.getState() == false && liftPower < 0){
 			robot.lift.setPower(liftPower);
