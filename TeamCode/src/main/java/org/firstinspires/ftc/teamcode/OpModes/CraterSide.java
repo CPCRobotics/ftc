@@ -45,18 +45,28 @@ public class CraterSide extends LinearOpMode
         // Call the set of strategies the will accomplish the tasks for this run of autonomous.
         Landing.Land( robot.lift, robot.liftUpperLimit);
 
+        //sampling the minerals
 		Sampling.Collect( Sampling.Position.RIGHT, nav );
 
+		//drive into posishion
         DriveToDepot( nav );
 
+        //Seting marker in the depo
         Claiming.DeployMarker( nav, robot.arm );
 
+        //Parking in the crator
         Parking.ParkInCrater(nav);
 
+        //Reseting the Lift
+        robot.lowerLift(robot.lift, robot.liftLowerLimit);
+
+        /*
         //lower lift (for convenience while testing)
         robot.lift.setPower( -0.8 );
         while( OpModeKeeper.isActive() && !robot.liftLowerLimit.getState()) { }
         robot.lift.setPower( 0 );
+        */
+
 
         // Spin here updating telemetry until OpMode terminates
         while ( opModeIsActive() )

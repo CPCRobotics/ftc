@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.Util.OpModeKeeper;
+
 
 /**
  * Hardware class for a basic org.firstinspires.ftc.teamcode.TileRunner robot with a Rev Expansion hub.
@@ -126,6 +128,16 @@ public class TileRunner {
 		}
 
 		return motor;
+	}
+	public static void lowerLift(DcMotor motor, DigitalChannel LowerLimit)
+	{
+		//set motor power
+		motor.setPower(-0.25);
+
+		while(OpModeKeeper.isActive() && !LowerLimit.getState())
+		{}
+
+		motor.setPower(0);
 	}
 }
 
