@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode.OpModes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.TileRunner;
+import org.firstinspires.ftc.teamcode.Util.PIDController;
 
 
 /**
@@ -38,6 +40,11 @@ public class CompetitionTeleop extends OpMode
 	private final double DUMPER_CLOSED = 0;
 
 	private int armBrake;
+	private ElapsedTime tickTimer= new ElapsedTime();
+	private PIDController pid = new PIDController(ARM_POWER_LIMIT, .04, .0001, .005);
+
+	//experimental
+	private int armTicks = 0;
 
 	// Code to run ONCE when the driver hits INIT
 	@Override
@@ -66,6 +73,7 @@ public class CompetitionTeleop extends OpMode
 	{
 		//this makes the robot arm brake at the current position.
 		armBrake = robot.arm.getCurrentPosition();
+		tickTimer.reset();
 	}
 
 
@@ -115,18 +123,38 @@ public class CompetitionTeleop extends OpMode
 		}
 		else if(armPower == 0)
 		{
+			//this is the brake
 			robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 			robot.arm.setTargetPosition(armBrake);
 			robot.arm.setPower(ARM_POWER_LIMIT);
-			telemetry.addData("Braking", "True");
+//			telemetry.addData("Braking", "True");
 		}
 		else
 		{
 			robot.arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-				//need to double check the arm divide
-			robot.arm.setPower(ARM_POWER_LIMIT * armPower * armDivide);
+//			robot.arm.setPower(ARM_POWER_LIMIT * armPower * armDivide);
+
+			//this moves the arm when the joystick is pressed
+//			robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//			int ticksPerSecond = (int)(ARM_POWER_LIMIT * armPower * armDivide);
+//			robot.arm.setPower(0.5);
+//			robot.arm.setTargetPosition((int)tickTimer.seconds() * ticksPerSecond);
+
+			double targetTicksPerSecond = gamepad1.left_stick_y * 17;
+			double error = (robot.arm.getCurrentPosition() - armTicks) - targetTicksPerSecond;
+			robot.arm.setPower(pid.get(error));
+
+			//sets the last position for the arm brake
 			armBrake = robot.arm.getCurrentPosition();
-			telemetry.addData("Braking", "False");
+		}
+
+		//this finds the ticks per second
+		if(tickTimer.seconds() > 0)
+		{
+			telemetry.addData("Ticks per second: ", (robot.arm.getCurrentPosition() - armTicks));
+			telemetry.update();
+			armTicks = robot.arm.getCurrentPosition();
+			tickTimer.reset();
 		}
 
 //		robot.intake.setPower(intakePower);
@@ -161,10 +189,10 @@ public class CompetitionTeleop extends OpMode
 			robot.rightDrive.setPower(rightDrivePower);
 		}
 
-		// Send telemetry data to driver station.
-		double liftPosition = robot.lift.getCurrentPosition();
-		telemetry.addData("Lift Position", "" + liftPosition);
-		telemetry.update();
+//		// Send telemetry data to driver station.
+//		double liftPosition = robot.lift.getCurrentPosition();
+//		telemetry.addData("Lift Position", "" + liftPosition);
+//		telemetry.update();
 	}
 
 	 // Code to run ONCE after the driver hits STOP
