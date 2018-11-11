@@ -222,7 +222,7 @@ public class Sampling
 	}
 
 
-	public void Collect() throws InterruptedException
+	public void CraterCollect() throws InterruptedException
 	{
 		switch ( checkBuffer() )
 		{
@@ -242,10 +242,33 @@ public class Sampling
 				CollectCenter();
 				break;
 		}
+
+	}
+	public void DepoCollect() throws InterruptedException
+	{
+		switch ( checkBuffer() )
+		{
+			case LEFT:
+				DepoCollectLeft();
+				break;
+
+			case RIGHT:
+				CollectRight();
+				break;
+
+			case CENTER:
+				DepoCollectCenter();
+				break;
+
+			case UNKNOWN:
+				CollectCenter();
+				break;
+		}
+
 	}
 
 
-	private void CollectLeft() throws InterruptedException
+	private void CollectLeft () throws InterruptedException
 	{
 		nav.samTurn(1, -37.5);
 		nav.drive(19, 0.7);
@@ -255,7 +278,7 @@ public class Sampling
 	}
 
 
-	private void CollectCenter() throws InterruptedException
+	private void CollectCenter () throws InterruptedException
 	{
 		nav.drive(13, 0.7);
 		nav.drive(-13, 0.7);
@@ -264,7 +287,7 @@ public class Sampling
 	}
 
 
-	private void CollectRight() throws InterruptedException
+	private void CollectRight () throws InterruptedException
 	{
 		nav.samTurn(1, 37.5);
 		nav.drive(19, 0.7);
@@ -272,6 +295,25 @@ public class Sampling
 		//turn towards wall
 		nav.samTurn(1, -37.5 + WALL_TURN_DEGREES);
 	}
+
+	private void DepoCollectLeft () throws InterruptedException
+	{
+		nav.samTurn(1, -37.5);
+		nav.drive(19, 0.7);
+		nav.drive(-19, 0.7);
+		//turn towards wall
+		nav.samTurn(1, WALL_TURN_DEGREES + 37.5);
+	}
+
+
+	private void DepoCollectCenter () throws InterruptedException
+	{
+		nav.drive(13 + 23, 0.7);
+		nav.drive(-13 - 23, 0.7);
+		//turn towards wall
+		nav.samTurn(1, WALL_TURN_DEGREES);
+	}
+
 
 
 	/**

@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+
 
 import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.TileRunner;
@@ -75,7 +75,7 @@ public class CraterSide extends LinearOpMode
         // Call the set of strategies the will accomplish the tasks for this run of autonomous.
         Landing.Land( robot.lift, robot.liftUpperLimit, nav);
 
-		sampling.Collect();
+		sampling.CraterCollect();
 
 		//drive into posishion
         DriveToDepot( nav );
@@ -88,7 +88,6 @@ public class CraterSide extends LinearOpMode
 
         //Reseting the Lift
         robot.lowerLift(robot.lift, robot.liftLowerLimit);
-
         // Spin here updating telemetry until OpMode terminates
         while ( opModeIsActive() )
         {
