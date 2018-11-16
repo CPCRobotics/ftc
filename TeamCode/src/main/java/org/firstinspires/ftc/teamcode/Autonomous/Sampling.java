@@ -106,23 +106,23 @@ public class Sampling
 
 			if (objectCount == 3 )
 			{
-				int goldMineralY = -1;
-				int silverMineral1Y = -1;
-				int silverMineral2Y = -1;
+				int gold1X = -1;
+				int silver1X = -1;
+				int silver2X = -1;
 
 				for (Recognition recognition : recognitions)
 				{
 					if (recognition.getLabel().equals(LABEL_GOLD_MINERAL))
 					{
-						goldMineralY = (int) recognition.getTop();
+						gold1X = (int) recognition.getLeft();
 					}
-					else if ( recognition.getLabel().equals(LABEL_SILVER_MINERAL) && silverMineral1Y == -1 )
+					else if ( recognition.getLabel().equals(LABEL_SILVER_MINERAL) && silver1X == -1 )
 					{
-						silverMineral1Y = (int) recognition.getTop();
+						silver1X = (int) recognition.getLeft();
 					}
-					else if ( recognition.getLabel().equals(LABEL_SILVER_MINERAL) && silverMineral2Y == -1 )
+					else if ( recognition.getLabel().equals(LABEL_SILVER_MINERAL) && silver2X == -1 )
 					{
-						silverMineral2Y = (int) recognition.getTop();
+						silver2X = (int) recognition.getLeft();
 					}
 					else
 					{
@@ -131,19 +131,19 @@ public class Sampling
 				}
 
 				// NOTE: The left and right are swapped because of our camera position
-				if (goldMineralY != -1 && silverMineral1Y != -1 && silverMineral2Y != -1)
+				if (gold1X != -1 && silver1X != -1 && silver2X != -1)
 				{
-					if (goldMineralY < silverMineral1Y && goldMineralY < silverMineral2Y)
+					if (gold1X < silver1X && gold1X < silver2X)
 					{
 						result = Sampling.Position.LEFT;
 						telemetry.addData( "Current Position", "LEFT");
 					}
-					else if (goldMineralY > silverMineral1Y && goldMineralY > silverMineral2Y)
+					else if (gold1X > silver1X && gold1X > silver2X)
 					{
 						result = Sampling.Position.RIGHT;
 						telemetry.addData( "Current Position", "RIGHT");
 					}
-					else if((goldMineralY > silverMineral1Y && goldMineralY < silverMineral2Y) || (goldMineralY < silverMineral1Y && goldMineralY > silverMineral2Y))
+					else if((gold1X > silver1X && gold1X < silver2X) || (gold1X < silver1X && gold1X > silver2X))
 					{
 						result = Sampling.Position.CENTER;
 						telemetry.addData( "Current Position", "CENTER");
