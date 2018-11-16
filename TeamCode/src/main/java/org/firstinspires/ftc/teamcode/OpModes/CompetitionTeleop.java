@@ -132,17 +132,17 @@ public class CompetitionTeleop extends OpMode
 		else
 		{
 			robot.arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//			robot.arm.setPower(ARM_POWER_LIMIT * armPower * armDivide);
+			robot.arm.setPower(ARM_POWER_LIMIT * armPower * armDivide);
 
 			//this moves the arm when the joystick is pressed
 //			robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //			int ticksPerSecond = (int)(ARM_POWER_LIMIT * armPower * armDivide);
 //			robot.arm.setPower(0.5);
 //			robot.arm.setTargetPosition((int)tickTimer.seconds() * ticksPerSecond);
-
-			double targetTicksPerSecond = gamepad1.left_stick_y * 17;
-			double error = (robot.arm.getCurrentPosition() - armTicks) - targetTicksPerSecond;
-			robot.arm.setPower(pid.get(error));
+//
+//			double targetTicksPerSecond = gamepad1.left_stick_y * 17;
+//			double error = (robot.arm.getCurrentPosition() - armTicks) - targetTicksPerSecond;
+//			robot.arm.setPower(pid.get(error));
 
 			//sets the last position for the arm brake
 			armBrake = robot.arm.getCurrentPosition();
@@ -157,7 +157,7 @@ public class CompetitionTeleop extends OpMode
 			tickTimer.reset();
 		}
 
-//		robot.intake.setPower(intakePower);
+		robot.intake.setPower(intakePower);
 		if (robot.liftLowerLimit.getState() == false && liftPower < 0){
 			robot.lift.setPower(liftPower);
 		}
