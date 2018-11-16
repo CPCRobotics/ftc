@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Util.OpModeKeeper;
 public class NullAuto extends LinearOpMode
 {
 	@Override
-	public void runOpMode() throws InterruptedException
+	public void runOpMode()
 	{
 		telemetry.addData("NullAuto", "Initializing");
 		telemetry.update();
@@ -24,8 +24,8 @@ public class NullAuto extends LinearOpMode
 		// Setup the resources needed by the Sampling class and create it.
 		String vuforiaKey =  hardwareMap.appContext.getString(R.string.vuphoriaLicense);
 		int viewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-//		WebcamName camera = hardwareMap.get(WebcamName.class, "webcam");
-		Sampling sampling = new Sampling( null, telemetry, vuforiaKey, viewId, null );
+		WebcamName camera = hardwareMap.get(WebcamName.class, "webcam");
+		Sampling sampling = new Sampling( null, telemetry, vuforiaKey, viewId, camera );
 
 		//start locating the position of the minerals
 		sampling.startRecognition();
