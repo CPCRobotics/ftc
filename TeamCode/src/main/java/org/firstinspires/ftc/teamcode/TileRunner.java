@@ -32,11 +32,12 @@ public class TileRunner {
 	public DcMotor lift = null;
 	public DcMotor arm = null;
 	public Servo dumper = null;
-	public DcMotor intake = null;
+	public DcMotorSimple intake = null;
 	public BNO055IMU imu = null;
 	public DigitalChannel liftUpperLimit = null;
 	public DigitalChannel liftLowerLimit = null;
-
+	public DigitalChannel HCEcho = null;
+	public DigitalChannel HCTrig = null;
 	/* local OpMode members. */
 	HardwareMap hardwareMap = null;
 
@@ -57,9 +58,12 @@ public class TileRunner {
 		lift = GetDcMotor( "lift" );
 		arm = GetDcMotor("arm");
 		dumper = hardwareMap.get(Servo.class, "dumper");
-		intake = hardwareMap.get(DcMotor.class, "intake");
+		intake = hardwareMap.get(DcMotorSimple.class, "intake");
 		liftUpperLimit = hardwareMap.get(DigitalChannel.class, "lift_upper_limit");
 		liftLowerLimit = hardwareMap.get(DigitalChannel.class, "lift_lower_limit");
+		//ultrasonic sensor digital channels
+		HCEcho = hardwareMap.get(DigitalChannel.class, "HCEcho");
+		HCTrig = hardwareMap.get(DigitalChannel.class, "HCTrig");
 
 		//tells certain motors to brake when power is zero
 		arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -86,8 +90,6 @@ public class TileRunner {
 		rightDrive.setMode( DcMotor.RunMode.RUN_USING_ENCODER );
 		lift.setMode( DcMotor.RunMode.RUN_WITHOUT_ENCODER );
 		arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-		intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
 		// Get and initialize IMU
 		imu = hardwareMap.get( BNO055IMU.class, "imu" );
 

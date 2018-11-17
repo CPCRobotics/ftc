@@ -33,9 +33,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DigitalChannelController;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.TileRunner;
 
 
@@ -48,15 +52,54 @@ public class UltrasonicTest extends LinearOpMode
     @Override
     public void runOpMode()
     {
+
+        ElapsedTime pulseWidth = new ElapsedTime();
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-
+        robot.init(hardwareMap);
         waitForStart();
-
+        pulseWidth.reset();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive())
         {
+            //send the trigger pulse
+            robot.HCTrig.setMode(DigitalChannel.Mode.OUTPUT);
 
+            //reset the timer to get echo
+            pulseWidth.reset();
+            while(!robot.HCEcho.getState() && opModeIsActive())
+            {
+                //wait for echo to come back
+            }
+            robot.HCTrig.setMode(DigitalChannel.Mode.INPUT);
+            telemetry.addData("currentState", robot.HCEcho.getState());
+            telemetry.addData("Pulse width", pulseWidth.nanoseconds());
+            telemetry.update();
+            sleep(500);
         }
     }
+
+    /*
+                //send the trigger pulse
+            robot.HCTrig.setMode(DigitalChannel.Mode.OUTPUT);
+            pulseWidth.reset();
+            while(pulseWidth.nanoseconds() <= 10 * 1000 && opModeIsActive())
+            {
+                //wait a bit while the sensor recieves the trigger pulse
+            }
+
+            //stop sending the trigger pulse
+            robot.HCTrig.setMode(DigitalChannel.Mode.INPUT);
+            //reset the timer to get echo
+            pulseWidth.reset();
+            while(!robot.HCEcho.getState() && opModeIsActive())
+            {
+                //wait for echo to come back
+//                telemetry.addData("Echo is active", robot.HCEcho.getState());
+//                telemetry.update();
+            }
+            telemetry.addData("currentState", robot.HCEcho.getState());
+            telemetry.addData("Pulse width", pulseWidth.nanoseconds());
+            telemetry.update();
+     */
 }

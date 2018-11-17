@@ -36,7 +36,7 @@ public class CompetitionTeleop extends OpMode
 	private final double ARM_MAX = 5000;
 	private final double ARM_CORRECT_POWER = 0.2;
 
-	private final double DUMPER_OPEN = 90;
+	private final double DUMPER_OPEN = 1;
 	private final double DUMPER_CLOSED = 0;
 
 	private int armBrake;
