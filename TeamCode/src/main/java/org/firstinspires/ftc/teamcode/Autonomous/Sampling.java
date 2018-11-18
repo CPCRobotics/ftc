@@ -22,6 +22,12 @@ public class Sampling
 	private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
 	private static final double WALL_TURN_DEGREES = -77;
 
+	private static final int POSITION_ONE = 0;
+	private static final int POSITION_TWO = 360;
+	private static final int POSITION_THREE = 720;
+	private static final int MIDPOINT_ONE = (POSITION_TWO - POSITION_ONE) / 2;
+	private static final int MIDPOINT_TWO = (POSITION_THREE - POSITION_TWO) / 2 + POSITION_TWO;
+
 	private NavUtils nav = null;
 	private Telemetry telemetry = null;
 	private VuforiaLocalizer vuforia = null;
@@ -45,6 +51,7 @@ public class Sampling
 	{
 		this.nav = nav;
 		this.telemetry = telemetry;
+
 
 		// Allocate the position buffer and initialize it.
 		posBuffer = new Position[ POSITION_BUFFER_SIZE ];
@@ -104,8 +111,8 @@ public class Sampling
 
 			telemetry.addData( "Objects Detected", objectCount );
 
-			if (objectCount == 3 )
-			{
+			//if (objectCount == 3 )
+			//{
 				int gold1X = -1;
 				int silver1X = -1;
 				int silver2X = -1;
@@ -133,36 +140,60 @@ public class Sampling
 				// NOTE: The left and right are swapped because of our camera position
 				if (gold1X != -1 && silver1X != -1 && silver2X != -1)
 				{
-					if (gold1X < silver1X && gold1X < silver2X)
-					{
-						result = Sampling.Position.LEFT;
-						telemetry.addData( "Current Position", "LEFT");
-					}
-					else if (gold1X > silver1X && gold1X > silver2X)
+					telemetry.addData("silver1 x", silver1X);
+					telemetry.addData("silver2 x" ,silver2X);
+
+					//int silverPosition = silver1X + silver2X;
+
+					if(silver1X < MIDPOINT_TWO && silver2X < MIDPOINT_TWO)
 					{
 						result = Sampling.Position.RIGHT;
 						telemetry.addData( "Current Position", "RIGHT");
 					}
-					else if((gold1X > silver1X && gold1X < silver2X) || (gold1X < silver1X && gold1X > silver2X))
+					else if((silver1X > MIDPOINT_TWO && silver2X < MIDPOINT_ONE) || (silver2X > MIDPOINT_TWO && silver1X < MIDPOINT_ONE))
 					{
 						result = Sampling.Position.CENTER;
 						telemetry.addData( "Current Position", "CENTER");
 					}
 					else
 					{
-						result = Sampling.Position.UNKNOWN;
-						telemetry.addData( "Current Position", "UNKNOWN");
+						result = Sampling.Position.LEFT;
+						telemetry.addData( "Current Position", "LEFT");
 					}
+
+//					if (gold1X < silver1X && gold1X < silver2X)
+//					{
+//						result = Sampling.Position.LEFT;
+//						telemetry.addData( "Current Position", "LEFT");
+//					}
+//					else if (gold1X > silver1X && gold1X > silver2X)
+//					{
+//						result = Sampling.Position.RIGHT;
+//						telemetry.addData( "Current Position", "RIGHT");
+//					}
+//					else if((gold1X > silver1X && gold1X < silver2X) || (gold1X < silver1X && gold1X > silver2X))
+//					{
+//						result = Sampling.Position.CENTER;
+//						telemetry.addData( "Current Position", "CENTER");
+//					}
+//					else
+//					{
+//						result = Sampling.Position.UNKNOWN;
+//						telemetry.addData( "Current Position", "UNKNOWN");
+//					}
 
 					// Store this position in the position buffer and advance the buffer index to the next entry.
 					posBuffer[ posBufferIndex ] = result;
 					posBufferIndex = ++posBufferIndex % POSITION_BUFFER_SIZE;
 
 					checkBuffer();
-
-					telemetry.update();
 				}
-			}
+				else
+				{
+					telemetry.addLine("Unknown");
+				}
+				telemetry.update();
+			//}
 		}
 	}
 
@@ -299,8 +330,8 @@ public class Sampling
 	private void DepoCollectLeft () throws InterruptedException
 	{
 		nav.samTurn(1, -37.5);
-		nav.drive(19, 0.7);
-		nav.drive(-19, 0.7);
+		nav.drive(19 + 6, 0.7);
+		nav.drive(-19 - 6, 0.7);
 		//turn towards wall
 		nav.samTurn(1, WALL_TURN_DEGREES + 37.5);
 	}

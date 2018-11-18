@@ -62,7 +62,12 @@ public class UltrasonicTest extends LinearOpMode
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive())
         {
-            //send the trigger pulse
+
+        }
+    }
+
+    /*
+                //send the trigger pulse
             robot.HCTrig.setMode(DigitalChannel.Mode.OUTPUT);
 
             //reset the timer to get echo
@@ -76,8 +81,10 @@ public class UltrasonicTest extends LinearOpMode
             telemetry.addData("Pulse width", pulseWidth.nanoseconds());
             telemetry.update();
             sleep(500);
-        }
-    }
+    */
+
+
+
 
     /*
                 //send the trigger pulse

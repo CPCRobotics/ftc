@@ -41,10 +41,10 @@ public class DepotSide extends LinearOpMode
 		//create the mineral detector
 		String vuforiaKey =  hardwareMap.appContext.getString(R.string.vuphoriaLicense);
 		int viewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-//		WebcamName camera = hardwareMap.get(WebcamName.class, "webcam");
+		WebcamName camera = hardwareMap.get(WebcamName.class, "webcam");
 
 		//create sampling object
-		Sampling sampling = new Sampling( nav, telemetry, vuforiaKey, viewId, null );
+		Sampling sampling = new Sampling( nav, telemetry, vuforiaKey, viewId, camera );
 
 		//start locating the position of the minerals
 		sampling.startRecognition();
@@ -83,6 +83,8 @@ public class DepotSide extends LinearOpMode
         nav.samTurn(1, 14);
 
 		Parking.ParkInCrater(nav);
+		//Lowering lift
+		robot.lowerLift(robot.lift, robot.liftLowerLimit);
 
 		// Spin here updating telemetry until OpMode terminates
 		while ( opModeIsActive() )
