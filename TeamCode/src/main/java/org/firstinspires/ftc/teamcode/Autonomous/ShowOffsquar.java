@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+
 
 import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.TileRunner;
@@ -50,21 +50,8 @@ public class ShowOffsquar extends LinearOpMode
         //sampling.startRecognition();
 
         // Pause here waiting for the Run button on the driver station to be pressed.
-//        while (!isStarted())
-//        {
-//            sampling.locate();
-//
-//            synchronized (this) {
-//                try {
-  /*                  this.wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            }
+        waitForStart();
 
-        }
-        */
 
 
         //stop locating minerals
