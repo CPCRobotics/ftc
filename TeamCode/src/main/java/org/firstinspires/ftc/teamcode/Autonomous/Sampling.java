@@ -311,8 +311,8 @@ public class Sampling
 
 	private void CollectCenter () throws InterruptedException
 	{
-		nav.drive(13, 0.7);
-		nav.drive(-13, 0.7);
+		nav.drive(14, 0.7);
+		nav.drive(-14, 0.7);
 		//turn towards wall
 		nav.samTurn(1, WALL_TURN_DEGREES);
 	}

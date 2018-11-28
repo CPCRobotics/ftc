@@ -34,11 +34,11 @@ public class prematch extends LinearOpMode
 		telemetry.addLine("Lift lowered");
 		telemetry.update();
 
-		robot.arm.setPower(-0.25);
-		sleep(2000);
-		robot.lift.setPower(0);
-		telemetry.addLine("Arm reset");
-		telemetry.update();
+//		robot.arm.setPower(-0.1);
+//		sleep(500);
+//		robot.lift.setPower(0);
+//		telemetry.addLine("Arm reset");
+//		telemetry.update();
 
 		telemetry.addLine("Robot ready");
 		telemetry.addLine("Go win driveteam!");

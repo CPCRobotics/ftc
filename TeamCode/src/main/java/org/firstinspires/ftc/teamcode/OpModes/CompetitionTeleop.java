@@ -171,6 +171,7 @@ public class CompetitionTeleop extends OpMode
 		if(gamepad2.left_bumper)
 		{
 			robot.dumper.setPosition(DUMPER_OPEN);
+			robot.intake.setPower(1);
 		}
 		else
 		{

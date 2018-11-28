@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
@@ -31,7 +32,7 @@ public class TileRunner {
 	public DcMotor lift = null;
 	public DcMotor arm = null;
 	public Servo dumper = null;
-	public CRServo intake = null;
+	public DcMotor intake = null;
 	public BNO055IMU imu = null;
 	public DigitalChannel liftUpperLimit = null;
 	public DigitalChannel liftLowerLimit = null;
@@ -56,7 +57,7 @@ public class TileRunner {
 		lift = GetDcMotor( "lift" );
 		arm = GetDcMotor("arm");
 		dumper = hardwareMap.get(Servo.class, "dumper");
-		intake = hardwareMap.get(CRServo.class, "intake");
+		intake = hardwareMap.get(DcMotor.class, "intake");
 		liftUpperLimit = hardwareMap.get(DigitalChannel.class, "lift_upper_limit");
 		liftLowerLimit = hardwareMap.get(DigitalChannel.class, "lift_lower_limit");
 
@@ -131,8 +132,8 @@ public class TileRunner {
 	public static void lowerLift(DcMotor motor, DigitalChannel LowerLimit)
 	{
 		//set motor power
-		motor.setPower(-0.25);
-
+		motor.setPower(-1);
+ 
 		while(OpModeKeeper.isActive() && !LowerLimit.getState())
 		{}
 
