@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
@@ -36,8 +35,7 @@ public class TileRunner {
 	public BNO055IMU imu = null;
 	public DigitalChannel liftUpperLimit = null;
 	public DigitalChannel liftLowerLimit = null;
-	public DigitalChannel HCEcho = null;
-	public DigitalChannel HCTrig = null;
+
 	/* local OpMode members. */
 	HardwareMap hardwareMap = null;
 
@@ -61,14 +59,10 @@ public class TileRunner {
 		intake = hardwareMap.get(CRServo.class, "intake");
 		liftUpperLimit = hardwareMap.get(DigitalChannel.class, "lift_upper_limit");
 		liftLowerLimit = hardwareMap.get(DigitalChannel.class, "lift_lower_limit");
-		//ultrasonic sensor digital channels
-		HCEcho = hardwareMap.get(DigitalChannel.class, "HCEcho");
-		HCTrig = hardwareMap.get(DigitalChannel.class, "HCTrig");
 
 		//tells certain motors to brake when power is zero
 		arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
 
 		// Make sure motors are initially stopped
 		leftDrive.setPower(0);
