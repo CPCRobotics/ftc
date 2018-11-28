@@ -32,7 +32,7 @@ public class TileRunner {
 	public DcMotor lift = null;
 	public DcMotor arm = null;
 	public Servo dumper = null;
-	public DcMotorSimple intake = null;
+	public CRServo intake = null;
 	public BNO055IMU imu = null;
 	public DigitalChannel liftUpperLimit = null;
 	public DigitalChannel liftLowerLimit = null;
@@ -58,7 +58,7 @@ public class TileRunner {
 		lift = GetDcMotor( "lift" );
 		arm = GetDcMotor("arm");
 		dumper = hardwareMap.get(Servo.class, "dumper");
-		intake = hardwareMap.get(DcMotorSimple.class, "intake");
+		intake = hardwareMap.get(CRServo.class, "intake");
 		liftUpperLimit = hardwareMap.get(DigitalChannel.class, "lift_upper_limit");
 		liftLowerLimit = hardwareMap.get(DigitalChannel.class, "lift_lower_limit");
 		//ultrasonic sensor digital channels

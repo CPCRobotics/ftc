@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Util.PIDController;
 @TeleOp( name = "Competition Teleop", group = "Competition" )
 public class CompetitionTeleop extends OpMode
 {
-	private final double ARM_POWER_LIMIT = 0.75;
+	private final double ARM_POWER_LIMIT = 1;
 	private final double ARM_MIN_CONTROL_POWER = 0.2;
 	private final double ARM_MACRO_SPEED = 0.5;
 	private final double REVERSE_DRIVE_SPEED = 0.5;
@@ -36,8 +36,8 @@ public class CompetitionTeleop extends OpMode
 	private final double ARM_MAX = 5000;
 	private final double ARM_CORRECT_POWER = 0.2;
 
-	private final double DUMPER_OPEN = 1;
-	private final double DUMPER_CLOSED = 0;
+	private final double DUMPER_OPEN = 0;
+	private final double DUMPER_CLOSED = 1;
 
 	private int armBrake;
 	private ElapsedTime tickTimer= new ElapsedTime();

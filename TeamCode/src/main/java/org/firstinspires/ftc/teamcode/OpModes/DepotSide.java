@@ -38,6 +38,9 @@ public class DepotSide extends LinearOpMode
 		telemetry.addLine("Initializing NavUtils...");
 		NavUtils nav = new NavUtils( robot.leftDrive, robot.rightDrive, imu, 4.0, telemetry );
 
+		//run the dumper servo to the 3/4 position
+		robot.dumper.setPosition(0.75);
+
 		//create the mineral detector
 		String vuforiaKey =  hardwareMap.appContext.getString(R.string.vuphoriaLicense);
 		int viewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -79,10 +82,14 @@ public class DepotSide extends LinearOpMode
 
 		Claiming.DeployMarker( nav, robot.arm );
 
+		//run the dumper servo to closed position
+		robot.dumper.setPosition(1);
+
 		//turn towards wall so we don't hit opponents minerals
         nav.samTurn(1, 14);
 
 		Parking.ParkInCrater(nav);
+
 		//Lowering lift
 		robot.lowerLift(robot.lift, robot.liftLowerLimit);
 
