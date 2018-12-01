@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Util.PIDController;
 public class CompetitionTeleop extends OpMode
 {
 	private final double ARM_POWER_LIMIT = 1;
-	private final double ARM_MIN_CONTROL_POWER = 0.2;
+	private final double ARM_MIN_CONTROL_POWER = 0.4;
 	private final double ARM_MACRO_SPEED = 0.5;
 	private final double REVERSE_DRIVE_SPEED = 0.5;
 	private final int ARM_DRIVE_POSITION = 100;
@@ -168,7 +168,7 @@ public class CompetitionTeleop extends OpMode
 		}
 
 		//this opens the mineral dumper if the left bumper is pressed
-		if(gamepad2.left_bumper)
+		if(gamepad2.right_trigger > 0.5)
 		{
 			robot.dumper.setPosition(DUMPER_OPEN);
 			robot.intake.setPower(1);
