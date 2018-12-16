@@ -15,6 +15,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 
 
+
 public class Sampling
 {
 	private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
@@ -301,7 +302,8 @@ public class Sampling
 
 	private void CollectLeft () throws InterruptedException
 	{
-		nav.samTurn(1, -37.5);
+		//was 37.5
+		nav.samTurn(1, -39.5);
 		nav.drive(19, 0.7);
 		nav.drive(-19, 0.7);
 		//turn towards wall
@@ -320,7 +322,8 @@ public class Sampling
 
 	private void CollectRight () throws InterruptedException
 	{
-		nav.samTurn(1, 37.5);
+		//was 37.5
+		nav.samTurn(1, 39.5);
 		nav.drive(19, 0.7);
 		nav.drive(-19, 0.7);
 		//turn towards wall

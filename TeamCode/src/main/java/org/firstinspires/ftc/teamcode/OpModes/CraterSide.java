@@ -90,6 +90,10 @@ public class CraterSide extends LinearOpMode
         //run the dumper servo to closed position
         robot.dumper.setPosition(1);
 
+        //test
+        //This turns the robot towards the wall to avoid hitting the minteral
+        nav.samTurn(0.5, -2);
+
         //Parking in the crator
         Parking.ParkInCrater(nav);
 
