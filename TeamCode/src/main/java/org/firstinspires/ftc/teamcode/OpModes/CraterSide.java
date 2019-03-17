@@ -41,8 +41,8 @@ public class CraterSide extends LinearOpMode
 		telemetry.addLine("Initializing NavUtils...");
         NavUtils nav = new NavUtils( robot.leftDrive, robot.rightDrive, imu, 4.0, telemetry );
 
-        //run the dumper servo to the 3/4 position
-        robot.dumper.setPosition(0.75);
+        // Open duper trapdoor so it can support the team marker.
+        robot.dumper.setPosition(0);
 
         //create the mineral detector
         String vuforiaKey =  hardwareMap.appContext.getString(R.string.vuphoriaLicense);
